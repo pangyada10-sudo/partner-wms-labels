@@ -16,33 +16,32 @@
       --danger:#B91C1C;--dan-bg:#FEF2F2;--warn:#B45309;--warn-bg:#FFFBEB;
       --r:8px;--rl:12px;
       --shadow:0 4px 20px rgba(13,43,85,.09);
-      --shadow-lg:0 8px 36px rgba(13,43,85,.16)
     }
     body{font-family:'Kanit',sans-serif;background:var(--surface);color:var(--text);min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased}
-    
+
     /* HEADER */
     .app-header{background:linear-gradient(135deg,#071C3B 0%,var(--navy) 60%,var(--navy2) 100%);color:#fff;padding:0 32px;height:58px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 16px rgba(0,0,0,.25);position:sticky;top:0;z-index:50}
     .app-header .logo-text{font-size:18px;font-weight:700;letter-spacing:.3px}
     .app-header .logo-text span{color:var(--accent);font-weight:400}
     .version-badge{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.65);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px}
     .header-right{margin-left:auto;display:flex;align-items:center;gap:10px}
-    .save-status{font-size:12px;padding:4px 12px;border-radius:20px;display:none;font-weight:500}
+    .save-status{font-size:12px;padding:4px 14px;border-radius:20px;display:none;font-weight:600;transition:all .3s}
     .save-status.saving{display:inline;background:var(--warn-bg);color:var(--warn)}
     .save-status.saved{display:inline;background:var(--suc-bg);color:var(--success)}
     .save-status.error{display:inline;background:var(--dan-bg);color:var(--danger)}
-    
+
     /* TABS */
     .tab-bar{background:var(--card);border-bottom:2px solid var(--border);display:flex;padding:0 32px;gap:6px}
     .tab-btn{padding:14px 22px;border:none;background:none;font-family:'Kanit';font-size:14px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s}
     .tab-btn:hover{color:var(--navy)}
     .tab-btn.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
-    
+
     /* LAYOUT */
     .app-body{display:none;padding:28px 32px;max-width:1400px;margin:0 auto;animation:fadeUp .3s ease}
     .app-body.active{display:grid;grid-template-columns:410px 1fr;gap:28px}
     @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
     @media(max-width:1000px){.app-body.active{grid-template-columns:1fr;padding:16px}}
-    
+
     /* FORM PANEL */
     .form-panel{background:var(--card);border-radius:var(--rl);box-shadow:var(--shadow);padding:24px;border:1px solid var(--border)}
     .panel-title{font-size:15px;font-weight:600;color:var(--navy);margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid var(--sky);display:flex;align-items:center;gap:8px}
@@ -52,19 +51,25 @@
     .form-group input:focus,.form-group select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,168,.1);background:#fff}
     .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .fg-extra{display:none;background:var(--sky);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:13px}
-    
-    /* Barcode preview */
+
+    /* Barcode Preview Box */
     .bc-preview-box{background:#f0f4ff;border:1.5px dashed #bfdbfe;border-radius:var(--r);padding:11px 14px;margin-bottom:14px;text-align:center}
     .bc-preview-box .lbl{font-size:10px;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
     #bc-string-preview{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--navy);font-weight:500;word-break:break-all;line-height:1.6}
-    
+
+    /* Sheet Config Box */
+    .sheet-config{background:var(--suc-bg);border:1.5px solid #a7f3d0;border-radius:var(--r);padding:12px 14px;margin-bottom:14px}
+    .sheet-config .sc-title{font-size:11px;font-weight:600;color:var(--success);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+    .sheet-config input{width:100%;padding:7px 10px;font-size:12px;font-family:'JetBrains Mono',monospace;border:1px solid #6ee7b7;border-radius:6px;background:#fff;color:var(--text)}
+    .sheet-config .hint{font-size:10px;color:#065f46;margin-top:4px}
+
     /* Buttons */
     .btn-print{width:100%;padding:13px;color:#fff;border:none;border-radius:var(--r);font-family:'Kanit';font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;letter-spacing:.02em}
     .btn-print:hover{filter:brightness(1.08);transform:translateY(-1px)}
     .btn-print:active{transform:none}
     .btn-print.blue{background:var(--blue);box-shadow:0 4px 12px rgba(37,99,168,.3)}
     .btn-print.navy{background:var(--navy)}
-    
+
     /* PREVIEW */
     .preview-panel{display:flex;flex-direction:column;gap:20px}
     .preview-header{display:flex;align-items:center;justify-content:space-between}
@@ -72,69 +77,51 @@
     .live-dot{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--success);font-weight:500}
     .live-dot::before{content:'';width:7px;height:7px;background:var(--success);border-radius:50%;animation:pulse 2s infinite}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-    
-    /* LABEL CARD - ขยายให้กว้างขึ้น */
-    .label-wrapper{display:flex;justify-content:flex-start; overflow-x: auto; padding-bottom: 20px;}
-    .label-card{background:#fff;border:2px solid #1e293b;border-radius:10px;width:600px; padding:20px 24px;box-shadow:0 8px 30px rgba(0,0,0,.15);font-family:'Kanit';flex-shrink:0}
-    
+
+    /* LABEL CARD */
+    .label-wrapper{display:flex;justify-content:flex-start;overflow-x:auto;padding-bottom:20px}
+    .label-card{background:#fff;border:2px solid #1e293b;border-radius:10px;width:560px;padding:20px 24px;box-shadow:0 8px 30px rgba(0,0,0,.15);font-family:'Kanit';flex-shrink:0}
     .lbl-head{display:flex;align-items:flex-start;justify-content:space-between;padding-bottom:12px;border-bottom:2.5px solid #1e293b;margin-bottom:14px}
     .lbl-company{font-size:16px;font-weight:700;color:#0f172a;line-height:1.25;word-break:break-word}
     .lbl-badge{background:#0f172a;color:#fff;font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;white-space:nowrap;margin-left:10px;flex-shrink:0}
     .lbl-badge.fg{background:var(--success)}
-    .lbl-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;margin-bottom:14px}
-    .lbl-field .lf-key{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-    .lbl-field .lf-val{font-size:14px;font-weight:600;color:#0f172a;word-break:break-all;line-height:1.3}
+    .lbl-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;margin-bottom:14px}
+    .lbl-field .lf-key{font-size:9px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+    .lbl-field .lf-val{font-size:13px;font-weight:600;color:#0f172a;word-break:break-all;line-height:1.3}
     .lbl-field.full{grid-column:1/-1}
-    .lbl-field.full .lf-val{font-size:15px}
+    .lbl-field.full .lf-val{font-size:14px}
     .lbl-qty-box{display:flex;align-items:baseline;gap:5px}
-    .lbl-qty-big{font-size:32px;font-weight:700;color:var(--navy);line-height:1}
-    .lbl-qty-unit{font-size:14px;font-weight:500;color:var(--muted)}
-    hr.lbl-divider{border:none;border-top:1px dashed #94a3b8;margin:12px 0}
-    
-    /* 🔑 แก้ไขการแสดงผลบาร์โค้ด ไม่ให้ขาด และให้อยู่ในกรอบเสมอ */
-    .lbl-bc-section{text-align:center;background:#fff;padding:10px;border-radius:6px;border:1px solid #e2e8f0;}
-    .lbl-bc-section svg{
-      max-width: 100% !important; /* ป้องกันไม่ให้ล้นกล่องจนขาด */
-      height: 60px !important;
-    }
-    .lbl-bc-label{font-size:10px;color:var(--muted);margin-top:6px;font-family:'JetBrains Mono';word-break:break-all}
-    
-    .lbl-footer{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid #e2e8f0;font-size:11px;color:var(--muted)}
-    .qr-placeholder{width:45px;height:45px;background:#f1f5f9;border:1px dashed var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--light);text-align:center}
-    
+    .lbl-qty-big{font-size:30px;font-weight:700;color:var(--navy);line-height:1}
+    .lbl-qty-unit{font-size:13px;font-weight:500;color:var(--muted)}
+    hr.lbl-divider{border:none;border-top:1px dashed #94a3b8;margin:10px 0}
+
+    /* ════ BARCODE SECTION — key fix ════ */
+    .lbl-bc-section{text-align:center;background:#fff;padding:10px 6px;border-radius:6px;border:1px solid #e2e8f0;overflow:hidden}
+    .lbl-bc-section svg{display:block;margin:0 auto;max-width:100%;height:auto !important}
+    .lbl-bc-label{font-size:10px;color:var(--muted);margin-top:5px;font-family:'JetBrains Mono';word-break:break-all;letter-spacing:.03em}
+
+    .lbl-footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:8px;border-top:1px solid #e2e8f0;font-size:10px;color:var(--muted)}
+
     /* HISTORY TAB */
-    #tab-history{display:none;padding:28px 32px;max-width:1240px;margin:0 auto;animation:fadeUp .3s ease}
+    #tab-history{display:none;padding:28px 32px;max-width:1300px;margin:0 auto;animation:fadeUp .3s ease}
     #tab-history.active{display:block}
-    table{width:100%;border-collapse:collapse;font-size:12px} table th{background:var(--navy);color:#fff;text-align:left;padding:10px 12px;font-weight:500} table td{padding:9px 12px;border-bottom:1px solid var(--sky)}
-    .tbl-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);overflow-x:auto;}
-    
-    /* 🖨️ PRINT MEDIA */
+    .tbl-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);overflow-x:auto}
+    table{width:100%;border-collapse:collapse;font-size:12px}
+    table th{background:var(--navy);color:#fff;text-align:left;padding:10px 12px;font-weight:500;white-space:nowrap}
+    table td{padding:9px 12px;border-bottom:1px solid var(--sky);white-space:nowrap}
+    table tr:hover td{background:#f8faff}
+
+    /* PRINT */
     #print-area{display:none}
     @media print{
       body{background:#fff}
-      .app-header,.tab-bar,.form-panel,.preview-header,#tab-history,#tab-gen>.preview-panel{display:none!important}
+      .app-header,.tab-bar,.form-panel,.preview-header,.live-dot,#tab-history,#tab-gen>.preview-panel{display:none!important}
       #tab-gen.active{display:block;padding:0}
-      #print-area{display:flex;flex-direction:column;gap:20px;align-items:center}
-      
-      /* ปรับขนาดให้เต็มหน้ากระดาษมากขึ้น */
-      .label-card{
-        border:1.5px solid #000;
-        box-shadow:none;
-        width: 90%; 
-        max-width: 750px; 
-        padding:24px 28px;
-        break-inside:avoid;
-        margin:0 auto;
-      }
-      .lbl-qty-big{font-size:36px}
-      .lbl-field .lf-val{font-size:15px}
-      .lbl-company{font-size:18px}
-      
-      /* ป้องกันบาร์โค้ดขาดตอนสั่งพิมพ์ */
-      .lbl-bc-section svg{
-        max-width: 100% !important;
-        height: 65px !important;
-      }
+      #print-area{display:flex;flex-direction:column;gap:16px;align-items:center}
+      .label-card{border:1.5px solid #000;box-shadow:none;width:100%;max-width:720px;padding:20px 24px;break-inside:avoid;margin:0 auto}
+      .lbl-bc-section svg{max-width:100%;height:auto !important}
+      .lbl-qty-big{font-size:34px}
+      .lbl-field .lf-val{font-size:13px}
     }
   </style>
 </head>
@@ -142,7 +129,7 @@
 
 <div class="app-header">
   <div class="logo-text">WFP <span>Label System</span></div>
-  <div class="version-badge">v3.0 WMS</div>
+  <div class="version-badge">v4.0 WMS</div>
   <div class="header-right"><div class="save-status" id="save-status"></div></div>
 </div>
 
@@ -151,12 +138,16 @@
   <button class="tab-btn" onclick="switchTab('history',this);loadHistory()">📋 ประวัติ Label</button>
 </div>
 
-<!-- TAB: GENERATOR -->
+<!-- ════ TAB: GENERATOR ════ -->
 <div id="tab-gen" class="app-body active">
   <div class="form-panel">
     <div class="panel-title">🛠️ กรอกข้อมูล Label</div>
 
-    <div class="form-group"><label>ชื่อองค์กร / บริษัท</label><input type="text" id="in-company" value="Wing Fung Packaging Co., Ltd." oninput="liveUpdate()"></div>
+    <div class="form-group">
+      <label>ชื่อองค์กร / บริษัท</label>
+      <input type="text" id="in-company" value="Wing Fung Packaging Co., Ltd." oninput="liveUpdate()">
+    </div>
+
     <div class="form-group">
       <label>ประเภท Label</label>
       <select id="in-type" onchange="updateTypeUI()">
@@ -169,6 +160,7 @@
       <div class="form-group"><label>Part / Product No.</label><input type="text" id="in-part" placeholder="เช่น AAP050C400" oninput="liveUpdate()"></div>
       <div class="form-group"><label>Lot No.</label><input type="text" id="in-lot" placeholder="เช่น L04-2026" oninput="liveUpdate()"></div>
     </div>
+
     <div class="form-group"><label>ชื่อสินค้า / วัสดุ</label><input type="text" id="in-name" placeholder="เช่น A-PET CLEAR 0.50mm×400mm" oninput="liveUpdate()"></div>
 
     <div class="form-row">
@@ -176,7 +168,11 @@
       <div class="form-group">
         <label>หน่วย (Unit)</label>
         <select id="in-unit" onchange="liveUpdate()">
-          <option value="KGS.">KGS.</option><option value="ม้วน">ม้วน</option><option value="ชิ้น">ชิ้น</option><option value="Pcs">Pcs</option><option value="Rolls">Rolls</option>
+          <option value="KGS.">KGS.</option>
+          <option value="ชิ้น">ชิ้น</option>
+          <option value="Pcs">Pcs</option>
+          <option value="ม้วน">ม้วน</option>
+          <option value="Rolls">Rolls</option>
         </select>
       </div>
     </div>
@@ -187,23 +183,37 @@
     </div>
 
     <div class="form-row">
-      <div class="form-group"><label>Ref No. (อ้างอิง)</label><input type="text" id="in-ref" placeholder="RC-XXXX" oninput="liveUpdate()"></div>
+      <div class="form-group"><label>Ref No. (R/C)</label><input type="text" id="in-ref" placeholder="RC-XXXX" oninput="liveUpdate()"></div>
       <div class="form-group"><label>PO No.</label><input type="text" id="in-po" placeholder="PO-XXXX" oninput="liveUpdate()"></div>
     </div>
 
+    <div class="form-group"><label>M/C</label><input type="text" id="in-mc" placeholder="M/C-01" oninput="liveUpdate()"></div>
+
+    <!-- FG Extra Fields -->
     <div class="fg-extra" id="fg-extra">
-      <div class="form-row" style="margin-bottom:0">
-        <div class="form-group" style="margin-bottom:0"><label>Pack Qty</label><input type="text" id="in-pack" placeholder="50ชิ้น/แพ็ค" oninput="liveUpdate()"></div>
-        <div class="form-group" style="margin-bottom:0"><label>M/C</label><input type="text" id="in-mc" placeholder="M/C-01" oninput="liveUpdate()"></div>
-      </div>
+      <div class="form-group" style="margin-bottom:0"><label>Pack Qty</label><input type="text" id="in-pack" placeholder="50ชิ้น/แพ็ค" oninput="liveUpdate()"></div>
     </div>
 
     <div class="form-group">
       <label>รูปแบบการพิมพ์</label>
       <select id="in-print-mode" onchange="updatePrintBtnUI()">
-        <option value="split">✂️ แยกตามม้วน (Split)</option>
-        <option value="single">📦 ใบรวม (Single Master)</option>
+        <option value="split">✂️ แยกตามม้วน (Split) — พิมพ์หลายใบ แบ่ง Qty</option>
+        <option value="single">📦 ใบรวม (Single Master) — พิมพ์ 1 ใบ</option>
       </select>
+    </div>
+
+    <!-- Google Sheet Config -->
+    <div class="sheet-config">
+      <div class="sc-title">📊 บันทึกลง Google Sheet (Sheets API)</div>
+      <input type="text" id="in-sheet-id" placeholder="วาง Google Sheet ID ที่นี่ เช่น 1J1iMGw..." value="1J1iMGwCapKyWiymP3zm0jrEUNWfxMdwCdxN-SbsdziQ">
+      <div class="hint">* ต้องตั้งค่า Google Apps Script Web App ก่อน — ดูคำแนะนำในแท็บประวัติ</div>
+    </div>
+
+    <!-- Barcode Preview -->
+    <div class="bc-preview-box">
+      <div class="lbl">Barcode String (ที่จะ encode)</div>
+      <div id="bc-string-preview">—</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:4px" id="bc-len-hint"></div>
     </div>
 
     <button id="btn-print-main" class="btn-print blue" onclick="doMultiPrint()">
@@ -211,10 +221,10 @@
     </button>
   </div>
 
-  <!-- PREVIEW -->
+  <!-- PREVIEW PANEL -->
   <div class="preview-panel">
     <div class="preview-header">
-      <div class="preview-title">👁️ ตัวอย่าง Label (ขนาดขยายใหญ่)</div>
+      <div class="preview-title">👁️ ตัวอย่าง Label</div>
       <div class="live-dot">Live Preview</div>
     </div>
     <div class="label-wrapper">
@@ -233,14 +243,20 @@
           </div>
           <div class="lbl-field"><div class="lf-key">วันที่บันทึก</div><div class="lf-val" id="lbl-date">—</div></div>
           <div class="lbl-field"><div class="lf-key">Supplier</div><div class="lf-val" id="lbl-supplier">—</div></div>
-          <div class="lbl-field"><div class="lf-key">จำนวน Roll</div><div class="lf-val" id="lbl-rolls">1</div></div>
-          <div class="lbl-field"><div class="lf-key">Ref No.</div><div class="lf-val" id="lbl-ref">—</div></div>
+          <div class="lbl-field"><div class="lf-key">Roll / Sub-Unit</div><div class="lf-val" id="lbl-rolls">1</div></div>
+          <div class="lbl-field"><div class="lf-key">Ref No. (R/C)</div><div class="lf-val" id="lbl-ref">—</div></div>
           <div class="lbl-field"><div class="lf-key">PO No.</div><div class="lf-val" id="lbl-po">—</div></div>
+          <div class="lbl-field"><div class="lf-key">M/C</div><div class="lf-val" id="lbl-mc">—</div></div>
+          <div class="lbl-field" id="lbl-pack-wrap" style="display:none"><div class="lf-key">Pack Qty</div><div class="lf-val" id="lbl-pack">—</div></div>
         </div>
         <hr class="lbl-divider">
-        <div class="lbl-bc-section"><svg id="barcode-main"></svg><div class="lbl-bc-label" id="lbl-bc-text">—</div></div>
+        <div class="lbl-bc-section">
+          <svg id="barcode-main"></svg>
+          <div class="lbl-bc-label" id="lbl-bc-text">—</div>
+        </div>
         <div class="lbl-footer">
-          <div><div style="font-weight:600;color:#334155;font-size:12px">WFP-WMS v3.0</div></div>
+          <div style="font-weight:600;color:#334155;font-size:11px">WFP-WMS v4.0</div>
+          <div style="font-size:10px;color:var(--light)" id="lbl-imt-no">—</div>
         </div>
       </div>
     </div>
@@ -248,158 +264,449 @@
   <div id="print-area"></div>
 </div>
 
-<!-- TAB: HISTORY -->
+<!-- ════ TAB: HISTORY ════ -->
 <div id="tab-history">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-    <div style="font-size:18px;font-weight:600;color:var(--navy)">ประวัติการสร้าง Label</div>
-    <button class="btn-sm" style="background:var(--danger);color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer" onclick="clearHistory()">🗑 ล้างประวัติ</button>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+    <div style="font-size:18px;font-weight:600;color:var(--navy)">📋 ประวัติการสร้าง Label</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button style="background:var(--blue);color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-family:'Kanit';font-size:13px" onclick="exportCSV()">⬇️ Export CSV</button>
+      <button style="background:var(--danger);color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-family:'Kanit';font-size:13px" onclick="clearHistory()">🗑 ล้างประวัติ</button>
+    </div>
   </div>
+
+  <!-- Apps Script Setup Guide -->
+  <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:var(--rl);padding:20px;margin-bottom:20px">
+    <div style="font-size:14px;font-weight:600;color:#92400e;margin-bottom:12px">📌 วิธีตั้งค่า Google Apps Script เพื่อบันทึกข้อมูลลง Sheet</div>
+    <div style="font-size:12px;color:#78350f;line-height:1.7">
+      <strong>ขั้นตอน:</strong><br>
+      1. เปิด Google Sheet → เมนู <strong>Extensions → Apps Script</strong><br>
+      2. วางโค้ดด้านล่าง → บันทึก → <strong>Deploy → New Deployment → Web App</strong><br>
+      3. ตั้ง Execute as: <strong>Me</strong> / Who has access: <strong>Anyone</strong><br>
+      4. Copy URL ที่ได้ไปวางใน input "Apps Script URL" ด้านล่าง<br><br>
+      <strong>โค้ด Apps Script (วางทั้งหมด):</strong>
+    </div>
+    <pre style="background:#1e293b;color:#e2e8f0;padding:14px;border-radius:8px;font-size:11px;margin-top:10px;overflow-x:auto;line-height:1.5">function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var ss   = SpreadsheetApp.openById(data.sheetId);
+    var type = data.type; // "RM" or "FG"
+
+    if (type === "RM") {
+      var ws = ss.getSheetByName("RawMaterial_Log");
+      var lastRow = ws.getLastRow();
+      var nextNum = lastRow; // row count = IMT number
+      var imtNo   = "IMT-" + String(nextNum).padStart(5,"0");
+      var now     = new Date();
+      ws.appendRow([
+        imtNo,                        // IMT No.
+        data.date,                    // วันที่
+        data.shift || "Day",          // Shift
+        data.location || "Store",     // Form Location
+        data.partNo,                  // Part No.
+        data.materialName,            // วัสดุ
+        data.size || "",              // ขนาด
+        data.rollNo,                  // Roll No.
+        data.lot,                     // Lot
+        parseFloat(data.qty),         // จำนวน
+        data.unit,                    // หน่วย
+        data.mc || "",                // M/C
+        data.refNo || "",             // Ref No. R/C
+        data.poNo || "",              // PO No.
+        data.supplier || "",          // Invoice Supplier
+        data.remark || "",            // หมายเหตุ
+        data.employeeName || "",      // ชื่อพนักงาน
+        data.employeeId || "",        // E/N
+        now                           // บันทึกเมื่อ
+      ]);
+      return ContentService.createTextOutput(JSON.stringify({
+        ok: true, imtNo: imtNo
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    if (type === "FG") {
+      var ws = ss.getSheetByName("FG_Log");
+      var lastRow = ws.getLastRow();
+      var nextNum = lastRow;
+      var fgNo    = "FG-" + String(nextNum).padStart(5,"0");
+      var now     = new Date();
+      ws.appendRow([
+        fgNo,                         // FG No.
+        data.date,                    // วันที่
+        data.partNo,                  // รหัสสินค้า
+        data.materialName,            // ชื่อสินค้า
+        parseFloat(data.qty),         // จำนวน
+        data.unit,                    // หน่วย
+        data.lot,                     // Lot
+        data.mc || "",                // M/C
+        data.poNo || "",              // PO Ref
+        data.shift || "Day",          // Shift
+        data.employeeName || "",      // ชื่อพนักงาน
+        data.employeeId || "",        // E/N
+        now                           // บันทึกเมื่อ
+      ]);
+      return ContentService.createTextOutput(JSON.stringify({
+        ok: true, fgNo: fgNo
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({ok:false, msg:"Unknown type"}))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({ok:false, msg:err.toString()}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}</pre>
+    <div style="margin-top:12px">
+      <label style="font-size:11px;font-weight:600;color:#92400e;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Apps Script Web App URL</label>
+      <input type="text" id="in-script-url" placeholder="https://script.google.com/macros/s/XXXXXXXX/exec"
+        style="width:100%;padding:9px 12px;font-size:12px;font-family:'JetBrains Mono',monospace;border:1px solid #fcd34d;border-radius:6px;background:#fff"
+        oninput="localStorage.setItem('wfp_script_url',this.value)">
+    </div>
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+      <label style="font-size:11px;font-weight:600;color:#92400e;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px;width:100%">ชื่อพนักงาน / E/N (สำหรับบันทึกลง Sheet)</label>
+      <input type="text" id="in-emp-name" placeholder="ชื่อ-นามสกุล" style="flex:1;padding:8px 12px;font-size:13px;font-family:'Kanit';border:1px solid #fcd34d;border-radius:6px;background:#fff" oninput="localStorage.setItem('wfp_emp_name',this.value)">
+      <input type="text" id="in-emp-id" placeholder="E/N (WFP001)" style="width:120px;padding:8px 12px;font-size:13px;font-family:'Kanit';border:1px solid #fcd34d;border-radius:6px;background:#fff" oninput="localStorage.setItem('wfp_emp_id',this.value)">
+    </div>
+  </div>
+
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>วันที่</th><th>ประเภท</th><th>Part No.</th><th>Lot</th><th>Qty</th><th>Unit</th><th>Rolls</th><th>Barcode String</th></tr></thead>
-      <tbody id="hist-tbody"><tr><td colspan="8" style="text-align:center;padding:24px;color:var(--light)">ไม่มีประวัติ</td></tr></tbody>
+      <thead>
+        <tr>
+          <th>Doc No.</th><th>วันที่</th><th>ประเภท</th><th>Part No.</th>
+          <th>Lot</th><th>Qty</th><th>Unit</th><th>Roll</th>
+          <th>Ref No.</th><th>PO No.</th><th>สถานะ Sheet</th><th>Barcode</th>
+        </tr>
+      </thead>
+      <tbody id="hist-tbody">
+        <tr><td colspan="12" style="text-align:center;padding:24px;color:var(--light)">ยังไม่มีประวัติ</td></tr>
+      </tbody>
     </table>
   </div>
 </div>
 
 <script>
-  function switchTab(tabId, btn) {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    ['gen','history'].forEach(id => {
-      const el = document.getElementById('tab-' + id);
-      if (el) el.classList.remove('active');
+// ══════════════════════════════════════════════
+//  CONSTANTS & STATE
+// ══════════════════════════════════════════════
+
+// ═══ KEY FIX: โครงสร้าง Barcode ให้ scan ติด ═══
+//
+// ปัญหาเดิม: ใช้ | (pipe) คั่น + width 1.1
+//   → string ยาวมาก + bars ชิดกัน → scanner อ่านไม่ออก
+//
+// แก้ไขแล้ว:
+//   1. ใช้ format เดิมที่ scan ติด: TYPE-PARTNO-LOT-QTY-UNIT
+//      ตัวอย่าง: RM-AAP050C400-L04-2026-R1-9.477-KGS
+//      → สั้น กระชับ ไม่มี | ไม่มีอักขระพิเศษ
+//   2. width: 2.0 (เหมาะกับ CODE128 บน paper 80mm+)
+//   3. height: 70 (สูงขึ้นให้ scanner ตรวจจับง่าย)
+//
+// วิธีอ่านเมื่อ scan: split("-") แล้วแยก field
+// ═══════════════════════════════════════════════
+
+function buildBarcodeString(type, part, lot, qty, unit) {
+  // ═══ FORMAT: TYPE-PART-LOT-QTY-UNIT ═══
+  // ใช้ dash (-) แทน pipe (|)
+  // ลบ space และอักขระที่ scanner บางรุ่นอ่านไม่ออก
+  var clean = function(s){ return String(s||'').trim().replace(/\s+/g,'-').replace(/[^\w.\-]/g,''); };
+  var t   = clean(type);
+  var p   = clean(part);
+  var l   = clean(lot);
+  var q   = String(parseFloat(qty)||0);
+  var u   = clean(unit).replace(/\./g,''); // ลบ . ออกจาก KGS.
+  return [t,p,l,q,u].join('-');
+}
+
+// barcode preview เก็บ full data string แยกต่างหาก (ใช้แสดงบน label + บันทึก Sheet เท่านั้น ไม่ encode ลงบาร์โค้ด)
+function buildFullDataString(type, part, lot, qty, unit, rolls, ref, po, mc) {
+  return [part,lot,qty,unit,rolls,ref,po,mc].filter(Boolean).join('|');
+}
+
+var TODAY = new Date();
+
+// ══════════════════════════════════════════════
+//  TAB / UI
+// ══════════════════════════════════════════════
+function switchTab(tabId, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  ['gen','history'].forEach(id=>{
+    var el=document.getElementById('tab-'+id);
+    if(el) el.classList.remove('active');
+  });
+  document.getElementById('tab-'+tabId).classList.add('active');
+}
+
+function updateTypeUI() {
+  var isFG = v('in-type')==='FG';
+  document.getElementById('fg-extra').style.display = isFG ? 'block' : 'none';
+  document.getElementById('lbl-pack-wrap').style.display = isFG ? '' : 'none';
+  document.getElementById('lbl-type-badge').textContent = isFG ? 'QC PASS · FG' : 'QC PASS · RM';
+  document.getElementById('lbl-type-badge').className   = 'lbl-badge'+(isFG?' fg':'');
+  liveUpdate();
+}
+
+function updatePrintBtnUI() {
+  var mode = v('in-print-mode');
+  document.getElementById('print-text').textContent = mode==='split' ? 'พิมพ์ Label แยกตามม้วน + บันทึก Sheet' : 'พิมพ์ Label ใบรวม + บันทึก Sheet';
+  document.getElementById('print-icon').textContent = mode==='split' ? '✂️' : '📦';
+  document.getElementById('btn-print-main').className = 'btn-print '+(mode==='split'?'blue':'navy');
+}
+
+// ══════════════════════════════════════════════
+//  LIVE UPDATE
+// ══════════════════════════════════════════════
+function liveUpdate() {
+  var type=v('in-type'), part=v('in-part'), lot=v('in-lot'), qty=v('in-qty');
+  var unit=v('in-unit'), rolls=v('in-rolls')||'1', name=v('in-name');
+  var supplier=v('in-supplier'), ref=v('in-ref'), po=v('in-po'), mc=v('in-mc');
+  var pack=v('in-pack'), company=v('in-company');
+
+  // ═══ สร้าง barcode string (format ที่ scan ติด) ═══
+  var bcStr  = buildBarcodeString(type, part, lot, qty, unit);
+  var full   = buildFullDataString(type, part, lot, qty, unit, rolls, ref, po, mc);
+
+  // อัปเดต UI fields
+  s('lbl-company-display', company||'Company Name');
+  s('lbl-part',     part||'—');   s('lbl-lot',  lot||'—');
+  s('lbl-qty',      qty||'0');    s('lbl-unit', unit);
+  s('lbl-name',     name||'—');   s('lbl-rolls',rolls);
+  s('lbl-supplier', supplier||'—');s('lbl-ref', ref||'—');
+  s('lbl-po',       po||'—');     s('lbl-mc',  mc||'—');
+  s('lbl-pack',     pack||'—');   s('lbl-bc-text', bcStr);
+
+  // Preview box: แสดง barcode string + ความยาว
+  var hi = bcStr.replace(/-/g,'<span style="color:#ef4444;font-weight:700">-</span>');
+  document.getElementById('bc-string-preview').innerHTML = hi || '—';
+  document.getElementById('bc-len-hint').textContent = bcStr ? '(' + bcStr.length + ' ตัวอักษร — format: TYPE-PART-LOT-QTY-UNIT)' : '';
+
+  // render barcode
+  renderBarcode('#barcode-main', bcStr);
+}
+
+function renderBarcode(selector, str) {
+  if(!str){ document.querySelector(selector).innerHTML=''; return; }
+  try {
+    JsBarcode(selector, str, {
+      format      : 'CODE128',
+      lineColor   : '#0f172a',
+      // ═══ KEY FIX: width 2.0 + height 70 ═══
+      // width ต่ำกว่า 1.8 บน string ยาว → bars ชิดกันเกินไป → scan ไม่ติด
+      // width 2.0 คือค่า default ที่ JsBarcode แนะนำ
+      width       : 2.0,
+      height      : 70,
+      displayValue: false,
+      margin      : 10,
+      marginLeft  : 10,
+      marginRight : 10,
     });
-    document.getElementById('tab-' + tabId).classList.add('active');
+  } catch(e) {
+    document.querySelector(selector).innerHTML='';
   }
+}
 
-  function updateTypeUI() {
-    const isFG = document.getElementById('in-type').value === 'FG';
-    document.getElementById('lbl-type-badge').textContent   = isFG ? 'QC PASS · FG' : 'QC PASS · RM';
-    document.getElementById('lbl-type-badge').className     = 'lbl-badge' + (isFG ? ' fg' : '');
-    liveUpdate();
-  }
+// ══════════════════════════════════════════════
+//  PRINT + SAVE TO SHEET
+// ══════════════════════════════════════════════
+function doMultiPrint() {
+  var mode     = v('in-print-mode');
+  var rollsIn  = Math.max(1, parseInt(v('in-rolls'))||1);
+  var type     = v('in-type');
+  var part     = v('in-part'), baseLot = v('in-lot');
+  var unit     = v('in-unit'), ref = v('in-ref'), po = v('in-po'), mc = v('in-mc');
+  var name     = v('in-name'), supplier = v('in-supplier'), pack = v('in-pack');
+  var company  = v('in-company');
+  var totalQty = parseFloat(v('in-qty'))||0;
 
-  function updatePrintBtnUI() {
-    const mode = document.getElementById('in-print-mode').value;
-    document.getElementById('print-text').textContent  = mode === 'split' ? 'พิมพ์ Label แยกตามม้วน' : 'พิมพ์ Label ใบรวม (Master)';
-    document.getElementById('print-icon').textContent  = mode === 'split' ? '✂️' : '📦';
-    document.getElementById('btn-print-main').className = 'btn-print ' + (mode === 'split' ? 'blue' : 'navy');
-  }
+  var printArea = document.getElementById('print-area');
+  printArea.innerHTML = '';
 
-  function buildBarcodeString(part, lot, qty, unit, rolls, ref, po) {
-    return [
-      String(part  || '').trim(),
-      String(lot   || '').trim(),
-      String(qty   || 0),
-      String(unit  || '').trim(),
-      String(rolls || 1),
-      String(ref   || '').trim(),
-      String(po    || '').trim(),
-    ].join('|');
-  }
+  var loopCount   = mode==='split' ? rollsIn : 1;
+  var qtyPerLabel = loopCount > 1 ? +(totalQty/loopCount).toFixed(3) : totalQty;
+  var dateStr     = TODAY.toLocaleDateString('th-TH');
 
-  function liveUpdate() {
-    const part = v('in-part'), lot = v('in-lot'), qty = v('in-qty');
-    const unit = v('in-unit'), rolls = v('in-rolls') || '1';
-    const name = v('in-name'), supplier = v('in-supplier');
-    const ref  = v('in-ref'), po = v('in-po');
-    const company = v('in-company');
+  for(var i=1; i<=loopCount; i++){
+    var currentLot   = (mode==='split' && loopCount>1) ? baseLot+'-R'+i : baseLot;
+    var displayRolls = (mode==='split' && loopCount>1) ? 'ม้วน '+i+'/'+loopCount : String(rollsIn);
+    var embedRolls   = mode==='split' ? 1 : rollsIn;
 
-    const bcStr = buildBarcodeString(part, lot, qty, unit, rolls, ref, po);
+    // ═══ barcode string (สั้น scan ติด) ═══
+    var bcStr = buildBarcodeString(type, part, currentLot, qtyPerLabel, unit);
 
-    s('lbl-company-display', company || 'Company Name');
-    s('lbl-part',     part     || '—'); s('lbl-lot',  lot      || '—');
-    s('lbl-qty',      qty      || '0'); s('lbl-unit', unit);
-    s('lbl-name',     name     || '—'); s('lbl-rolls',rolls);
-    s('lbl-supplier', supplier || '—'); s('lbl-ref',  ref      || '—');
-    s('lbl-po',       po       || '—'); s('lbl-bc-text', bcStr);
+    // clone label
+    var clone = document.getElementById('label-card').cloneNode(true);
+    clone.id = 'pc-'+i;
+    clone.querySelector('#lbl-lot').textContent       = currentLot;
+    clone.querySelector('#lbl-qty').textContent       = qtyPerLabel;
+    clone.querySelector('#lbl-rolls').textContent     = displayRolls;
+    clone.querySelector('#lbl-mc').textContent        = mc||'—';
+    clone.querySelector('.lbl-bc-label').textContent  = bcStr;
+    clone.querySelector('#lbl-company-display').textContent = company;
+
+    var svgEl = clone.querySelector('svg');
+    svgEl.id = 'ps-'+i;
+    printArea.appendChild(clone);
 
     try {
-      JsBarcode('#barcode-main', bcStr, {
-        format:'CODE128', lineColor:'#0f172a',
-        width: 1.1, // 🔑 ปรับเป็น 1.1 เพื่อให้บาร์โค้ดไม่ทึบและอยู่ในกรอบ
-        height: 60, displayValue:false, margin:4,
+      JsBarcode('#ps-'+i, bcStr, {
+        format:'CODE128', lineColor:'#000',
+        width:2.0, height:70, displayValue:false, margin:10,
+        marginLeft:10, marginRight:10
       });
-    } catch(e) { document.getElementById('barcode-main').innerHTML=''; }
+    } catch(e){}
+
+    // บันทึก history + ส่งลง Sheet
+    var rowData = {
+      date: dateStr, type: type, partNo: part, materialName: name,
+      lot: currentLot, rollNo: currentLot, qty: qtyPerLabel, unit: unit,
+      rolls: displayRolls, mc: mc, refNo: ref, poNo: po,
+      supplier: supplier, pack: pack, barcode: bcStr, sheetStatus: 'pending',
+      employeeName: v('in-emp-name'), employeeId: v('in-emp-id'),
+      shift: 'Day', location: 'Store', size: ''
+    };
+
+    saveToHistory(rowData);
+    sendToSheet(rowData);
   }
 
-  function doMultiPrint() {
-    const mode     = v('in-print-mode');
-    const rollsIn  = Math.max(1, parseInt(v('in-rolls')) || 1);
-    const part     = v('in-part'), baseLot = v('in-lot');
-    const unit     = v('in-unit'), ref = v('in-ref'), po = v('in-po');
-    const totalQty = parseFloat(v('in-qty')) || 0;
-    const company  = v('in-company');
+  setTimeout(function(){ window.print(); }, 400);
+}
 
-    const printArea = document.getElementById('print-area');
-    printArea.innerHTML = '';
-    const loopCount   = mode === 'split' ? rollsIn : 1;
-    const qtyPerLabel = loopCount > 1 ? +(totalQty / loopCount).toFixed(3) : totalQty;
+// ══════════════════════════════════════════════
+//  GOOGLE SHEET — ส่งข้อมูลผ่าน Apps Script
+// ══════════════════════════════════════════════
+function sendToSheet(rowData) {
+  var url    = (localStorage.getItem('wfp_script_url')||'').trim();
+  var sheetId= v('in-sheet-id') || '1J1iMGwCapKyWiymP3zm0jrEUNWfxMdwCdxN-SbsdziQ';
+  if(!url){ updateSheetStatus(rowData.lot, 'no-config'); return; }
 
-    for (let i = 1; i <= loopCount; i++) {
-      const currentLot   = (mode === 'split' && loopCount > 1) ? `${baseLot}-R${i}` : baseLot;
-      const displayRolls = (mode === 'split' && loopCount > 1) ? `ม้วน ${i}/${loopCount}` : String(rollsIn);
-      const embedRolls   = mode === 'split' ? 1 : rollsIn;
-      const bcStr        = buildBarcodeString(part, currentLot, qtyPerLabel, unit, embedRolls, ref, po);
+  setStatus('saving','⏳ กำลังบันทึก...');
 
-      const clone = document.getElementById('label-card').cloneNode(true);
-      clone.id = 'pc-' + i;
-      clone.querySelector('#lbl-lot').textContent     = currentLot;
-      clone.querySelector('#lbl-qty').textContent     = qtyPerLabel;
-      clone.querySelector('#lbl-rolls').textContent   = displayRolls;
-      clone.querySelector('.lbl-bc-label').textContent = bcStr;
-      clone.querySelector('#lbl-company-display').textContent = company;
+  var payload = Object.assign({}, rowData, { sheetId: sheetId });
 
-      const svgEl = clone.querySelector('svg');
-      svgEl.id = 'ps-' + i;
-      printArea.appendChild(clone);
-
-      try {
-        JsBarcode('#ps-' + i, bcStr, {
-          format:'CODE128', lineColor:'#000', 
-          width: 1.1, // 🔑 ปรับเป็น 1.1 เพื่อให้บาร์โค้ดไม่ทึบและอยู่ในกรอบตอนปริ้นท์
-          height: 65, displayValue:false, margin:4,
-        });
-      } catch(e) {}
-      
-      saveToHistory({ date: new Date().toLocaleDateString('th-TH'), type: v('in-type'), partNo: part, lot: currentLot, qty: qtyPerLabel, unit, rolls: displayRolls, barcode: bcStr });
+  fetch(url, {
+    method  : 'POST',
+    headers : { 'Content-Type':'application/json' },
+    body    : JSON.stringify(payload)
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(res){
+    if(res.ok){
+      setStatus('saved', '✅ บันทึกลง Sheet แล้ว — ' + (res.imtNo||res.fgNo||''));
+      updateSheetStatus(rowData.lot, 'saved', res.imtNo||res.fgNo||'');
+    } else {
+      setStatus('error','❌ Error: '+(res.msg||'unknown'));
+      updateSheetStatus(rowData.lot, 'error', res.msg||'');
     }
-    
-    setTimeout(() => { window.print(); }, 300);
-  }
+  })
+  .catch(function(e){
+    setStatus('error','❌ ส่งไม่ได้: '+e.message);
+    updateSheetStatus(rowData.lot, 'error', e.message);
+  });
+}
 
-  // ── HISTORY LOCAL ──
-  function saveToHistory(row) {
-    try {
-      const hist = JSON.parse(localStorage.getItem('wfp_lbl') || '[]');
-      hist.unshift(row);
-      localStorage.setItem('wfp_lbl', JSON.stringify(hist.slice(0, 100)));
-    } catch(e){}
-  }
-  function loadHistory() {
-    try {
-      const hist = JSON.parse(localStorage.getItem('wfp_lbl') || '[]');
-      if(hist.length === 0) return;
-      document.getElementById('hist-tbody').innerHTML = hist.map(r => `
-        <tr><td>${r.date}</td><td>${r.type}</td><td style="font-weight:600">${r.partNo}</td><td>${r.lot}</td><td>${r.qty}</td><td>${r.unit}</td><td>${r.rolls}</td><td style="font-family:monospace;font-size:11px">${r.barcode}</td></tr>
-      `).join('');
-    } catch(e){}
-  }
-  function clearHistory() {
-    if(!confirm('ล้างประวัติทั้งหมด?')) return;
-    localStorage.removeItem('wfp_lbl');
-    document.getElementById('hist-tbody').innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--light)">ไม่มีประวัติ</td></tr>';
-  }
+function setStatus(cls, msg){
+  var el = document.getElementById('save-status');
+  el.className = 'save-status ' + cls;
+  el.textContent = msg;
+  if(cls==='saved') setTimeout(function(){ el.style.display='none'; }, 4000);
+}
 
-  function v(id) { return (document.getElementById(id)||{}).value||''; }
-  function s(id,val) { const el=document.getElementById(id); if(el) el.textContent=String(val||''); }
+// ══════════════════════════════════════════════
+//  LOCAL HISTORY
+// ══════════════════════════════════════════════
+function saveToHistory(row) {
+  try {
+    var hist = JSON.parse(localStorage.getItem('wfp_lbl')||'[]');
+    hist.unshift(row);
+    localStorage.setItem('wfp_lbl', JSON.stringify(hist.slice(0,200)));
+  } catch(e){}
+}
 
-  window.onload = () => {
-    document.getElementById('lbl-date').textContent = new Date().toLocaleDateString('th-TH');
-    updatePrintBtnUI();
-    liveUpdate();
-  };
+function updateSheetStatus(lot, status, docNo) {
+  try {
+    var hist = JSON.parse(localStorage.getItem('wfp_lbl')||'[]');
+    hist.forEach(function(r){
+      if(r.lot===lot) { r.sheetStatus=status; if(docNo) r.docNo=docNo; }
+    });
+    localStorage.setItem('wfp_lbl', JSON.stringify(hist));
+  } catch(e){}
+}
+
+function loadHistory() {
+  try {
+    var hist = JSON.parse(localStorage.getItem('wfp_lbl')||'[]');
+    if(!hist.length){ return; }
+    var statusBadge = function(s, docNo){
+      if(s==='saved')     return '<span style="color:var(--success);font-weight:600">✅ '+(docNo||'saved')+'</span>';
+      if(s==='error')     return '<span style="color:var(--danger)">❌ Error</span>';
+      if(s==='no-config') return '<span style="color:var(--muted)">⚠️ ไม่มี URL</span>';
+      return '<span style="color:var(--light)">⏳ pending</span>';
+    };
+    document.getElementById('hist-tbody').innerHTML = hist.map(function(r){
+      return '<tr>'
+        +'<td style="font-weight:600;font-family:monospace">'+(r.docNo||'—')+'</td>'
+        +'<td>'+r.date+'</td>'
+        +'<td><span style="background:'+(r.type==='FG'?'var(--suc-bg)':'var(--sky)')
+          +';color:'+(r.type==='FG'?'var(--success)':'var(--blue)')
+          +';padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600">'+r.type+'</span></td>'
+        +'<td style="font-weight:600">'+r.partNo+'</td>'
+        +'<td>'+r.lot+'</td>'
+        +'<td>'+r.qty+'</td>'
+        +'<td>'+r.unit+'</td>'
+        +'<td>'+r.rolls+'</td>'
+        +'<td>'+(r.refNo||'—')+'</td>'
+        +'<td>'+(r.poNo||'—')+'</td>'
+        +'<td>'+statusBadge(r.sheetStatus, r.docNo)+'</td>'
+        +'<td style="font-family:monospace;font-size:10px;max-width:200px;overflow:hidden;text-overflow:ellipsis">'+r.barcode+'</td>'
+        +'</tr>';
+    }).join('');
+  } catch(e){}
+}
+
+function clearHistory() {
+  if(!confirm('ล้างประวัติทั้งหมด?')) return;
+  localStorage.removeItem('wfp_lbl');
+  document.getElementById('hist-tbody').innerHTML='<tr><td colspan="12" style="text-align:center;padding:24px;color:var(--light)">ไม่มีประวัติ</td></tr>';
+}
+
+function exportCSV() {
+  try {
+    var hist = JSON.parse(localStorage.getItem('wfp_lbl')||'[]');
+    if(!hist.length){ alert('ไม่มีข้อมูล'); return; }
+    var hdr = ['Doc No.','วันที่','ประเภท','Part No.','Lot','Qty','Unit','Roll','Ref No.','PO No.','Sheet Status','Barcode'];
+    var rows = hist.map(function(r){
+      return [r.docNo||'',r.date,r.type,r.partNo,r.lot,r.qty,r.unit,r.rolls,r.refNo||'',r.poNo||'',r.sheetStatus,r.barcode];
+    });
+    var csv = [hdr].concat(rows).map(function(r){ return r.map(function(c){ return '"'+(c||'').toString().replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
+    var blob = new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'wfp_label_history_'+new Date().toISOString().slice(0,10)+'.csv';
+    a.click();
+  } catch(e){ alert('Export ไม่ได้: '+e.message); }
+}
+
+// ══════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════
+function v(id){ return (document.getElementById(id)||{}).value||''; }
+function s(id,val){ var el=document.getElementById(id); if(el) el.textContent=String(val||''); }
+
+window.onload = function(){
+  document.getElementById('lbl-date').textContent = TODAY.toLocaleDateString('th-TH');
+  // restore saved settings
+  var su = localStorage.getItem('wfp_script_url');
+  if(su) document.getElementById('in-script-url').value = su;
+  var en = localStorage.getItem('wfp_emp_name');
+  if(en) document.getElementById('in-emp-name').value = en;
+  var ei = localStorage.getItem('wfp_emp_id');
+  if(ei) document.getElementById('in-emp-id').value = ei;
+  updatePrintBtnUI();
+  liveUpdate();
+};
 </script>
 </body>
 </html>
