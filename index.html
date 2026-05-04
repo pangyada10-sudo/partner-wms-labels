@@ -3,146 +3,177 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Partner Label Generator V3.0</title>
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <title>Partner Label Generator V2.0 — WFP WMS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --navy: #0f172a; 
-      --blue: #3b82f6;
-      --green: #10b981;
-      --amber: #f59e0b;
-      --red: #ef4444;
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --border: #e2e8f0;
-      --text: #1e293b;
-      --muted: #64748b;
-      --light: #cbd5e1;
-      --r: 10px;
-      --shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --navy:#0D2B55;--navy2:#1A3A6B;--blue:#2563A8;--blue-lt:#3B82C4;
+      --sky:#EBF3FC;--accent:#F59E0B;--white:#FFFFFF;--surface:#F2F6FC;
+      --card:#FFFFFF;--text:#0D1B2E;--muted:#4A6080;--light:#8AA0BC;
+      --border:#D4E4F5;--success:#0F7A44;--suc-bg:#E8F5EE;
+      --danger:#B91C1C;--dan-bg:#FEF2F2;--warn:#B45309;--warn-bg:#FFFBEB;
+      --r:8px;--rl:12px;
+      --shadow:0 4px 20px rgba(13,43,85,.09);
+      --shadow-lg:0 8px 36px rgba(13,43,85,.16)
     }
-
-    body { font-family: 'Kanit', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-
-    /* ── Top Header & Tabs ── */
-    .app-header { background: var(--navy); color: #fff; padding: 14px 32px; display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.2); }
-    .app-header .logo-text { font-size: 20px; font-weight: 700; letter-spacing: 0.5px; }
-    .app-header .logo-text span { color: var(--blue); font-weight: 400; }
-    .version-badge { background: #1e293b; color: #94a3b8; border: 1px solid #334155; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
-    .tab-bar { background: var(--card); border-bottom: 2px solid var(--border); display: flex; padding: 0 32px; gap: 10px; }
-    .tab-btn { padding: 14px 24px; border: none; background: none; font-family: 'Kanit'; font-size: 14px; font-weight: 500; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
-    .tab-btn:hover { color: var(--navy); }
-    .tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); font-weight: 600; }
-
-    /* ── Layout ── */
-    .app-body { display: none; padding: 28px 32px; max-width: 1200px; margin: 0 auto; animation: fadeIn 0.3s ease; }
-    .app-body.active { display: grid; grid-template-columns: 380px 1fr; gap: 28px; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-    @media (max-width: 860px) { .app-body.active { grid-template-columns: 1fr; padding: 16px; } }
-
-    /* ── Form Panel ── */
-    .form-panel { background: var(--card); border-radius: var(--r); box-shadow: var(--shadow); padding: 24px; }
-    .panel-title { font-size: 16px; font-weight: 600; color: var(--navy); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--bg); }
-    .form-group { margin-bottom: 14px; }
-    .form-group label { display: block; font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; }
-    .form-group input, .form-group select { width: 100%; padding: 10px 14px; font-size: 14px; font-family: 'Kanit'; border: 1.5px solid var(--border); border-radius: 7px; background: #f8fafc; color: var(--text); transition: all 0.2s; }
-    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); background: #fff; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-    .barcode-display { background: #f0f4ff; border: 1.5px dashed #bfdbfe; border-radius: 7px; padding: 12px; font-size: 12px; font-family: monospace; color: var(--blue); word-break: break-all; margin-bottom: 14px; text-align: center; }
-    .barcode-display .label { font-size: 10px; color: var(--muted); margin-bottom: 5px; font-family: 'Kanit'; text-transform: uppercase; }
-
-    .btn-print { width: 100%; padding: 14px; color: #fff; border: none; border-radius: 8px; font-family: 'Kanit'; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .btn-print:hover { filter: brightness(1.1); transform: translateY(-1px); }
-    .btn-print:active { transform: translateY(1px); }
-
-    /* ── Label Preview Panel ── */
-    .preview-panel { display: flex; flex-direction: column; gap: 20px; }
-    .preview-header { display: flex; align-items: center; justify-content: space-between; }
-    .preview-title { font-size: 16px; font-weight: 600; color: var(--navy); }
-    .preview-hint { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 4px; }
-    .preview-hint::before { content: ''; display: inline-block; width: 8px; height: 8px; background: var(--green); border-radius: 50%; }
-
-    .label-wrapper { display: flex; justify-content: center; }
-    .label-card { background: #fff; border: 2px solid #334155; border-radius: 8px; width: 420px; padding: 18px 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.15); font-family: 'Kanit'; }
-
-    .lbl-head { display: flex; align-items: flex-start; justify-content: space-between; padding-bottom: 10px; border-bottom: 2.5px solid #1e293b; margin-bottom: 12px; }
-    .lbl-company { font-size: 15px; font-weight: 700; color: #0f172a; line-height: 1.2; word-break: break-word; }
-    .lbl-badge { background: #0f172a; color: #fff; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; white-space: nowrap; margin-left: 10px; }
-    .lbl-badge.fg { background: var(--green); }
-
-    .lbl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; margin-bottom: 12px; }
-    .lbl-field .lf-key { font-size: 9px; font-weight: 600; color: var(--muted); text-transform: uppercase; }
-    .lbl-field .lf-val { font-size: 14px; font-weight: 600; color: #0f172a; line-height: 1.2; word-break: break-all; }
-    .lbl-field.full { grid-column: 1 / -1; }
-    .lbl-field.full .lf-val { font-size: 15px; }
-
-    .lbl-qty-box { display: flex; align-items: baseline; gap: 6px; }
-    .lbl-qty-big { font-size: 28px; font-weight: 700; color: var(--navy); line-height: 1; }
-    .lbl-qty-unit { font-size: 13px; font-weight: 500; color: var(--muted); }
-
-    .lbl-divider { border: none; border-top: 1px dashed #94a3b8; margin: 10px 0; }
-    .lbl-bc-section { text-align: center; background: #fff; padding: 8px; border-radius: 6px; border: 1px solid #e2e8f0; }
-    .lbl-bc-section svg { max-width: 100%; }
-    .lbl-bc-label { font-size: 9px; color: var(--muted); margin-top: 4px; font-family: monospace; word-break: break-all; }
-
-    .lbl-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 8px; border-top: 1px solid #e2e8f0; font-size: 10px; color: var(--muted); }
-    .lbl-footer .qr-placeholder { width: 44px; height: 44px; background: #f1f5f9; border: 1px dashed var(--border); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 8px; color: var(--light); text-align: center; }
-
-    /* ── Documentation Tab Styles ── */
-    #tab-docs { display: none; padding: 28px 32px; max-width: 900px; margin: 0 auto; animation: fadeIn 0.3s ease; }
-    #tab-docs.active { display: block; }
-    .doc-section { background: var(--card); border-radius: var(--r); box-shadow: var(--shadow); padding: 30px; margin-bottom: 24px; }
-    .doc-section h2 { color: var(--navy); font-size: 20px; border-bottom: 2px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-    .doc-content { font-size: 14px; line-height: 1.6; color: #334155; }
-    .doc-content ul { margin-left: 20px; margin-bottom: 15px; }
-    .doc-content li { margin-bottom: 8px; }
+    body{font-family:'Kanit',sans-serif;background:var(--surface);color:var(--text);min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased}
     
-    .pattern-box { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px; margin: 15px 0; font-family: monospace; }
-    .pattern-row { display: flex; margin-bottom: 8px; }
-    .pattern-badge { width: 50px; font-weight: bold; }
-    .pattern-rm .pattern-badge { color: var(--blue); }
-    .pattern-data { color: #475569; }
-    .pattern-pipe { color: var(--red); font-weight: bold; margin: 0 4px; }
-
-    /* ── Print Styles ── */
-    #print-area { display: none; }
-    @media print {
-      body { background: #fff; }
-      .app-header, .tab-bar, .form-panel, .preview-header, .preview-hint, #tab-docs, #tab-gen > .preview-panel { display: none !important; }
-      #tab-gen.active { display: block; padding: 0; }
-      #print-area { display: flex; flex-direction: column; gap: 20px; }
-      .label-card { border: 1.5px solid #000; box-shadow: none; width: 380px; padding: 14px 16px; break-inside: avoid; margin: 0 auto; }
-      .lbl-qty-big { font-size: 22px; }
-      .lbl-field .lf-val { font-size: 12px; }
+    /* HEADER */
+    .app-header{background:linear-gradient(135deg,#071C3B 0%,var(--navy) 60%,var(--navy2) 100%);color:#fff;padding:0 32px;height:58px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 16px rgba(0,0,0,.25);position:sticky;top:0;z-index:50}
+    .app-header .logo-text{font-size:18px;font-weight:700;letter-spacing:.3px}
+    .app-header .logo-text span{color:var(--accent);font-weight:400}
+    .version-badge{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.65);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px}
+    .header-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+    .save-status{font-size:12px;padding:4px 12px;border-radius:20px;display:none;font-weight:500}
+    .save-status.saving{display:inline;background:var(--warn-bg);color:var(--warn)}
+    .save-status.saved{display:inline;background:var(--suc-bg);color:var(--success)}
+    .save-status.error{display:inline;background:var(--dan-bg);color:var(--danger)}
+    
+    /* TABS */
+    .tab-bar{background:var(--card);border-bottom:2px solid var(--border);display:flex;padding:0 32px;gap:6px}
+    .tab-btn{padding:14px 22px;border:none;background:none;font-family:'Kanit';font-size:14px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s}
+    .tab-btn:hover{color:var(--navy)}
+    .tab-btn.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+    
+    /* LAYOUT */
+    .app-body{display:none;padding:28px 32px;max-width:1240px;margin:0 auto;animation:fadeUp .3s ease}
+    .app-body.active{display:grid;grid-template-columns:410px 1fr;gap:28px}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+    @media(max-width:900px){.app-body.active{grid-template-columns:1fr;padding:16px}}
+    
+    /* FORM PANEL */
+    .form-panel{background:var(--card);border-radius:var(--rl);box-shadow:var(--shadow);padding:24px;border:1px solid var(--border)}
+    .panel-title{font-size:15px;font-weight:600;color:var(--navy);margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid var(--sky);display:flex;align-items:center;gap:8px}
+    .form-group{margin-bottom:13px}
+    .form-group label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+    .form-group input,.form-group select{width:100%;padding:9px 13px;font-size:13px;font-family:'Kanit';border:1.5px solid var(--border);border-radius:var(--r);background:var(--surface);color:var(--text);transition:all .18s}
+    .form-group input:focus,.form-group select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,168,.1);background:#fff}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .fg-extra{display:none;background:var(--sky);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:13px}
+    
+    /* Barcode preview */
+    .bc-preview-box{background:#f0f4ff;border:1.5px dashed #bfdbfe;border-radius:var(--r);padding:11px 14px;margin-bottom:14px;text-align:center}
+    .bc-preview-box .lbl{font-size:10px;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+    #bc-string-preview{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--navy);font-weight:500;word-break:break-all;line-height:1.6}
+    
+    /* Sheet panel */
+    .sheet-panel{background:linear-gradient(135deg,#e8f5ee,#f0f9f4);border:1px solid #a7f3d0;border-radius:var(--r);padding:13px 16px;margin-bottom:14px}
+    .sheet-panel .sp-title{font-size:12px;font-weight:600;color:var(--success);display:flex;align-items:center;gap:6px;margin-bottom:8px}
+    .sheet-panel .sp-info{font-size:11px;color:#065f46;line-height:1.7}
+    .sheet-panel .sp-info code{font-family:'JetBrains Mono';background:rgba(0,0,0,.06);padding:1px 5px;border-radius:3px}
+    
+    /* Buttons */
+    .btn-print{width:100%;padding:13px;color:#fff;border:none;border-radius:var(--r);font-family:'Kanit';font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;letter-spacing:.02em}
+    .btn-print:hover{filter:brightness(1.08);transform:translateY(-1px)}
+    .btn-print:active{transform:none}
+    .btn-print.blue{background:var(--blue);box-shadow:0 4px 12px rgba(37,99,168,.3)}
+    .btn-print.navy{background:var(--navy)}
+    
+    /* PREVIEW */
+    .preview-panel{display:flex;flex-direction:column;gap:20px}
+    .preview-header{display:flex;align-items:center;justify-content:space-between}
+    .preview-title{font-size:15px;font-weight:600;color:var(--navy)}
+    .live-dot{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--success);font-weight:500}
+    .live-dot::before{content:'';width:7px;height:7px;background:var(--success);border-radius:50%;animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+    .label-wrapper{display:flex;justify-content:center}
+    
+    /* LABEL CARD */
+    .label-card{background:#fff;border:2px solid #1e293b;border-radius:10px;width:440px;padding:18px 20px;box-shadow:0 8px 30px rgba(0,0,0,.15);font-family:'Kanit'}
+    .lbl-head{display:flex;align-items:flex-start;justify-content:space-between;padding-bottom:10px;border-bottom:2.5px solid #1e293b;margin-bottom:12px}
+    .lbl-company{font-size:14px;font-weight:700;color:#0f172a;line-height:1.25;word-break:break-word}
+    .lbl-badge{background:#0f172a;color:#fff;font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap;margin-left:10px;flex-shrink:0}
+    .lbl-badge.fg{background:var(--success)}
+    .lbl-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px 14px;margin-bottom:10px}
+    .lbl-field .lf-key{font-size:9px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+    .lbl-field .lf-val{font-size:13px;font-weight:600;color:#0f172a;word-break:break-all;line-height:1.3}
+    .lbl-field.full{grid-column:1/-1}
+    .lbl-field.full .lf-val{font-size:14px}
+    .lbl-qty-box{display:flex;align-items:baseline;gap:5px}
+    .lbl-qty-big{font-size:26px;font-weight:700;color:var(--navy);line-height:1}
+    .lbl-qty-unit{font-size:12px;font-weight:500;color:var(--muted)}
+    hr.lbl-divider{border:none;border-top:1px dashed #94a3b8;margin:9px 0}
+    .lbl-bc-section{text-align:center;background:#fff;padding:7px;border-radius:6px;border:1px solid #e2e8f0}
+    .lbl-bc-section svg{max-width:100%}
+    .lbl-bc-label{font-size:9px;color:var(--muted);margin-top:3px;font-family:'JetBrains Mono';word-break:break-all}
+    .lbl-footer{display:flex;justify-content:space-between;align-items:center;margin-top:9px;padding-top:8px;border-top:1px solid #e2e8f0;font-size:10px;color:var(--muted)}
+    .qr-placeholder{width:40px;height:40px;background:#f1f5f9;border:1px dashed var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:7px;color:var(--light);text-align:center}
+    
+    /* HISTORY TAB */
+    #tab-history{display:none;padding:28px 32px;max-width:1240px;margin:0 auto;animation:fadeUp .3s ease}
+    #tab-history.active{display:block}
+    .hist-toolbar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+    .hist-toolbar input,.hist-toolbar select{padding:8px 12px;font-size:13px;font-family:'Kanit';border:1.5px solid var(--border);border-radius:var(--r);background:var(--card);color:var(--text)}
+    .btn-sm{padding:8px 16px;font-family:'Kanit';font-size:12px;font-weight:600;border:none;border-radius:var(--r);cursor:pointer;transition:all .15s}
+    .btn-sm.blue{background:var(--blue);color:#fff}
+    .btn-sm.navy{background:var(--navy);color:#fff}
+    .tbl-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;overflow-x:auto;box-shadow:var(--shadow)}
+    table{width:100%;border-collapse:collapse;font-size:12px}
+    table th{background:var(--navy);color:#fff;text-align:left;padding:10px 12px;font-weight:500;font-size:11px;white-space:nowrap}
+    table td{padding:9px 12px;border-bottom:1px solid var(--sky);white-space:nowrap}
+    table tr:last-child td{border-bottom:none}
+    table tr:hover td{background:var(--sky)}
+    .mono{font-family:'JetBrains Mono';font-size:11px}
+    .chip{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
+    .chip.rm{background:var(--sky);color:var(--navy2);border:1px solid var(--border)}
+    .chip.fg{background:var(--suc-bg);color:var(--success);border:1px solid #a7f3d0}
+    
+    /* DOCS TAB */
+    #tab-docs{display:none;padding:28px 32px;max-width:900px;margin:0 auto;animation:fadeUp .3s ease}
+    #tab-docs.active{display:block}
+    .doc-section{background:var(--card);border-radius:var(--rl);box-shadow:var(--shadow);padding:28px;margin-bottom:22px;border:1px solid var(--border)}
+    .doc-section h2{color:var(--navy);font-size:18px;border-bottom:2px solid var(--border);padding-bottom:10px;margin-bottom:18px}
+    .doc-content{font-size:13px;line-height:1.75;color:#334155}
+    .doc-content ul{margin-left:18px;margin-bottom:14px}
+    .doc-content li{margin-bottom:8px}
+    .doc-content code{font-family:'JetBrains Mono';background:var(--sky);padding:2px 6px;border-radius:4px;font-size:12px}
+    .pattern-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin:14px 0;font-family:'JetBrains Mono';font-size:12px}
+    .field-tag{display:inline-block;background:var(--navy);color:#fff;font-size:10px;padding:1px 6px;border-radius:4px;margin:0 1px}
+    .field-tag.opt{background:var(--muted)}
+    .pipe-red{color:#ef4444;font-weight:700}
+    
+    /* PRINT */
+    #print-area{display:none}
+    @media print{
+      body{background:#fff}
+      .app-header,.tab-bar,.form-panel,.preview-header,#tab-docs,#tab-history,#tab-gen>.preview-panel{display:none!important}
+      #tab-gen.active{display:block;padding:0}
+      #print-area{display:flex;flex-direction:column;gap:16px;align-items:center}
+      
+      /* ปรับขนาด Label ให้ใหญ่ขึ้นเวลาปริ้นท์ */
+      .label-card{border:1.5px solid #000;box-shadow:none;width:480px;padding:18px 20px;break-inside:avoid;margin:0 auto}
+      .lbl-qty-big{font-size:28px}
+      .lbl-field .lf-val{font-size:14px}
+      .lbl-company{font-size:16px}
     }
   </style>
 </head>
 <body>
 
 <div class="app-header">
-  <div class="logo-text">Universal <span>Label System</span></div>
-  <div class="version-badge">v3.0 OS</div>
+  <div class="logo-text">WFP <span>Label System</span></div>
+  <div class="version-badge">v2.0 WMS</div>
+  <div class="header-right">
+    <div class="save-status" id="save-status"></div>
+  </div>
 </div>
 
 <div class="tab-bar">
-  <button class="tab-btn active" onclick="switchTab('gen', this)">🏷️ สร้าง Label</button>
-  <button class="tab-btn" onclick="switchTab('docs', this)">📖 คู่มือและมาตรฐาน (Docs)</button>
+  <button class="tab-btn active" onclick="switchTab('gen',this)">🏷️ สร้าง Label</button>
+  <button class="tab-btn" onclick="switchTab('history',this);loadHistory()">📋 ประวัติ Label</button>
+  <button class="tab-btn" onclick="switchTab('docs',this)">📖 คู่มือ &amp; มาตรฐาน</button>
 </div>
 
-<!-- ════════ TAB: LABEL GENERATOR ════════ -->
+<!-- TAB: GENERATOR -->
 <div id="tab-gen" class="app-body active">
-
-  <!-- Form Panel -->
   <div class="form-panel">
     <div class="panel-title">🛠️ กรอกข้อมูล Label</div>
 
     <div class="form-group">
-      <label>ชื่อองค์กร / บริษัท (Company Name)</label>
-      <input type="text" id="in-company" value="Partner Company Co., Ltd." placeholder="ระบุชื่อบริษัทที่ต้องการให้แสดงบน Label" oninput="liveUpdate()">
+      <label>ชื่อองค์กร / บริษัท</label>
+      <input type="text" id="in-company" value="Wing Fung Packaging Co., Ltd." oninput="liveUpdate()">
     </div>
 
     <div class="form-group">
@@ -154,268 +185,466 @@
     </div>
 
     <div class="form-row">
-      <div class="form-group"><label>Part / Product No.</label><input type="text" id="in-part" value="PART-001" oninput="liveUpdate()"></div>
-      <div class="form-group"><label>Lot No.</label><input type="text" id="in-lot" value="L04" oninput="liveUpdate()"></div>
+      <div class="form-group"><label>Part / Product No.</label><input type="text" id="in-part" placeholder="เช่น AAP050C400" oninput="liveUpdate()"></div>
+      <div class="form-group"><label>Lot No.</label><input type="text" id="in-lot" placeholder="เช่น L04-2026" oninput="liveUpdate()"></div>
     </div>
 
-    <div class="form-group"><label>ชื่อสินค้า / วัสดุ</label><input type="text" id="in-name" value="Sample Product Name" oninput="liveUpdate()"></div>
+    <div class="form-group">
+      <label>ชื่อสินค้า / วัสดุ</label>
+      <input type="text" id="in-name" placeholder="เช่น A-PET CLEAR 0.50mm×400mm" oninput="liveUpdate()">
+    </div>
 
     <div class="form-row">
-      <div class="form-group"><label>จำนวน (Qty รวม)</label><input type="number" id="in-qty" value="500" step="0.001" oninput="liveUpdate()"></div>
+      <div class="form-group"><label>จำนวนรวม (Total Qty)</label><input type="number" id="in-qty" value="500" step="0.001" oninput="liveUpdate()"></div>
       <div class="form-group">
         <label>หน่วย (Unit)</label>
         <select id="in-unit" onchange="liveUpdate()">
-          <option value="Kgs">Kgs</option><option value="ม้วน">ม้วน</option><option value="ชิ้น">ชิ้น</option>
-          <option value="Pcs">Pcs</option><option value="Rolls">Rolls</option><option value="กล่อง">กล่อง</option>
+          <option value="KGS.">KGS.</option><option value="ม้วน">ม้วน</option>
+          <option value="ชิ้น">ชิ้น</option><option value="Pcs">Pcs</option>
+          <option value="Rolls">Rolls</option><option value="กล่อง">กล่อง</option>
         </select>
       </div>
     </div>
 
     <div class="form-row">
-      <div class="form-group"><label>จำนวน Roll / Batch</label><input type="number" id="in-rolls" value="2" min="1" oninput="liveUpdate()"></div>
-      <div class="form-group"><label>Supplier</label><input type="text" id="in-supplier" value="Partner Supplier" oninput="liveUpdate()"></div>
+      <div class="form-group"><label>จำนวน Roll / Sub-Unit</label><input type="number" id="in-rolls" value="1" min="1" oninput="liveUpdate()"></div>
+      <div class="form-group"><label>Supplier</label><input type="text" id="in-supplier" placeholder="ชื่อ Supplier" oninput="liveUpdate()"></div>
     </div>
 
-    <!-- เปลี่ยนตรงนี้ เพื่อแยกช่อง Ref No และ PO No ให้ชัดเจน -->
     <div class="form-row">
-      <div class="form-group"><label>Ref No. (รหัสอ้างอิง)</label><input type="text" id="in-ref" placeholder="เช่น REF-001" oninput="liveUpdate()"></div>
-      <div class="form-group"><label>PO No.</label><input type="text" id="in-po" placeholder="เช่น PO-1234" oninput="liveUpdate()"></div>
+      <div class="form-group"><label>Ref No. (อ้างอิง)</label><input type="text" id="in-ref" placeholder="RC-XXXX" oninput="liveUpdate()"></div>
+      <div class="form-group"><label>PO No.</label><input type="text" id="in-po" placeholder="PO-2026-XXXX" oninput="liveUpdate()"></div>
     </div>
 
-    <!-- FG Extra -->
-    <div id="fg-extra" style="display:none; background: #f1f5f9; padding: 12px; border-radius: 8px; margin-bottom: 14px; border: 1px solid #e2e8f0;">
-      <div class="form-row" style="margin-bottom:0;">
-        <div class="form-group" style="margin-bottom:0;"><label>Pack Qty (จำนวนแพ็ค)</label><input type="text" id="in-pack" placeholder="เช่น 50ชิ้น/10แพ็ค" oninput="liveUpdate()"></div>
-        <div class="form-group" style="margin-bottom:0;"><label>M/C (เครื่องจักร)</label><input type="text" id="in-mc" placeholder="M/C No." oninput="liveUpdate()"></div>
+    <div class="fg-extra" id="fg-extra">
+      <div class="form-row" style="margin-bottom:0">
+        <div class="form-group" style="margin-bottom:0"><label>Pack Qty</label><input type="text" id="in-pack" placeholder="50ชิ้น/แพ็ค" oninput="liveUpdate()"></div>
+        <div class="form-group" style="margin-bottom:0"><label>M/C</label><input type="text" id="in-mc" placeholder="M/C-01" oninput="liveUpdate()"></div>
       </div>
     </div>
 
     <div class="form-group">
       <label>รูปแบบการพิมพ์</label>
       <select id="in-print-mode" onchange="updatePrintBtnUI()">
-        <option value="split">✂️ พิมพ์แยกตามม้วน (แบ่งยอด QTY และรัน Lot ย่อย)</option>
-        <option value="single">📦 พิมพ์ใบรวม (1 ดวง รวมยอดทั้งหมด)</option>
+        <option value="split">✂️ แยกตามม้วน (Split)</option>
+        <option value="single">📦 ใบรวม (Single Master)</option>
       </select>
     </div>
 
-    <div class="barcode-display">
-      <div class="label">Barcode Pattern (Preview)</div>
-      <div id="bc-string-preview" style="font-weight: bold;">—</div>
+    <div class="sheet-panel">
+      <div class="sp-title">🔗 เชื่อมต่อ Google Sheets</div>
+      <div class="sp-info">
+        พิมพ์ Label → บันทึกลง <code>Suppliers</code> Sheet อัตโนมัติ<br>
+        Format: <code>Part|Lot|Qty|Unit|Rolls|Ref|PO</code><br>
+        WMS สแกนบาร์โค้ด → ดึงข้อมูลได้ทันที ไม่ต้องคีย์ซ้ำ
+      </div>
     </div>
 
-    <button id="btn-print-main" class="btn-print" onclick="doMultiPrint()" style="background: var(--blue);">
+    <div class="bc-preview-box">
+      <div class="lbl">Barcode String — 7 ท่อน คั่นด้วย |</div>
+      <div id="bc-string-preview">—</div>
+    </div>
+
+    <button id="btn-print-main" class="btn-print blue" onclick="doMultiPrint()">
       <span id="print-icon">🖨️</span> <span id="print-text">พิมพ์ Label</span>
     </button>
   </div>
 
-  <!-- Preview Panel -->
+  <!-- PREVIEW -->
   <div class="preview-panel">
     <div class="preview-header">
       <div class="preview-title">👁️ ตัวอย่าง Label</div>
-      <div class="preview-hint">Live Preview</div>
+      <div class="live-dot">Live Preview</div>
     </div>
-
     <div class="label-wrapper">
       <div class="label-card" id="label-card">
         <div class="lbl-head">
-          <div class="lbl-company" id="lbl-company-display">Partner Company Co., Ltd.</div>
+          <div class="lbl-company" id="lbl-company-display">Wing Fung Packaging Co., Ltd.</div>
           <span class="lbl-badge" id="lbl-type-badge">QC PASS · RM</span>
         </div>
         <div class="lbl-grid">
-          <div class="lbl-field full"><div class="lf-key">ชื่อสินค้า / วัสดุ</div><div class="lf-val" id="lbl-name">Sample Product Name</div></div>
-          <div class="lbl-field"><div class="lf-key">Part / Product No.</div><div class="lf-val" id="lbl-part">PART-001</div></div>
-          <div class="lbl-field"><div class="lf-key">Lot No.</div><div class="lf-val" id="lbl-lot">L04</div></div>
-          <div class="lbl-field"><div class="lf-key">จำนวน (Qty)</div><div class="lbl-qty-box"><div class="lbl-qty-big" id="lbl-qty">500</div><div class="lbl-qty-unit" id="lbl-unit">Kgs</div></div></div>
+          <div class="lbl-field full"><div class="lf-key">ชื่อสินค้า / วัสดุ</div><div class="lf-val" id="lbl-name">—</div></div>
+          <div class="lbl-field"><div class="lf-key">Part / Product No.</div><div class="lf-val" id="lbl-part">—</div></div>
+          <div class="lbl-field"><div class="lf-key">Lot No.</div><div class="lf-val" id="lbl-lot">—</div></div>
+          <div class="lbl-field">
+            <div class="lf-key">จำนวน (Qty)</div>
+            <div class="lbl-qty-box"><div class="lbl-qty-big" id="lbl-qty">500</div><div class="lbl-qty-unit" id="lbl-unit">KGS.</div></div>
+          </div>
           <div class="lbl-field"><div class="lf-key">วันที่บันทึก</div><div class="lf-val" id="lbl-date">—</div></div>
-          <div class="lbl-field" id="lbl-rolls-wrap"><div class="lf-key">จำนวน Roll</div><div class="lf-val" id="lbl-rolls">2</div></div>
-          <div class="lbl-field" id="lbl-supplier-wrap"><div class="lf-key">Supplier</div><div class="lf-val" id="lbl-supplier">Partner Supplier</div></div>
-          <div class="lbl-field" id="lbl-ref-wrap"><div class="lf-key">Ref No.</div><div class="lf-val" id="lbl-ref">—</div></div>
-          <div class="lbl-field" id="lbl-po-wrap"><div class="lf-key">PO No.</div><div class="lf-val" id="lbl-po">—</div></div>
+          <div class="lbl-field"><div class="lf-key">Supplier</div><div class="lf-val" id="lbl-supplier">—</div></div>
+          <div class="lbl-field"><div class="lf-key">จำนวน Roll</div><div class="lf-val" id="lbl-rolls">1</div></div>
+          <div class="lbl-field"><div class="lf-key">Ref No.</div><div class="lf-val" id="lbl-ref">—</div></div>
+          <div class="lbl-field"><div class="lf-key">PO No.</div><div class="lf-val" id="lbl-po">—</div></div>
           <div class="lbl-field" id="lbl-pack-wrap" style="display:none"><div class="lf-key">Pack Qty</div><div class="lf-val" id="lbl-pack">—</div></div>
           <div class="lbl-field" id="lbl-mc-wrap" style="display:none"><div class="lf-key">M/C</div><div class="lf-val" id="lbl-mc">—</div></div>
         </div>
         <hr class="lbl-divider">
         <div class="lbl-bc-section"><svg id="barcode-main"></svg><div class="lbl-bc-label" id="lbl-bc-text">—</div></div>
-        <div class="lbl-footer"><div><div style="font-weight:600;color:#334155">Universal WMS v2.0</div></div><div class="qr-placeholder">Scan<br>Here</div></div>
+        <div class="lbl-footer">
+          <div><div style="font-weight:600;color:#334155;font-size:11px">WFP-WMS v2.0</div><div style="font-size:10px;color:var(--light)" id="lbl-footer-type">RM Label</div></div>
+          <div class="qr-placeholder">Scan<br>Here</div>
+        </div>
       </div>
     </div>
   </div>
-
   <div id="print-area"></div>
 </div>
 
-<!-- ════════ TAB: DOCUMENTATION ════════ -->
+<!-- TAB: HISTORY -->
+<div id="tab-history">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div>
+      <div style="font-size:18px;font-weight:600;color:var(--navy)">ประวัติการสร้าง Label</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:2px">บันทึกเฉพาะ Label ที่กดพิมพ์แล้ว (Local Storage)</div>
+    </div>
+    <button class="btn-sm blue" onclick="loadHistory()">🔄 โหลด</button>
+  </div>
+  <div class="hist-toolbar">
+    <input type="text" id="h-search" placeholder="ค้นหา Part / Lot / Supplier..." style="flex:1;min-width:180px" oninput="filterHistory()">
+    <select id="h-type" onchange="filterHistory()">
+      <option value="">ทุกประเภท</option><option value="RM">RM</option><option value="FG">FG</option>
+    </select>
+    <button class="btn-sm navy" onclick="exportHistoryCSV()">⬇ Export CSV</button>
+    <button class="btn-sm" style="background:var(--danger);color:#fff" onclick="clearHistory()">🗑 ล้างประวัติ</button>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>#</th><th>วันที่</th><th>ประเภท</th><th>Part No.</th><th>ชื่อสินค้า</th>
+        <th>Lot</th><th>Qty</th><th>Unit</th><th>Rolls</th>
+        <th>Supplier</th><th>Ref No.</th><th>PO No.</th><th>Barcode String</th>
+      </tr></thead>
+      <tbody id="hist-tbody">
+        <tr><td colspan="13" style="text-align:center;padding:24px;color:var(--light)">กด "โหลด" เพื่อแสดงประวัติ</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div style="font-size:11px;color:var(--light);margin-top:8px" id="hist-count"></div>
+</div>
+
+<!-- TAB: DOCS -->
 <div id="tab-docs">
   <div class="doc-section">
-    <h2>📊 มาตรฐานโครงสร้างข้อมูล Barcode (Data Pattern)</h2>
+    <h2>📊 มาตรฐาน Barcode Pattern — WFP WMS v2.0</h2>
     <div class="doc-content">
-      <p>เพื่อให้ระบบ WMS ของคลังสินค้าปลายทางสามารถสแกนและรับค่าต่างๆ ได้อย่างสมบูรณ์ ข้อมูลใน Barcode ต้องถูกคั่นด้วยเครื่องหมาย <code>|</code> (Pipe) เรียงตามลำดับ 7 ท่อน ดังนี้:</p>
-      
+      <p>ใช้ <strong>Code-128</strong> บาร์โค้ด เนื้อหาคั่นด้วย <code>|</code> (Pipe) เรียง <strong>7 ท่อนคงที่</strong> ทั้ง RM และ FG ใช้รูปแบบเดียวกัน ทำให้ WMS parser อ่านด้วย index เดียว:</p>
       <div class="pattern-box">
-        <div class="pattern-row pattern-rm">
-          <div class="pattern-badge">ALL:</div>
-          <div class="pattern-data">
-            Part <span class="pattern-pipe">|</span> Lot <span class="pattern-pipe">|</span> Qty <span class="pattern-pipe">|</span> Unit <span class="pattern-pipe">|</span> Rolls <span class="pattern-pipe">|</span> Ref <span class="pattern-pipe">|</span> PO
-          </div>
-        </div>
+        <span class="field-tag">0: Part</span><span class="pipe-red"> | </span>
+        <span class="field-tag">1: Lot</span><span class="pipe-red"> | </span>
+        <span class="field-tag">2: Qty</span><span class="pipe-red"> | </span>
+        <span class="field-tag">3: Unit</span><span class="pipe-red"> | </span>
+        <span class="field-tag">4: Rolls</span><span class="pipe-red"> | </span>
+        <span class="field-tag opt">5: Ref</span><span class="pipe-red"> | </span>
+        <span class="field-tag opt">6: PO</span>
       </div>
-      
-      <p><strong>ตัวอย่างข้อมูลสแกน:</strong> <code>PAP150N400|L04-R1|250|Kgs|1|REF-999|PO-1234</code></p>
+      <p><strong>RM ตัวอย่าง:</strong> <code>AAP050C400|L04-R1-2026|250|KGS.|1|RC-1234|PO-2026-001</code></p>
+      <p style="margin-top:8px"><strong>FG ตัวอย่าง:</strong> <code>ABT-P-0001|FG-L02-2026|800|ชิ้น|1||PO-CUST-099</code></p>
+      <p style="margin-top:12px;color:var(--muted);font-size:12px">⚠ Ref/PO ที่ไม่มีข้อมูล — เว้นว่างไว้ระหว่าง || (อย่าลบท่อน) เพื่อให้ parser ยังแยก index ได้ถูกต้อง</p>
     </div>
   </div>
 
   <div class="doc-section">
-    <h2>🖨️ คู่มือการพิมพ์ (Print Modes)</h2>
+    <h2>📋 Google Sheets — Suppliers Sheet Structure</h2>
     <div class="doc-content">
-      <p>ระบบรองรับการพิมพ์ 2 รูปแบบ เพื่อให้สอดคล้องกับการใช้งานหน้างานที่แตกต่างกัน:</p>
+      <p>Sheet ID: <code>1J1iMGwCapKyWiymP3zm0jrEUNWfxMdwCdxN-SbsdziQ</code> → Sheet: <code>Suppliers</code></p>
+      <div class="pattern-box" style="font-family:'Kanit';font-size:13px;line-height:2.2">
+        <strong>A</strong>: Barcode (string เต็ม 7 ท่อน)<br>
+        <strong>B</strong>: Part No.<br>
+        <strong>C</strong>: วัสดุ / ชื่อสินค้า<br>
+        <strong>D</strong>: ขนาด (Size)<br>
+        <strong>E</strong>: หน่วย (Unit)<br>
+        <strong>F</strong>: Supplier<br>
+        <strong>G</strong>: ประเภท (RM / FG) ← <em>คอลัมน์ใหม่</em><br>
+        <strong>H</strong>: วันที่สร้าง ← <em>คอลัมน์ใหม่</em>
+      </div>
+      <p>WMS backend ใช้ <code>lookupBarcode(bc)</code> match คอลัมน์ A → return Part, Name, Size, Unit, Supplier ทั้งหมด</p>
+    </div>
+  </div>
+
+  <div class="doc-section">
+    <h2>🔗 การเชื่อมต่อ GAS Web App (สำหรับ GitHub Pages)</h2>
+    <div class="doc-content">
+      <p>เนื่องจาก Label Generator host บน GitHub Pages (static) จึงต้องมี GAS Web App เป็น API กลาง:</p>
       <ul>
-        <li>
-          <strong>✂️ พิมพ์แยกตามม้วน (Split Mode)</strong><br>
-          <span style="color:var(--muted); font-size: 13px;">ระบบจะนำ "Qty รวม" มาหารเฉลี่ยด้วย "จำนวน Roll" อัตโนมัติ และพิมพ์ Label ออกมาหลายใบตามจำนวน Roll ที่ระบุ โดยรหัส Lot จะถูกต่อท้ายด้วย <code>-R1</code>, <code>-R2</code>... เพื่อให้ระบุรายชิ้นได้ชัดเจน</span>
-        </li>
-        <li style="margin-top: 15px;">
-          <strong>📦 พิมพ์ใบรวม (Single / Master Pack Mode)</strong><br>
-          <span style="color:var(--muted); font-size: 13px;">ระบบจะพิมพ์ Label ออกมาเพียง 1 ใบ โดยดวงนี้จะครอบคลุมยอด "Qty รวม" และ "จำนวน Roll ทั้งหมด" เหมาะสำหรับแปะหน้าพาเลท หน้ากล่องใหญ่ หรือเอกสารแนบ</span>
-        </li>
+        <li>สร้าง Google Apps Script ใหม่ → ใส่โค้ด GAS Endpoint ด้านล่าง → Deploy as Web App (Anyone)</li>
+        <li>คัดลอก Web App URL → แปะที่ค่า <code>GAS_ENDPOINT</code> ในไฟล์ HTML บรรทัดที่ 2</li>
+        <li>ตั้งค่า Sheet ID = <code>1J1iMGwCapKyWiymP3zm0jrEUNWfxMdwCdxN-SbsdziQ</code></li>
       </ul>
+      <div class="pattern-box">// GAS Code — doPost() รับ JSON แล้ว append ลง Suppliers sheet<br>
+function doPost(e) {<br>
+&nbsp;&nbsp;const d = JSON.parse(e.postData.contents);<br>
+&nbsp;&nbsp;if (d.action === 'appendSupplier') {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;const ss = SpreadsheetApp.openById(d.sheetId);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;ss.getSheetByName(d.sheetName).appendRow(d.row);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;return ContentService.createTextOutput(JSON.stringify({success:true}))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.setMimeType(ContentService.MimeType.JSON);<br>
+&nbsp;&nbsp;}<br>
+}</div>
     </div>
   </div>
 </div>
 
 <script>
-  // ── Tab Switching Logic ──
+  // ══════════════════════════════════════════════════════
+  //  CONFIG — แก้ค่าเหล่านี้ก่อนใช้งาน
+  // ══════════════════════════════════════════════════════
+
+  // บรรทัดที่ 2 — ใส่ URL ของ GAS Web App ที่ deploy แล้ว
+  // ถ้าว่างเปล่า ระบบจะเก็บเฉพาะ LocalStorage (ไม่บันทึก Sheet)
+  const GAS_ENDPOINT = '';
+
+  // ──────────────────────────────────────────────────────
+
   function switchTab(tabId, btn) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    
-    document.getElementById('tab-gen').classList.remove('active');
-    document.getElementById('tab-docs').classList.remove('active');
-    
+    ['gen','history','docs'].forEach(id => {
+      const el = document.getElementById('tab-' + id);
+      if (el) el.classList.remove('active');
+    });
     document.getElementById('tab-' + tabId).classList.add('active');
   }
 
   function updateTypeUI() {
-    const type = document.getElementById('in-type').value;
-    const isFG = type === 'FG';
-    document.getElementById('fg-extra').style.display = isFG ? 'block' : 'none';
-    document.getElementById('lbl-pack-wrap').style.display = isFG ? '' : 'none';
-    document.getElementById('lbl-mc-wrap').style.display = isFG ? '' : 'none';
-    document.getElementById('lbl-type-badge').textContent = isFG ? 'QC PASS · FG' : 'QC PASS · RM';
-    document.getElementById('lbl-type-badge').className = 'lbl-badge' + (isFG ? ' fg' : '');
+    const isFG = document.getElementById('in-type').value === 'FG';
+    document.getElementById('fg-extra').style.display       = isFG ? 'block' : 'none';
+    document.getElementById('lbl-pack-wrap').style.display  = isFG ? '' : 'none';
+    document.getElementById('lbl-mc-wrap').style.display    = isFG ? '' : 'none';
+    document.getElementById('lbl-type-badge').textContent   = isFG ? 'QC PASS · FG' : 'QC PASS · RM';
+    document.getElementById('lbl-type-badge').className     = 'lbl-badge' + (isFG ? ' fg' : '');
+    document.getElementById('lbl-footer-type').textContent  = isFG ? 'FG Label' : 'RM Label';
     liveUpdate();
   }
 
   function updatePrintBtnUI() {
     const mode = document.getElementById('in-print-mode').value;
-    const btn = document.getElementById('btn-print-main');
-    const txt = document.getElementById('print-text');
-    const icon = document.getElementById('print-icon');
-    
-    if(mode === 'split') {
-      txt.innerHTML = 'พิมพ์ Label แยกตามม้วน';
-      icon.innerHTML = '✂️';
-      btn.style.background = 'var(--blue)';
-    } else {
-      txt.innerHTML = 'พิมพ์ Label ใบรวม (Master)';
-      icon.innerHTML = '📦';
-      btn.style.background = 'var(--navy)';
-    }
+    document.getElementById('print-text').textContent  = mode === 'split' ? 'พิมพ์ Label แยกตามม้วน' : 'พิมพ์ Label ใบรวม (Master)';
+    document.getElementById('print-icon').textContent  = mode === 'split' ? '✂️' : '📦';
+    document.getElementById('btn-print-main').className = 'btn-print ' + (mode === 'split' ? 'blue' : 'navy');
   }
 
+  // ══════════════════════════════════════════════════════
+  //  BARCODE STRING BUILDER
+  //  Format: Part|Lot|Qty|Unit|Rolls|Ref|PO  (7 fields)
+  //  ตรงกับ parseBarcode() ใน WFP-WMS Js.html ทุก index
+  // ══════════════════════════════════════════════════════
   function buildBarcodeString(part, lot, qty, unit, rolls, ref, po) {
-    // ลำดับที่ WMS คาดหวังคือ: PartNo | LotNo | TotalQty | Unit | TotalRolls | RefNo | PONo
-    let arr = [part, lot, qty, unit, rolls, ref, po];
-    return arr.join('|').replace(/\|+$/, ''); // ลบ pipe ส่วนเกินด้านหลังกรณีไม่ได้กรอกท้ายๆ
+    return [
+      String(part  || '').trim(),
+      String(lot   || '').trim(),
+      String(qty   || 0),
+      String(unit  || '').trim(),
+      String(rolls || 1),
+      String(ref   || '').trim(),   // ถ้าว่างยังคงเก็บ field ไว้
+      String(po    || '').trim(),
+    ].join('|');
   }
 
   function liveUpdate() {
-    const company = val('in-company');
-    const part = val('in-part'), lot = val('in-lot'), qty = val('in-qty');
-    const unit = val('in-unit'), rolls = val('in-rolls') || '1';
-    const name = val('in-name'), supplier = val('in-supplier');
-    const pack = val('in-pack'), mc = val('in-mc');
-    const ref = val('in-ref'), po = val('in-po');
-    const type = val('in-type');
+    const part = v('in-part'), lot = v('in-lot'), qty = v('in-qty');
+    const unit = v('in-unit'), rolls = v('in-rolls') || '1';
+    const name = v('in-name'), supplier = v('in-supplier');
+    const ref  = v('in-ref'), po = v('in-po');
+    const pack = v('in-pack'), mc = v('in-mc');
+    const company = v('in-company');
 
-    // อัปเดตชื่อบริษัท
-    set('lbl-company-display', company || 'Company Name');
-
-    // สร้างข้อมูล Barcode
     const bcStr = buildBarcodeString(part, lot, qty, unit, rolls, ref, po);
 
-    set('lbl-part', part || '—'); set('lbl-lot', lot || '—');
-    set('lbl-qty', qty || '0');   set('lbl-unit', unit);
-    set('lbl-name', name || '—'); set('lbl-rolls', rolls);
-    set('lbl-supplier', supplier || '—'); set('lbl-pack', pack || '—');
-    set('lbl-mc', mc || '—');     
-    set('lbl-ref', ref || '—');   set('lbl-po', po || '—');
-    
-    // ไฮไลต์เครื่องหมาย | ใน Preview
-    const highlightedStr = bcStr.replace(/\|/g, '<span style="color:var(--red)">|</span>');
-    document.getElementById('bc-string-preview').innerHTML = highlightedStr;
-    set('lbl-bc-text', bcStr);
+    s('lbl-company-display', company || 'Company Name');
+    s('lbl-part',     part     || '—'); s('lbl-lot',  lot      || '—');
+    s('lbl-qty',      qty      || '0'); s('lbl-unit', unit);
+    s('lbl-name',     name     || '—'); s('lbl-rolls',rolls);
+    s('lbl-supplier', supplier || '—'); s('lbl-ref',  ref      || '—');
+    s('lbl-po',       po       || '—'); s('lbl-pack', pack     || '—');
+    s('lbl-mc',       mc       || '—'); s('lbl-bc-text', bcStr);
 
-    try { JsBarcode('#barcode-main', bcStr, { format: 'CODE128', lineColor: '#0f172a', width: 1.8, height: 55, displayValue: false, margin: 6 }); } catch (e) {}
+    // Highlight pipes
+    document.getElementById('bc-string-preview').innerHTML =
+      bcStr.replace(/\|/g, '<span style="color:#ef4444;font-weight:700"> | </span>');
+
+    try {
+      JsBarcode('#barcode-main', bcStr, {
+        format:'CODE128', lineColor:'#0f172a',
+        width:1.2, height:52, displayValue:false, margin:6, // แก้ไขลดขนาด width เป็น 1.2
+      });
+    } catch(e) { document.getElementById('barcode-main').innerHTML=''; }
   }
 
+  // ══════════════════════════════════════════════════════
+  //  PRINT — Split or Single, then save to Sheet
+  // ══════════════════════════════════════════════════════
   function doMultiPrint() {
-    const mode = val('in-print-mode');
-    const rollsInput = parseInt(val('in-rolls')) || 1;
+    const mode     = v('in-print-mode');
+    const rollsIn  = Math.max(1, parseInt(v('in-rolls')) || 1);
+    const part     = v('in-part'), baseLot = v('in-lot');
+    const unit     = v('in-unit'), ref = v('in-ref'), po = v('in-po');
+    const totalQty = parseFloat(v('in-qty')) || 0;
+    const name     = v('in-name'), supplier = v('in-supplier');
+    const company  = v('in-company'), type = v('in-type');
+
     const printArea = document.getElementById('print-area');
-    printArea.innerHTML = ''; 
-
-    const part = val('in-part'), baseLot = val('in-lot'), unit = val('in-unit');
-    const pack = val('in-pack'), mc = val('in-mc');
-    const ref = val('in-ref'), po = val('in-po');
-    const type = val('in-type');
-    const totalQty = parseFloat(val('in-qty')) || 0;
-
-    let loopCount = 1;
-    let qtyPerLabel = totalQty;
-
-    if (mode === 'split') {
-      loopCount = rollsInput;
-      qtyPerLabel = loopCount > 1 ? (totalQty / loopCount).toFixed(2) : totalQty;
-    }
+    printArea.innerHTML = '';
+    const loopCount   = mode === 'split' ? rollsIn : 1;
+    const qtyPerLabel = loopCount > 1 ? +(totalQty / loopCount).toFixed(3) : totalQty;
 
     for (let i = 1; i <= loopCount; i++) {
-      let currentLot = baseLot;
-      let displayRolls = rollsInput;
+      const currentLot   = (mode === 'split' && loopCount > 1) ? `${baseLot}-R${i}` : baseLot;
+      const displayRolls = (mode === 'split' && loopCount > 1) ? `ม้วน ${i}/${loopCount}` : String(rollsIn);
+      const embedRolls   = mode === 'split' ? 1 : rollsIn;
+      const bcStr        = buildBarcodeString(part, currentLot, qtyPerLabel, unit, embedRolls, ref, po);
 
-      if (mode === 'split' && loopCount > 1) {
-        currentLot = `${baseLot}-R${i}`;
-        displayRolls = `ม้วน ${i} / ${loopCount}`;
-      }
+      const clone = document.getElementById('label-card').cloneNode(true);
+      clone.id = 'pc-' + i;
+      clone.querySelector('#lbl-lot').textContent     = currentLot;
+      clone.querySelector('#lbl-qty').textContent     = qtyPerLabel;
+      clone.querySelector('#lbl-rolls').textContent   = displayRolls;
+      clone.querySelector('.lbl-bc-label').textContent = bcStr;
+      clone.querySelector('#lbl-company-display').textContent = company;
 
-      let embedRolls = mode === 'split' ? 1 : rollsInput;
-      let bcStr = buildBarcodeString(part, currentLot, qtyPerLabel, unit, embedRolls, ref, po);
-
-      let clone = document.getElementById('label-card').cloneNode(true);
-      clone.id = 'print-card-' + i;
-      clone.querySelector('#lbl-lot').innerText = currentLot;
-      clone.querySelector('#lbl-qty').innerText = qtyPerLabel;
-      clone.querySelector('#lbl-rolls').innerText = displayRolls;
-      clone.querySelector('.lbl-bc-label').innerText = bcStr;
-
-      let svgNode = clone.querySelector('svg');
-      svgNode.id = 'print-svg-' + i;
+      const svgEl = clone.querySelector('svg');
+      svgEl.id = 'ps-' + i;
       printArea.appendChild(clone);
 
-      try { JsBarcode('#' + svgNode.id, bcStr, { format: 'CODE128', lineColor: '#000000', width: 2.0, height: 60, displayValue: false, margin: 10 }); } catch (e) {}
-    }
+      try {
+        JsBarcode('#ps-' + i, bcStr, {
+          format:'CODE128', lineColor:'#000', width:1.2, height:58, // แก้ไขลดขนาด width เป็น 1.2
+          displayValue:false, margin:10,
+        });
+      } catch(e) {}
 
+      // ── Save to Sheet & LocalStorage ──
+      saveRecord({ barcode: bcStr, partNo: part, name, size: '', unit, supplier, type, lot: currentLot });
+    }
     window.print();
   }
 
-  function val(id) { return (document.getElementById(id)||{}).value || ''; }
-  function set(id, v) { const el = document.getElementById(id); if(el) el.textContent = String(v||''); }
+  // ══════════════════════════════════════════════════════
+  //  SAVE — LocalStorage + GAS Web App (ถ้ามี endpoint)
+  // ══════════════════════════════════════════════════════
+  async function saveRecord(row) {
+    // 1) LocalStorage (เสมอ)
+    const hist = getLocalHistory();
+    hist.unshift({ ...row, date: new Date().toLocaleDateString('th-TH'), ts: Date.now() });
+    localStorage.setItem('wfp_lbl', JSON.stringify(hist.slice(0, 600)));
+
+    // 2) GAS Web App (ถ้าตั้งค่า endpoint)
+    if (!GAS_ENDPOINT) return;
+    setSaveStatus('saving', '💾 กำลังบันทึก...');
+    try {
+      const res  = await fetch(GAS_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action:    'appendSupplier',
+          sheetId:   '1J1iMGwCapKyWiymP3zm0jrEUNWfxMdwCdxN-SbsdziQ',
+          sheetName: 'Suppliers',
+          // Columns A-H ตรงกับ WFP-WMS Suppliers sheet structure
+          row: [
+            row.barcode,                                    // A: Barcode
+            row.partNo,                                     // B: Part No.
+            row.name,                                       // C: วัสดุ/ชื่อ
+            row.size || '',                                 // D: ขนาด
+            row.unit,                                       // E: หน่วย
+            row.supplier,                                   // F: Supplier
+            row.type,                                       // G: RM/FG (NEW)
+            new Date().toLocaleDateString('en-GB'),         // H: วันที่ (NEW)
+          ],
+        }),
+      });
+      const json = await res.json();
+      setSaveStatus(json.success ? 'saved' : 'error', json.success ? '✅ บันทึกแล้ว' : '❌ ไม่สำเร็จ');
+    } catch(e) {
+      setSaveStatus('error', '❌ เชื่อมต่อไม่ได้');
+    }
+  }
+
+  function setSaveStatus(cls, msg) {
+    const el = document.getElementById('save-status');
+    el.className = 'save-status ' + cls;
+    el.textContent = msg;
+    if (cls !== 'saving') setTimeout(() => { el.style.display='none'; }, 3200);
+  }
+
+  // ══════════════════════════════════════════════════════
+  //  HISTORY
+  // ══════════════════════════════════════════════════════
+  let historyData = [];
+  function getLocalHistory() { try { return JSON.parse(localStorage.getItem('wfp_lbl') || '[]'); } catch(e) { return []; } }
+
+  function loadHistory() {
+    historyData = getLocalHistory();
+    renderHistory(historyData);
+  }
+
+  function filterHistory() {
+    const q = document.getElementById('h-search').value.toLowerCase();
+    const t = document.getElementById('h-type').value;
+    renderHistory(historyData.filter(r => {
+      if (t && r.type !== t) return false;
+      if (q) return [r.partNo, r.lot, r.supplier, r.barcode].some(x => (x||'').toLowerCase().includes(q));
+      return true;
+    }));
+  }
+
+  function renderHistory(rows) {
+    document.getElementById('hist-count').textContent = `แสดง ${rows.length} รายการ`;
+    if (!rows.length) {
+      document.getElementById('hist-tbody').innerHTML =
+        '<tr><td colspan="13" style="text-align:center;padding:24px;color:var(--light)">ยังไม่มีประวัติ</td></tr>';
+      return;
+    }
+    document.getElementById('hist-tbody').innerHTML = rows.map((r, i) => {
+      const p = (r.barcode||'').split('|');
+      const typeChip = r.type === 'FG'
+        ? '<span class="chip fg">FG</span>'
+        : '<span class="chip rm">RM</span>';
+      return `<tr>
+        <td style="color:var(--light)">${rows.length - i}</td>
+        <td>${r.date||'—'}</td><td>${typeChip}</td>
+        <td style="font-weight:500">${r.partNo||p[0]||'—'}</td>
+        <td>${r.name||'—'}</td>
+        <td class="mono">${r.lot||p[1]||'—'}</td>
+        <td style="text-align:right">${p[2]||'—'}</td>
+        <td>${p[3]||r.unit||'—'}</td>
+        <td style="text-align:center">${p[4]||1}</td>
+        <td>${r.supplier||'—'}</td>
+        <td class="mono">${p[5]||'—'}</td>
+        <td class="mono">${p[6]||'—'}</td>
+        <td class="mono" style="max-width:200px;overflow:hidden;text-overflow:ellipsis" title="${r.barcode||''}">${r.barcode||'—'}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function exportHistoryCSV() {
+    if (!historyData.length) { alert('ยังไม่มีประวัติ'); return; }
+    const hdr = 'วันที่,ประเภท,Part No.,ชื่อสินค้า,Lot,Qty,Unit,Rolls,Supplier,Ref No.,PO No.,Barcode\n';
+    const rows = historyData.map(r => {
+      const p = (r.barcode||'').split('|');
+      return [r.date,r.type,r.partNo,r.name,r.lot||p[1],p[2],p[3]||r.unit,p[4]||1,r.supplier,p[5],p[6],r.barcode]
+        .map(x=>`"${String(x||'').replace(/"/g,'""')}"`).join(',');
+    }).join('\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['\uFEFF'+hdr+rows], {type:'text/csv;charset=utf-8;'}));
+    a.download = `WFP_Labels_${new Date().toLocaleDateString('en-GB').replace(/\//g,'-')}.csv`;
+    a.click();
+  }
+
+  function clearHistory() {
+    if (!confirm('ล้างประวัติทั้งหมด?')) return;
+    localStorage.removeItem('wfp_lbl');
+    historyData = [];
+    renderHistory([]);
+  }
+
+  // ── Helpers ──
+  function v(id) { return (document.getElementById(id)||{}).value||''; }
+  function s(id,val) { const el=document.getElementById(id); if(el) el.textContent=String(val||''); }
 
   window.onload = () => {
-    document.getElementById('lbl-date').textContent = new Date().toLocaleDateString('en-GB');
+    document.getElementById('lbl-date').textContent = new Date().toLocaleDateString('th-TH');
     updatePrintBtnUI();
     liveUpdate();
   };
-  
 </script>
 </body>
 </html>
