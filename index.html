@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Partner Label Generator v3.0 — WFP WMS</title>
+  <title>Partner Label Generator V4.0 — WFP WMS</title>
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
   <style>
@@ -73,9 +73,9 @@
     .live-dot::before{content:'';width:7px;height:7px;background:var(--success);border-radius:50%;animation:pulse 2s infinite}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
     
-    /* LABEL CARD - ขยายให้กว้างขึ้นเพื่อรองรับบาร์โค้ดยาวๆ */
+    /* LABEL CARD - ขยายให้กว้างขึ้น */
     .label-wrapper{display:flex;justify-content:flex-start; overflow-x: auto; padding-bottom: 20px;}
-    .label-card{background:#fff;border:2px solid #1e293b;border-radius:10px;width:600px; /* ปรับให้กว้างขึ้น */ padding:20px 24px;box-shadow:0 8px 30px rgba(0,0,0,.15);font-family:'Kanit';flex-shrink:0}
+    .label-card{background:#fff;border:2px solid #1e293b;border-radius:10px;width:600px; padding:20px 24px;box-shadow:0 8px 30px rgba(0,0,0,.15);font-family:'Kanit';flex-shrink:0}
     
     .lbl-head{display:flex;align-items:flex-start;justify-content:space-between;padding-bottom:12px;border-bottom:2.5px solid #1e293b;margin-bottom:14px}
     .lbl-company{font-size:16px;font-weight:700;color:#0f172a;line-height:1.25;word-break:break-word}
@@ -91,30 +91,28 @@
     .lbl-qty-unit{font-size:14px;font-weight:500;color:var(--muted)}
     hr.lbl-divider{border:none;border-top:1px dashed #94a3b8;margin:12px 0}
     
-    /* 🔑 การปลดล็อกบาร์โค้ด ไม่ให้ถูกบีบอัด */
-    .lbl-bc-section{text-align:center;background:#fff;padding:10px;border-radius:6px;border:1px solid #e2e8f0; overflow:hidden;}
+    /* 🔑 แก้ไขการแสดงผลบาร์โค้ด ไม่ให้ขาด และให้อยู่ในกรอบเสมอ */
+    .lbl-bc-section{text-align:center;background:#fff;padding:10px;border-radius:6px;border:1px solid #e2e8f0;}
     .lbl-bc-section svg{
-      max-width:none !important; /* ปลดล็อกรูป ไม่ให้ถูกบีบ */
-      width:auto !important;     /* ให้กว้างตามจริงของเส้น */
-      height: 60px;
+      max-width: 100% !important; /* ป้องกันไม่ให้ล้นกล่องจนขาด */
+      height: 60px !important;
     }
     .lbl-bc-label{font-size:10px;color:var(--muted);margin-top:6px;font-family:'JetBrains Mono';word-break:break-all}
     
     .lbl-footer{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid #e2e8f0;font-size:11px;color:var(--muted)}
     .qr-placeholder{width:45px;height:45px;background:#f1f5f9;border:1px dashed var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--light);text-align:center}
     
-    /* HISTORY TAB & DOCS TAB (ย่อลงเพื่อประหยัดพื้นที่) */
-    #tab-history,#tab-docs{display:none;padding:28px 32px;max-width:1240px;margin:0 auto;animation:fadeUp .3s ease}
-    #tab-history.active,#tab-docs.active{display:block}
+    /* HISTORY TAB */
+    #tab-history{display:none;padding:28px 32px;max-width:1240px;margin:0 auto;animation:fadeUp .3s ease}
+    #tab-history.active{display:block}
     table{width:100%;border-collapse:collapse;font-size:12px} table th{background:var(--navy);color:#fff;text-align:left;padding:10px 12px;font-weight:500} table td{padding:9px 12px;border-bottom:1px solid var(--sky)}
     .tbl-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);overflow-x:auto;}
-    .doc-section{background:var(--card);border-radius:var(--rl);padding:28px;margin-bottom:22px;border:1px solid var(--border)}
     
-    /* 🖨️ PRINT MEDIA (สำหรับการปริ้นท์ลง A4) */
+    /* 🖨️ PRINT MEDIA */
     #print-area{display:none}
     @media print{
       body{background:#fff}
-      .app-header,.tab-bar,.form-panel,.preview-header,#tab-docs,#tab-history,#tab-gen>.preview-panel{display:none!important}
+      .app-header,.tab-bar,.form-panel,.preview-header,#tab-history,#tab-gen>.preview-panel{display:none!important}
       #tab-gen.active{display:block;padding:0}
       #print-area{display:flex;flex-direction:column;gap:20px;align-items:center}
       
@@ -122,7 +120,7 @@
       .label-card{
         border:1.5px solid #000;
         box-shadow:none;
-        width: 90%; /* ให้กว้าง 90% ของหน้ากระดาษ A4 */
+        width: 90%; 
         max-width: 750px; 
         padding:24px 28px;
         break-inside:avoid;
@@ -132,10 +130,10 @@
       .lbl-field .lf-val{font-size:15px}
       .lbl-company{font-size:18px}
       
-      /* ป้องกันการบีบอัดบาร์โค้ดตอนปริ้นท์ */
+      /* ป้องกันบาร์โค้ดขาดตอนสั่งพิมพ์ */
       .lbl-bc-section svg{
-        max-width: none !important;
-        width: auto !important;
+        max-width: 100% !important;
+        height: 65px !important;
       }
     }
   </style>
@@ -191,6 +189,13 @@
     <div class="form-row">
       <div class="form-group"><label>Ref No. (อ้างอิง)</label><input type="text" id="in-ref" placeholder="RC-XXXX" oninput="liveUpdate()"></div>
       <div class="form-group"><label>PO No.</label><input type="text" id="in-po" placeholder="PO-XXXX" oninput="liveUpdate()"></div>
+    </div>
+
+    <div class="fg-extra" id="fg-extra">
+      <div class="form-row" style="margin-bottom:0">
+        <div class="form-group" style="margin-bottom:0"><label>Pack Qty</label><input type="text" id="in-pack" placeholder="50ชิ้น/แพ็ค" oninput="liveUpdate()"></div>
+        <div class="form-group" style="margin-bottom:0"><label>M/C</label><input type="text" id="in-mc" placeholder="M/C-01" oninput="liveUpdate()"></div>
+      </div>
     </div>
 
     <div class="form-group">
@@ -313,7 +318,7 @@
     try {
       JsBarcode('#barcode-main', bcStr, {
         format:'CODE128', lineColor:'#0f172a',
-        width: 1.4, // ใช้ 1.4 ซึ่งพอดีมากสำหรับ 1D Scanner
+        width: 1.1, // 🔑 ปรับเป็น 1.1 เพื่อให้บาร์โค้ดไม่ทึบและอยู่ในกรอบ
         height: 60, displayValue:false, margin:4,
       });
     } catch(e) { document.getElementById('barcode-main').innerHTML=''; }
@@ -353,7 +358,7 @@
       try {
         JsBarcode('#ps-' + i, bcStr, {
           format:'CODE128', lineColor:'#000', 
-          width: 1.4, // ค่าพอดีสำหรับแสงเลเซอร์ 1D
+          width: 1.1, // 🔑 ปรับเป็น 1.1 เพื่อให้บาร์โค้ดไม่ทึบและอยู่ในกรอบตอนปริ้นท์
           height: 65, displayValue:false, margin:4,
         });
       } catch(e) {}
@@ -361,7 +366,6 @@
       saveToHistory({ date: new Date().toLocaleDateString('th-TH'), type: v('in-type'), partNo: part, lot: currentLot, qty: qtyPerLabel, unit, rolls: displayRolls, barcode: bcStr });
     }
     
-    // ตั้งหน่วงเวลาเล็กน้อยให้วาดบาร์โค้ดเสร็จก่อนปริ้นท์
     setTimeout(() => { window.print(); }, 300);
   }
 
