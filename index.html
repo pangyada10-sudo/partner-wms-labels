@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Partner Label Generator v2.0</title>
+  <title>Partner Label Generator V3.0</title>
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --navy: #0f172a; /* ปรับสีเป็นกลาง ไม่ผูกกับแบรนด์ใดแบรนด์หนึ่ง */
+      --navy: #0f172a; 
       --blue: #3b82f6;
       --green: #10b981;
       --amber: #f59e0b;
@@ -103,9 +103,8 @@
     
     .pattern-box { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px; margin: 15px 0; font-family: monospace; }
     .pattern-row { display: flex; margin-bottom: 8px; }
-    .pattern-badge { width: 40px; font-weight: bold; }
+    .pattern-badge { width: 50px; font-weight: bold; }
     .pattern-rm .pattern-badge { color: var(--blue); }
-    .pattern-fg .pattern-badge { color: var(--green); }
     .pattern-data { color: #475569; }
     .pattern-pipe { color: var(--red); font-weight: bold; margin: 0 4px; }
 
@@ -126,7 +125,7 @@
 
 <div class="app-header">
   <div class="logo-text">Universal <span>Label System</span></div>
-  <div class="version-badge">v2.0 OS</div>
+  <div class="version-badge">v3.0 OS</div>
 </div>
 
 <div class="tab-bar">
@@ -177,7 +176,11 @@
       <div class="form-group"><label>Supplier</label><input type="text" id="in-supplier" value="Partner Supplier" oninput="liveUpdate()"></div>
     </div>
 
-    <div class="form-group"><label>PO Reference / Ref No.</label><input type="text" id="in-po" placeholder="เช่น PO-1234" oninput="liveUpdate()"></div>
+    <!-- เปลี่ยนตรงนี้ เพื่อแยกช่อง Ref No และ PO No ให้ชัดเจน -->
+    <div class="form-row">
+      <div class="form-group"><label>Ref No. (รหัสอ้างอิง)</label><input type="text" id="in-ref" placeholder="เช่น REF-001" oninput="liveUpdate()"></div>
+      <div class="form-group"><label>PO No.</label><input type="text" id="in-po" placeholder="เช่น PO-1234" oninput="liveUpdate()"></div>
+    </div>
 
     <!-- FG Extra -->
     <div id="fg-extra" style="display:none; background: #f1f5f9; padding: 12px; border-radius: 8px; margin-bottom: 14px; border: 1px solid #e2e8f0;">
@@ -226,7 +229,8 @@
           <div class="lbl-field"><div class="lf-key">วันที่บันทึก</div><div class="lf-val" id="lbl-date">—</div></div>
           <div class="lbl-field" id="lbl-rolls-wrap"><div class="lf-key">จำนวน Roll</div><div class="lf-val" id="lbl-rolls">2</div></div>
           <div class="lbl-field" id="lbl-supplier-wrap"><div class="lf-key">Supplier</div><div class="lf-val" id="lbl-supplier">Partner Supplier</div></div>
-          <div class="lbl-field" id="lbl-po-wrap"><div class="lf-key">PO / Ref No.</div><div class="lf-val" id="lbl-po">—</div></div>
+          <div class="lbl-field" id="lbl-ref-wrap"><div class="lf-key">Ref No.</div><div class="lf-val" id="lbl-ref">—</div></div>
+          <div class="lbl-field" id="lbl-po-wrap"><div class="lf-key">PO No.</div><div class="lf-val" id="lbl-po">—</div></div>
           <div class="lbl-field" id="lbl-pack-wrap" style="display:none"><div class="lf-key">Pack Qty</div><div class="lf-val" id="lbl-pack">—</div></div>
           <div class="lbl-field" id="lbl-mc-wrap" style="display:none"><div class="lf-key">M/C</div><div class="lf-val" id="lbl-mc">—</div></div>
         </div>
@@ -245,24 +249,18 @@
   <div class="doc-section">
     <h2>📊 มาตรฐานโครงสร้างข้อมูล Barcode (Data Pattern)</h2>
     <div class="doc-content">
-      <p>เพื่อให้ระบบ WMS/ERP ของทุกองค์กรที่เป็นพาร์ทเนอร์สามารถสแกนและอ่านข้อมูลได้ตรงกัน ข้อมูลใน Barcode จะถูกคั่นด้วยเครื่องหมาย <code>|</code> (Pipe) ตามลำดับดังต่อไปนี้อย่างเคร่งครัด:</p>
+      <p>เพื่อให้ระบบ WMS ของคลังสินค้าปลายทางสามารถสแกนและรับค่าต่างๆ ได้อย่างสมบูรณ์ ข้อมูลใน Barcode ต้องถูกคั่นด้วยเครื่องหมาย <code>|</code> (Pipe) เรียงตามลำดับ 7 ท่อน ดังนี้:</p>
       
       <div class="pattern-box">
         <div class="pattern-row pattern-rm">
-          <div class="pattern-badge">RM:</div>
+          <div class="pattern-badge">ALL:</div>
           <div class="pattern-data">
-            Part <span class="pattern-pipe">|</span> Lot <span class="pattern-pipe">|</span> Qty <span class="pattern-pipe">|</span> Rolls <span class="pattern-pipe">|</span> Unit <span class="pattern-pipe">|</span> PO
-          </div>
-        </div>
-        <div class="pattern-row pattern-fg" style="margin-top: 10px; border-top: 1px dashed #cbd5e1; padding-top: 10px;">
-          <div class="pattern-badge">FG:</div>
-          <div class="pattern-data">
-            Part <span class="pattern-pipe">|</span> Lot <span class="pattern-pipe">|</span> Qty <span class="pattern-pipe">|</span> Rolls <span class="pattern-pipe">|</span> Unit <span class="pattern-pipe">|</span> Pack <span class="pattern-pipe">|</span> M/C <span class="pattern-pipe">|</span> PO
+            Part <span class="pattern-pipe">|</span> Lot <span class="pattern-pipe">|</span> Qty <span class="pattern-pipe">|</span> Unit <span class="pattern-pipe">|</span> Rolls <span class="pattern-pipe">|</span> Ref <span class="pattern-pipe">|</span> PO
           </div>
         </div>
       </div>
       
-      <p><strong>ตัวอย่างข้อมูล (RM):</strong> <code>PAP150N400|L04-R1|250|1|Kgs|PO-1234</code></p>
+      <p><strong>ตัวอย่างข้อมูลสแกน:</strong> <code>PAP150N400|L04-R1|250|Kgs|1|REF-999|PO-1234</code></p>
     </div>
   </div>
 
@@ -324,9 +322,10 @@
     }
   }
 
-  function buildBarcodeString(part, lot, qty, rolls, unit, pack, mc, po, type) {
-    let arr = [part, lot, qty, rolls, unit, (type === 'FG' ? pack : ''), (type === 'FG' ? mc : ''), po];
-    return arr.join('|').replace(/\|+$/, ''); // ลบ pipe ส่วนเกินด้านหลัง
+  function buildBarcodeString(part, lot, qty, unit, rolls, ref, po) {
+    // ลำดับที่ WMS คาดหวังคือ: PartNo | LotNo | TotalQty | Unit | TotalRolls | RefNo | PONo
+    let arr = [part, lot, qty, unit, rolls, ref, po];
+    return arr.join('|').replace(/\|+$/, ''); // ลบ pipe ส่วนเกินด้านหลังกรณีไม่ได้กรอกท้ายๆ
   }
 
   function liveUpdate() {
@@ -334,19 +333,22 @@
     const part = val('in-part'), lot = val('in-lot'), qty = val('in-qty');
     const unit = val('in-unit'), rolls = val('in-rolls') || '1';
     const name = val('in-name'), supplier = val('in-supplier');
-    const pack = val('in-pack'), mc = val('in-mc'), po = val('in-po');
+    const pack = val('in-pack'), mc = val('in-mc');
+    const ref = val('in-ref'), po = val('in-po');
     const type = val('in-type');
 
     // อัปเดตชื่อบริษัท
     set('lbl-company-display', company || 'Company Name');
 
-    const bcStr = buildBarcodeString(part, lot, qty, rolls, unit, pack, mc, po, type);
+    // สร้างข้อมูล Barcode
+    const bcStr = buildBarcodeString(part, lot, qty, unit, rolls, ref, po);
 
     set('lbl-part', part || '—'); set('lbl-lot', lot || '—');
     set('lbl-qty', qty || '0');   set('lbl-unit', unit);
     set('lbl-name', name || '—'); set('lbl-rolls', rolls);
     set('lbl-supplier', supplier || '—'); set('lbl-pack', pack || '—');
-    set('lbl-mc', mc || '—');     set('lbl-po', po || '—');
+    set('lbl-mc', mc || '—');     
+    set('lbl-ref', ref || '—');   set('lbl-po', po || '—');
     
     // ไฮไลต์เครื่องหมาย | ใน Preview
     const highlightedStr = bcStr.replace(/\|/g, '<span style="color:var(--red)">|</span>');
@@ -363,7 +365,8 @@
     printArea.innerHTML = ''; 
 
     const part = val('in-part'), baseLot = val('in-lot'), unit = val('in-unit');
-    const pack = val('in-pack'), mc = val('in-mc'), po = val('in-po');
+    const pack = val('in-pack'), mc = val('in-mc');
+    const ref = val('in-ref'), po = val('in-po');
     const type = val('in-type');
     const totalQty = parseFloat(val('in-qty')) || 0;
 
@@ -385,7 +388,7 @@
       }
 
       let embedRolls = mode === 'split' ? 1 : rollsInput;
-      let bcStr = buildBarcodeString(part, currentLot, qtyPerLabel, embedRolls, unit, pack, mc, po, type);
+      let bcStr = buildBarcodeString(part, currentLot, qtyPerLabel, unit, embedRolls, ref, po);
 
       let clone = document.getElementById('label-card').cloneNode(true);
       clone.id = 'print-card-' + i;
