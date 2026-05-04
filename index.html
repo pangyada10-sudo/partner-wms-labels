@@ -95,9 +95,9 @@
     .lbl-qty-unit{font-size:13px;font-weight:500;color:var(--muted)}
     hr.lbl-divider{border:none;border-top:1px dashed #94a3b8;margin:10px 0}
 
-    /* ════ BARCODE SECTION — key fix ════ */
+    /* ════ BARCODE SECTION ════ */
     .lbl-bc-section{text-align:center;background:#fff;padding:10px 6px;border-radius:6px;border:1px solid #e2e8f0;overflow:hidden}
-    .lbl-bc-section svg{display:block;margin:0 auto;max-width:100%;height:auto !important}
+    .lbl-bc-section svg{display:block;margin:0 auto;max-width:100% !important;height:auto !important}
     .lbl-bc-label{font-size:10px;color:var(--muted);margin-top:5px;font-family:'JetBrains Mono';word-break:break-all;letter-spacing:.03em}
 
     .lbl-footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:8px;border-top:1px solid #e2e8f0;font-size:10px;color:var(--muted)}
@@ -119,7 +119,7 @@
       #tab-gen.active{display:block;padding:0}
       #print-area{display:flex;flex-direction:column;gap:16px;align-items:center}
       .label-card{border:1.5px solid #000;box-shadow:none;width:100%;max-width:720px;padding:20px 24px;break-inside:avoid;margin:0 auto}
-      .lbl-bc-section svg{max-width:100%;height:auto !important}
+      .lbl-bc-section svg{max-width:100% !important;height:auto !important}
       .lbl-qty-big{font-size:34px}
       .lbl-field .lf-val{font-size:13px}
     }
@@ -129,7 +129,7 @@
 
 <div class="app-header">
   <div class="logo-text">WFP <span>Label System</span></div>
-  <div class="version-badge">v4.0 WMS</div>
+  <div class="version-badge">v4.0 WMS (Fixed)</div>
   <div class="header-right"><div class="save-status" id="save-status"></div></div>
 </div>
 
@@ -391,37 +391,19 @@
 //  CONSTANTS & STATE
 // ══════════════════════════════════════════════
 
-// ═══ KEY FIX: โครงสร้าง Barcode ให้ scan ติด ═══
-//
-// ปัญหาเดิม: ใช้ | (pipe) คั่น + width 1.1
-//   → string ยาวมาก + bars ชิดกัน → scanner อ่านไม่ออก
-//
-// แก้ไขแล้ว:
-//   1. ใช้ format เดิมที่ scan ติด: TYPE-PARTNO-LOT-QTY-UNIT
-//      ตัวอย่าง: RM-AAP050C400-L04-2026-R1-9.477-KGS
-//      → สั้น กระชับ ไม่มี | ไม่มีอักขระพิเศษ
-//   2. width: 2.0 (เหมาะกับ CODE128 บน paper 80mm+)
-//   3. height: 70 (สูงขึ้นให้ scanner ตรวจจับง่าย)
-//
-// วิธีอ่านเมื่อ scan: split("-") แล้วแยก field
-// ═══════════════════════════════════════════════
-
-function buildBarcodeString(type, part, lot, qty, unit) {
-  // ═══ FORMAT: TYPE-PART-LOT-QTY-UNIT ═══
-  // ใช้ dash (-) แทน pipe (|)
-  // ลบ space และอักขระที่ scanner บางรุ่นอ่านไม่ออก
-  var clean = function(s){ return String(s||'').trim().replace(/\s+/g,'-').replace(/[^\w.\-]/g,''); };
-  var t   = clean(type);
-  var p   = clean(part);
-  var l   = clean(lot);
-  var q   = String(parseFloat(qty)||0);
-  var u   = clean(unit).replace(/\./g,''); // ลบ . ออกจาก KGS.
-  return [t,p,l,q,u].join('-');
-}
-
-// barcode preview เก็บ full data string แยกต่างหาก (ใช้แสดงบน label + บันทึก Sheet เท่านั้น ไม่ encode ลงบาร์โค้ด)
-function buildFullDataString(type, part, lot, qty, unit, rolls, ref, po, mc) {
-  return [part,lot,qty,unit,rolls,ref,po,mc].filter(Boolean).join('|');
+// ═══ แก้ไขให้กลับไปใช้ | (pipe) ตามที่ WMS คาดหวัง ═══
+function buildBarcodeString(part, lot, qty, unit, rolls, ref, po) {
+  var arr = [
+    String(part || '').trim(),
+    String(lot || '').trim(),
+    String(qty || 0).trim(),
+    String(unit || '').trim(),
+    String(rolls || 1).trim(),
+    String(ref || '').trim(),
+    String(po || '').trim()
+  ];
+  // Join ด้วย pipe (|) และลบส่วนเกินด้านหลังออกเพื่อประหยัดพื้นที่
+  return arr.join('|').replace(/\|+$/, '');
 }
 
 var TODAY = new Date();
@@ -464,9 +446,8 @@ function liveUpdate() {
   var supplier=v('in-supplier'), ref=v('in-ref'), po=v('in-po'), mc=v('in-mc');
   var pack=v('in-pack'), company=v('in-company');
 
-  // ═══ สร้าง barcode string (format ที่ scan ติด) ═══
-  var bcStr  = buildBarcodeString(type, part, lot, qty, unit);
-  var full   = buildFullDataString(type, part, lot, qty, unit, rolls, ref, po, mc);
+  // ═══ สร้าง barcode string (format ใช้ | คั่น) ═══
+  var bcStr = buildBarcodeString(part, lot, qty, unit, rolls, ref, po);
 
   // อัปเดต UI fields
   s('lbl-company-display', company||'Company Name');
@@ -478,9 +459,9 @@ function liveUpdate() {
   s('lbl-pack',     pack||'—');   s('lbl-bc-text', bcStr);
 
   // Preview box: แสดง barcode string + ความยาว
-  var hi = bcStr.replace(/-/g,'<span style="color:#ef4444;font-weight:700">-</span>');
+  var hi = bcStr.replace(/\|/g,'<span style="color:#ef4444;font-weight:700">|</span>');
   document.getElementById('bc-string-preview').innerHTML = hi || '—';
-  document.getElementById('bc-len-hint').textContent = bcStr ? '(' + bcStr.length + ' ตัวอักษร — format: TYPE-PART-LOT-QTY-UNIT)' : '';
+  document.getElementById('bc-len-hint').textContent = bcStr ? '(' + bcStr.length + ' ตัวอักษร — format: PART|LOT|QTY|UNIT|ROLLS|REF|PO)' : '';
 
   // render barcode
   renderBarcode('#barcode-main', bcStr);
@@ -492,15 +473,11 @@ function renderBarcode(selector, str) {
     JsBarcode(selector, str, {
       format      : 'CODE128',
       lineColor   : '#0f172a',
-      // ═══ KEY FIX: width 2.0 + height 70 ═══
-      // width ต่ำกว่า 1.8 บน string ยาว → bars ชิดกันเกินไป → scan ไม่ติด
-      // width 2.0 คือค่า default ที่ JsBarcode แนะนำ
-      width       : 2.0,
-      height      : 70,
+      // ═══ KEY FIX: width 1.4 สำหรับเครื่องสแกน 1D ทั่วไป ═══
+      width       : 1.4,
+      height      : 60,
       displayValue: false,
       margin      : 10,
-      marginLeft  : 10,
-      marginRight : 10,
     });
   } catch(e) {
     document.querySelector(selector).innerHTML='';
@@ -532,8 +509,8 @@ function doMultiPrint() {
     var displayRolls = (mode==='split' && loopCount>1) ? 'ม้วน '+i+'/'+loopCount : String(rollsIn);
     var embedRolls   = mode==='split' ? 1 : rollsIn;
 
-    // ═══ barcode string (สั้น scan ติด) ═══
-    var bcStr = buildBarcodeString(type, part, currentLot, qtyPerLabel, unit);
+    // ═══ barcode string (format ใช้ | คั่น) ═══
+    var bcStr = buildBarcodeString(part, currentLot, qtyPerLabel, unit, embedRolls, ref, po);
 
     // clone label
     var clone = document.getElementById('label-card').cloneNode(true);
@@ -552,8 +529,7 @@ function doMultiPrint() {
     try {
       JsBarcode('#ps-'+i, bcStr, {
         format:'CODE128', lineColor:'#000',
-        width:2.0, height:70, displayValue:false, margin:10,
-        marginLeft:10, marginRight:10
+        width:1.4, height:70, displayValue:false, margin:10
       });
     } catch(e){}
 
