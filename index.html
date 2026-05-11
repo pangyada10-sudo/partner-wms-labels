@@ -1,345 +1,411 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Partner Label Generator — WMS v5.1</title>
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-  <style>
-  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
-  :root {
-    --navy:#0f172a; --blue:#3b82f6; --blue-dk:#1d4ed8;
-    --green:#10b981; --amber:#f59e0b; --red:#ef4444;
-    --bg:#f1f5f9; --card:#fff; --border:#e2e8f0;
-    --text:#1e293b; --muted:#64748b;
-    --r:10px; --shadow:0 4px 20px rgba(15,23,42,.08);
-  }
-  body { font-family:'Kanit',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Universal Label System — WMS V6.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════
+   RESET & VARIABLES
+═══════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0f172a;--blue:#3b82f6;--blue-dk:#1d4ed8;
+  --green:#10b981;--amber:#f59e0b;--red:#ef4444;--purple:#8b5cf6;
+  --bg:#f1f5f9;--card:#fff;--border:#e2e8f0;
+  --text:#1e293b;--muted:#64748b;
+  --shadow:0 4px 20px rgba(15,23,42,.08);
+}
+body{font-family:'Kanit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
-  /* ── HEADER ── */
-  .app-header {
-    background:var(--navy); color:#fff; padding:0 28px;
-    display:flex; align-items:center; gap:14px; height:54px;
-    box-shadow:0 2px 14px rgba(0,0,0,.25);
-  }
-  .logo-text { font-size:18px; font-weight:700; }
-  .logo-text span { color:var(--blue); font-weight:400; }
-  .vbadge { background:#1e293b; color:#94a3b8; border:1px solid #334155; font-size:11px; font-weight:600; padding:2px 9px; border-radius:20px; }
-  .ds-chip {
-    margin-left:auto; display:flex; align-items:center; gap:7px;
-    background:#1e293b; border:1px solid #334155; border-radius:20px;
-    padding:5px 13px; font-size:12px; font-weight:600; color:#94a3b8; cursor:pointer; transition:.2s;
-  }
-  .ds-chip:hover { border-color:var(--blue); color:#fff; }
-  .ds-dot { width:8px; height:8px; border-radius:50%; background:#475569; flex-shrink:0; }
-  .ds-dot.ok  { background:var(--green); box-shadow:0 0 5px var(--green); }
-  .ds-dot.err { background:var(--red); }
-  .ds-dot.loading { background:var(--amber); animation:blink 1s infinite; }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+/* ═══════════════════════════════════════════
+   HEADER
+═══════════════════════════════════════════ */
+.hdr{background:var(--navy);color:#fff;height:52px;padding:0 24px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 12px rgba(0,0,0,.3)}
+.hdr-logo{font-size:17px;font-weight:700;white-space:nowrap}
+.hdr-logo span{color:var(--blue);font-weight:400}
+.hdr-ver{background:#1e293b;color:#94a3b8;border:1px solid #334155;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px}
+.hdr-ds{margin-left:auto;display:flex;align-items:center;gap:6px;background:#1e293b;border:1px solid #334155;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;color:#94a3b8;cursor:pointer;transition:.2s;white-space:nowrap}
+.hdr-ds:hover{border-color:var(--blue);color:#fff}
+.dot{width:7px;height:7px;border-radius:50%;background:#475569;flex-shrink:0}
+.dot.ok{background:var(--green);box-shadow:0 0 5px var(--green)}
+.dot.err{background:var(--red)}
+.dot.spin-c{background:var(--amber);animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-  /* ── TABS ── */
-  .tab-bar { background:var(--card); border-bottom:2px solid var(--border); display:flex; padding:0 28px; gap:4px; }
-  .tab-btn { padding:12px 20px; border:none; background:none; font-family:'Kanit'; font-size:14px; font-weight:500; color:var(--muted); cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-2px; transition:.2s; }
-  .tab-btn:hover { color:var(--navy); }
-  .tab-btn.active { color:var(--blue); border-bottom-color:var(--blue); font-weight:700; }
+/* ═══════════════════════════════════════════
+   TAB BAR
+═══════════════════════════════════════════ */
+.tabs{background:var(--card);border-bottom:2px solid var(--border);display:flex;padding:0 24px;gap:2px}
+.tab{padding:11px 18px;border:none;background:none;font-family:'Kanit';font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.2s;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.tab:hover{color:var(--navy)}
+.tab.on{color:var(--blue);border-bottom-color:var(--blue);font-weight:700}
+.qbadge{display:inline-flex;align-items:center;justify-content:center;background:var(--red);color:#fff;font-size:9px;font-weight:700;min-width:17px;height:17px;border-radius:9px;padding:0 3px}
 
-  /* ── LAYOUT ── */
-  .app-body { display:none; padding:22px 28px; max-width:1400px; margin:0 auto; }
-  .app-body.active { display:grid; grid-template-columns:420px 1fr; gap:22px; }
-  @media(max-width:960px){ .app-body.active{ grid-template-columns:1fr; padding:12px; } }
+/* ═══════════════════════════════════════════
+   PAGE CONTAINERS
+═══════════════════════════════════════════ */
+.page{display:none;padding:18px 24px;max-width:1520px;margin:0 auto}
+.page.on{display:grid;grid-template-columns:370px 1fr;gap:18px;align-items:start}
+@media(max-width:980px){.page.on{grid-template-columns:1fr;padding:10px}}
 
-  /* ── FORM PANEL ── */
-  .form-panel { background:var(--card); border-radius:var(--r); box-shadow:var(--shadow); padding:20px; border:1px solid var(--border); }
-  .panel-title { font-size:15px; font-weight:700; color:var(--navy); margin-bottom:16px; padding-bottom:11px; border-bottom:2px solid var(--bg); }
-  .fg { margin-bottom:12px; position:relative; }
-  .fg label { display:block; font-size:10px; font-weight:700; color:var(--muted); margin-bottom:4px; text-transform:uppercase; letter-spacing:.05em; }
-  .fg input, .fg select { width:100%; padding:8px 12px; font-size:13px; font-family:'Kanit'; border:1.5px solid var(--border); border-radius:7px; background:#f8fafc; color:var(--text); transition:.2s; }
-  .fg input:focus, .fg select:focus { outline:none; border-color:var(--blue); box-shadow:0 0 0 3px rgba(59,130,246,.12); background:#fff; }
-  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+/* ═══════════════════════════════════════════
+   LEFT: FORM PANEL
+═══════════════════════════════════════════ */
+.fpanel{background:var(--card);border-radius:10px;box-shadow:var(--shadow);padding:16px;border:1px solid var(--border)}
+.ptitle{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--bg);display:flex;align-items:center;gap:8px}
+.etag{background:var(--amber);color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px}
 
-  /* scan toggle */
-  .scan-toggle { display:flex; border:1.5px solid var(--border); border-radius:7px; overflow:hidden; }
-  .scan-toggle input[type=radio] { display:none; }
-  .scan-toggle label { flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:8px 4px; cursor:pointer; font-size:13px; font-weight:600; color:var(--muted); background:#f8fafc; transition:.2s; margin:0; text-transform:none; letter-spacing:0; border:none; }
-  .scan-toggle label:first-of-type { border-right:1.5px solid var(--border); }
-  .scan-toggle input[type=radio]:checked + label { background:var(--navy); color:#fff; }
+/* form fields */
+.fg{margin-bottom:10px;position:relative}
+.fg label{display:block;font-size:9.5px;font-weight:700;color:var(--muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:.05em}
+.fg input,.fg select{width:100%;padding:7px 10px;font-size:13px;font-family:'Kanit';border:1.5px solid var(--border);border-radius:7px;background:#f8fafc;color:var(--text);transition:.15s}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.12);background:#fff}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 
-  /* autocomplete */
-  .ac-wrap { position:relative; }
-  .ac-row { display:flex; gap:6px; }
-  .ac-row input { flex:1; min-width:0; }
-  .btn-plus { background:var(--green); color:#fff; border:none; border-radius:7px; width:34px; height:34px; font-size:19px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:.2s; padding:0; }
-  .btn-plus:hover { background:#059669; transform:scale(1.07); }
+/* scan toggle */
+.stog{display:flex;border:1.5px solid var(--border);border-radius:7px;overflow:hidden}
+.stog input[type=radio]{display:none}
+.stog label{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:7px 4px;cursor:pointer;font-size:12px;font-weight:600;color:var(--muted);background:#f8fafc;transition:.2s;margin:0;text-transform:none;letter-spacing:0;border:none}
+.stog label:first-of-type{border-right:1.5px solid var(--border)}
+.stog input[type=radio]:checked+label{background:var(--navy);color:#fff}
 
-  .acdrop { position:absolute; top:calc(100% + 3px); left:0; right:0; background:#fff; border:1.5px solid var(--blue); border-radius:8px; box-shadow:0 10px 30px rgba(15,23,42,.15); z-index:999; max-height:260px; overflow-y:auto; display:none; }
-  .acdrop.open { display:block; }
-  .ac-item { padding:9px 13px; cursor:pointer; border-bottom:1px solid #f1f5f9; transition:background .1s; }
-  .ac-item:last-child { border-bottom:none; }
-  .ac-item:hover,.ac-item.sel { background:#eff6ff; }
-  .ac-p { font-size:11px; font-weight:700; color:var(--blue); font-family:'JetBrains Mono',monospace; }
-  .ac-n { font-size:13px; font-weight:600; color:var(--navy); margin-top:1px; }
-  .ac-tags { display:flex; gap:3px; margin-top:2px; }
-  .act { font-size:10px; font-weight:700; padding:1px 6px; border-radius:20px; }
-  .act.rm { background:#dbeafe; color:#1d4ed8; }
-  .act.fg { background:#d1fae5; color:#065f46; }
-  .act.loc { background:#fef9c3; color:#92400e; }
-  .ac-none { padding:11px 13px; color:var(--muted); font-size:13px; text-align:center; }
-  mark.hl { background:#fef9c3; border-radius:2px; }
+/* autocomplete */
+.acwrap{position:relative}
+.acrow{display:flex;gap:5px}
+.acrow input{flex:1;min-width:0}
+.btnplus{background:var(--green);color:#fff;border:none;border-radius:7px;width:32px;height:32px;font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.2s;padding:0;line-height:1}
+.btnplus:hover{background:#059669;transform:scale(1.08)}
+.acdrop{position:absolute;top:calc(100% + 3px);left:0;right:0;background:#fff;border:1.5px solid var(--blue);border-radius:8px;box-shadow:0 10px 28px rgba(15,23,42,.15);z-index:1000;max-height:230px;overflow-y:auto;display:none}
+.acdrop.on{display:block}
+.aci{padding:8px 11px;cursor:pointer;border-bottom:1px solid #f1f5f9;transition:background .1s}
+.aci:last-child{border-bottom:none}
+.aci:hover,.aci.sel{background:#eff6ff}
+.aci-p{font-size:10.5px;font-weight:700;color:var(--blue);font-family:'JetBrains Mono',monospace}
+.aci-n{font-size:12px;font-weight:600;color:var(--navy);margin-top:1px}
+.aci-tags{display:flex;gap:3px;margin-top:2px}
+.atag{font-size:9px;font-weight:700;padding:1px 5px;border-radius:20px}
+.atag.rm{background:#dbeafe;color:#1d4ed8}
+.atag.fg{background:#d1fae5;color:#065f46}
+.atag.loc{background:#fef9c3;color:#92400e}
+.acnone{padding:10px 12px;color:var(--muted);font-size:12px;text-align:center}
+mark.hl{background:#fef9c3;border-radius:2px;padding:0}
+.name-ok{border-color:var(--green)!important;background:#f0fdf4!important}
+.afbadge{display:none;font-size:9px;color:var(--green);font-weight:700;margin-left:6px}
 
-  .name-ok { border-color:var(--green)!important; background:#f0fdf4!important; }
-  .af-badge { display:inline-flex; align-items:center; gap:3px; font-size:10px; color:var(--green); font-weight:700; margin-top:2px; }
+/* data-string box */
+.dsbox{background:linear-gradient(135deg,#eff6ff,#e0eaff);border:1.5px dashed #bfdbfe;border-radius:7px;padding:8px 10px;text-align:center;margin-bottom:10px}
+.dsbox-lbl{font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+#ds-str{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--blue);word-break:break-all;font-weight:600}
 
-  /* bc preview */
-  .bc-box { background:linear-gradient(135deg,#f0f4ff,#e8f0fe); border:1.5px dashed #bfdbfe; border-radius:7px; padding:10px; text-align:center; margin-bottom:12px; }
-  .bc-box .bl { font-size:10px; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; }
-  #bc-str { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--blue); word-break:break-all; font-weight:600; }
+/* banner */
+.banner{display:none;align-items:center;gap:7px;border-radius:7px;padding:8px 11px;margin-bottom:10px;font-size:11px;font-weight:600}
+.banner.on{display:flex}
+.banner.loading{background:#fffbeb;border:1px solid #fde68a;color:#92400e}
+.banner.ok{background:#f0fdf4;border:1px solid #86efac;color:#065f46}
+.banner.err{background:#fef2f2;border:1px solid #fca5a5;color:var(--red)}
+.spin-el{width:13px;height:13px;border:2px solid #fde68a;border-top-color:var(--amber);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-  /* banners */
-  .dsbanner { display:none; align-items:center; gap:8px; background:#fffbeb; border:1px solid #fde68a; border-radius:7px; padding:9px 13px; margin-bottom:12px; font-size:12px; font-weight:600; color:#92400e; }
-  .dsbanner.show { display:flex; }
-  .dsbanner.err { background:#fef2f2; border-color:#fca5a5; color:var(--red); }
-  .dsbanner.ok { background:#f0fdf4; border-color:#86efac; color:#065f46; }
-  .spin { width:14px; height:14px; border:2px solid #fde68a; border-top-color:var(--amber); border-radius:50%; animation:spin .7s linear infinite; flex-shrink:0; }
-  @keyframes spin { to{transform:rotate(360deg)} }
+/* edit-mode bar */
+.editbar{display:none;background:#fef3c7;border:1.5px solid var(--amber);border-radius:7px;padding:7px 11px;margin-bottom:10px;font-size:11px;font-weight:700;color:#92400e;align-items:center;justify-content:space-between}
+.editbar.on{display:flex}
+.btn-cedit{background:none;border:none;font-size:11px;font-weight:700;color:var(--red);cursor:pointer;padding:0}
 
-  .btn-print { width:100%; padding:12px; color:#fff; border:none; border-radius:7px; font-family:'Kanit'; font-size:14px; font-weight:700; cursor:pointer; transition:.2s; margin-top:8px; display:flex; align-items:center; justify-content:center; gap:7px; }
-  .btn-print:hover { filter:brightness(1.1); transform:translateY(-1px); }
-  .btn-print:active { transform:translateY(0); }
+/* add button */
+.btn-addq{width:100%;padding:10px;color:#fff;border:none;border-radius:7px;font-family:'Kanit';font-size:14px;font-weight:700;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:6px}
+.btn-addq:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.btn-addq:active{transform:translateY(0)}
 
-  /* ── PREVIEW PANEL ── */
-  .preview-panel { display:flex; flex-direction:column; gap:16px; }
-  .preview-hd { display:flex; align-items:center; justify-content:space-between; }
-  .preview-title { font-size:15px; font-weight:700; color:var(--navy); }
-  .live-dot { font-size:11px; color:var(--green); display:flex; align-items:center; gap:5px; font-weight:600; }
-  .live-dot::before { content:''; width:7px; height:7px; background:var(--green); border-radius:50%; display:inline-block; animation:pulse 1.5s infinite; }
-  @keyframes pulse { 0%{opacity:1} 50%{opacity:.3} 100%{opacity:1} }
-  .lbl-wrap { overflow-x:auto; padding-bottom:10px; }
+/* ═══════════════════════════════════════════
+   RIGHT: TWO-PANEL STACK
+═══════════════════════════════════════════ */
+.rpanel{display:flex;flex-direction:column;gap:14px}
 
-  /* ── MINI LABEL (A4 = 15 ดวง: 3 คอลัมน์ x 5 แถว) ── */
-  /*  ขนาดจริงบนกระดาษ: ~62mm x 55mm ต่อดวง */
-  .label-card {
-    background:#fff; border:1px solid #334155; border-radius:5px;
-    width:240px; padding:8px 10px;
-    font-family:'Kanit'; flex-shrink:0;
-    box-shadow:0 3px 12px rgba(0,0,0,.1);
-  }
-  .lbl-head { display:flex; align-items:flex-start; justify-content:space-between; padding-bottom:6px; border-bottom:2px solid #1e293b; margin-bottom:8px; }
-  .lbl-co { font-size:9px; font-weight:700; color:#0f172a; line-height:1.2; word-break:break-word; flex:1; }
-  .lbl-badge { background:#0f172a; color:#fff; font-size:8px; font-weight:700; padding:2px 7px; border-radius:20px; white-space:nowrap; margin-left:5px; flex-shrink:0; }
-  .lbl-badge.fg { background:var(--green); }
+/* ── QUEUE PANEL ── */
+.qpanel{background:var(--card);border-radius:10px;box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden}
+.qhdr{background:var(--navy);color:#fff;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.qhdr-l{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13px}
+.qstat{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px}
+.qstat.cnt{background:var(--blue);color:#fff}
+.qstat.pg{background:#334155;color:#94a3b8}
+.qhdr-r{display:flex;gap:6px}
+.btn-qact{padding:5px 11px;border:none;border-radius:6px;font-family:'Kanit';font-size:11px;font-weight:700;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.btn-qact:hover{filter:brightness(1.1)}
+.btn-pall{background:var(--blue);color:#fff}
+.btn-clrall{background:var(--red);color:#fff}
 
-  .lbl-grid { display:grid; grid-template-columns:1fr 1fr; gap:5px 8px; margin-bottom:7px; }
-  .lf-key { font-size:8px; font-weight:700; color:var(--muted); text-transform:uppercase; }
-  .lf-val { font-size:11px; font-weight:700; color:#0f172a; line-height:1.2; word-break:break-all; }
-  .lbl-field.full { grid-column:1/-1; }
-  .lbl-field.full .lf-val { font-size:11px; }
-  .lbl-qty-box { display:flex; align-items:baseline; gap:3px; }
-  .lbl-qty-big { font-size:20px; font-weight:700; color:var(--navy); line-height:1; }
-  .lbl-qty-unit { font-size:10px; font-weight:600; color:var(--muted); }
-  .lbl-divider { border:none; border-top:1px dashed #94a3b8; margin:6px 0; }
+/* queue items */
+.qempty{text-align:center;padding:28px 16px;color:var(--muted)}
+.qempty-icon{font-size:28px;margin-bottom:6px}
+.qempty p{font-size:12px;line-height:1.7}
 
-  /* barcode/qr zone on mini label */
-  .lbl-bc-section { text-align:center; background:#fff; padding:4px; border-radius:4px; border:1px solid #e2e8f0; overflow:hidden; }
-  .lbl-bc-section svg { max-width:100%!important; height:auto!important; display:block; margin:0 auto; }
-  .lbl-bc-section .qr-holder { display:flex; justify-content:center; }
-  .lbl-bc-section .qr-holder canvas { max-width:80px!important; max-height:80px!important; }
-  .lbl-bc-label { font-size:7px; color:var(--muted); margin-top:3px; font-family:'JetBrains Mono',monospace; word-break:break-all; }
-  .lbl-footer { display:flex; justify-content:space-between; align-items:center; margin-top:5px; padding-top:4px; border-top:1px solid #e2e8f0; font-size:7px; color:var(--muted); font-weight:500; }
+.pg-hdr{background:#f8fafc;border-bottom:1px solid var(--border);border-top:2px solid #334155;padding:5px 12px;font-size:10px;font-weight:700;color:var(--muted);display:flex;align-items:center;justify-content:space-between}
+.pg-hdr:first-child{border-top:none}
 
-  /* ── SETTINGS TAB ── */
-  #tab-settings { display:none; padding:22px 28px; max-width:700px; margin:0 auto; }
-  .settings-card { background:var(--card); border-radius:var(--r); box-shadow:var(--shadow); padding:24px; margin-bottom:20px; border:1px solid var(--border); }
-  .settings-card h2 { font-size:15px; font-weight:700; color:var(--navy); margin-bottom:6px; }
-  .settings-card p { font-size:13px; color:var(--muted); margin-bottom:16px; line-height:1.7; }
-  .sfg { margin-bottom:13px; }
-  .sfg label { display:block; font-size:10px; font-weight:700; color:var(--muted); margin-bottom:5px; text-transform:uppercase; letter-spacing:.05em; }
-  .sfg input { width:100%; padding:9px 13px; font-size:12px; font-family:'JetBrains Mono',monospace; border:1.5px solid var(--border); border-radius:7px; background:#f8fafc; color:var(--text); transition:.2s; }
-  .sfg input:focus { outline:none; border-color:var(--blue); box-shadow:0 0 0 3px rgba(59,130,246,.12); background:#fff; }
-  .btn-gs { padding:10px 20px; color:#fff; border:none; border-radius:7px; font-family:'Kanit'; font-size:13px; font-weight:700; cursor:pointer; transition:.2s; display:inline-flex; align-items:center; gap:7px; }
-  .btn-gs:hover { filter:brightness(1.1); }
-  .gs-fmtbox { background:#f8fafc; border:1px solid var(--border); border-radius:7px; padding:14px 16px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--navy); line-height:1.9; margin-top:14px; }
-  .gs-fmtbox .c { color:var(--blue); font-weight:700; }
-  .gs-fmtbox .v { color:var(--muted); }
-  #gs-status { font-size:13px; font-weight:600; margin-top:10px; min-height:20px; }
-  #gs-stats { font-size:13px; color:var(--muted); }
+.qrow{display:grid;grid-template-columns:26px 1fr auto;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid #f8fafc;transition:background .12s}
+.qrow:hover{background:#f8fafc}
+.qrow.editing{background:#fffbeb;border-left:3px solid var(--amber)}
+.qrow-num{font-size:11px;font-weight:700;color:var(--muted);text-align:center;width:26px}
+.qrow-info{min-width:0}
+.qrow-name{font-size:12px;font-weight:700;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qrow-meta{font-size:10px;color:var(--muted);margin-top:2px;display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.qtag{font-size:9px;font-weight:700;padding:1px 5px;border-radius:20px}
+.qtag.rm{background:#dbeafe;color:#1d4ed8}
+.qtag.fg{background:#d1fae5;color:#065f46}
+.qrow-acts{display:flex;gap:3px;flex-shrink:0}
+.btn-qa{width:26px;height:26px;border:none;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:.12s}
+.btn-qa.ed{background:#eff6ff;color:var(--blue)}
+.btn-qa.ed:hover{background:#dbeafe}
+.btn-qa.dl{background:#fef2f2;color:var(--red)}
+.btn-qa.dl:hover{background:#fee2e2}
 
-  /* ── DOCS TAB ── */
-  #tab-docs { display:none; padding:22px 28px; max-width:820px; margin:0 auto; }
-  .doc-section { background:var(--card); border-radius:var(--r); box-shadow:var(--shadow); padding:24px; margin-bottom:18px; border:1px solid var(--border); }
-  .doc-section h2 { color:var(--navy); font-size:15px; border-bottom:2px solid var(--border); padding-bottom:9px; margin-bottom:12px; }
-  .pattern-box { background:#f8fafc; border:1px solid var(--border); border-radius:7px; padding:12px 14px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--navy); font-weight:500; }
+/* progress */
+.qprog{padding:7px 12px;background:#f8fafc;border-top:1px solid var(--border)}
+.qprog-bar-wrap{background:#e2e8f0;border-radius:20px;height:5px;overflow:hidden}
+.qprog-bar{background:var(--blue);height:5px;border-radius:20px;transition:width .3s}
+.qprog-txt{font-size:10px;color:var(--muted);font-weight:600;margin-top:3px;text-align:right}
 
-  /* ── MODAL ── */
-  .modal-ov { display:none; position:fixed; inset:0; background:rgba(15,23,42,.6); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
-  .modal-ov.open { display:flex; }
-  .modal-box { background:#fff; border-radius:12px; padding:24px; width:460px; max-width:95vw; box-shadow:0 20px 60px rgba(15,23,42,.3); animation:mIn .22s ease; }
-  @keyframes mIn { from{opacity:0;transform:scale(.95) translateY(-8px)} to{opacity:1;transform:scale(1) translateY(0)} }
-  .modal-title { font-size:16px; font-weight:700; color:var(--navy); margin-bottom:4px; }
-  .modal-sub { font-size:12px; color:var(--muted); margin-bottom:18px; }
-  .mfg { margin-bottom:12px; }
-  .mfg label { display:block; font-size:10px; font-weight:700; color:var(--muted); margin-bottom:4px; text-transform:uppercase; letter-spacing:.05em; }
-  .mfg input,.mfg select { width:100%; padding:9px 13px; font-size:13px; font-family:'Kanit'; border:1.5px solid var(--border); border-radius:7px; background:#f8fafc; color:var(--text); transition:.2s; }
-  .mfg input:focus,.mfg select:focus { outline:none; border-color:var(--blue); box-shadow:0 0 0 3px rgba(59,130,246,.12); background:#fff; }
-  .mactions { display:flex; gap:9px; margin-top:18px; }
-  .btn-ms { flex:1; padding:11px; background:var(--green); color:#fff; border:none; border-radius:7px; font-family:'Kanit'; font-size:13px; font-weight:700; cursor:pointer; transition:.2s; }
-  .btn-ms:hover { background:#059669; }
-  .btn-mc { padding:11px 16px; background:#f1f5f9; color:var(--muted); border:none; border-radius:7px; font-family:'Kanit'; font-size:13px; font-weight:600; cursor:pointer; }
-  .modal-err { background:#fef2f2; border:1px solid #fca5a5; border-radius:6px; padding:9px 12px; font-size:12px; color:var(--red); margin-bottom:10px; display:none; }
+/* ── PREVIEW PANEL ── */
+.pvwrap{background:var(--card);border-radius:10px;box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden}
+.pvhdr{padding:9px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.pvhdr-t{font-size:12px;font-weight:700;color:var(--navy)}
+.livedot{font-size:10px;color:var(--green);display:flex;align-items:center;gap:4px;font-weight:600}
+.livedot::before{content:'';width:6px;height:6px;background:var(--green);border-radius:50%;display:inline-block;animation:pulse 1.5s infinite}
+@keyframes pulse{0%{opacity:1}50%{opacity:.3}100%{opacity:1}}
+.pvbody{padding:12px;overflow-x:auto}
 
-  /* ── TOAST ── */
-  #toast { position:fixed; bottom:26px; right:26px; background:var(--navy); color:#fff; padding:11px 18px; border-radius:9px; font-family:'Kanit'; font-size:13px; font-weight:600; z-index:99999; box-shadow:0 8px 30px rgba(0,0,0,.3); transition:opacity .3s; opacity:0; pointer-events:none; }
+/* ═══════════════════════════════════════════
+   MINI LABEL CARD  (preview + print)
+   Screen: 220px wide
+   Print:  ~64mm × ~52mm  (3×5 on A4)
+═══════════════════════════════════════════ */
+.lcard{background:#fff;border:1px solid #334155;border-radius:4px;width:220px;padding:7px 9px;font-family:'Kanit';flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.lhd{display:flex;align-items:flex-start;justify-content:space-between;padding-bottom:5px;border-bottom:1.5px solid #1e293b;margin-bottom:7px}
+.lco{font-size:8px;font-weight:700;color:#0f172a;line-height:1.2;word-break:break-word;flex:1}
+.lbadge{background:#0f172a;color:#fff;font-size:7px;font-weight:700;padding:2px 6px;border-radius:20px;white-space:nowrap;margin-left:4px;flex-shrink:0}
+.lbadge.fg{background:var(--green)}
+.lgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px 6px;margin-bottom:6px}
+.lk{font-size:7px;font-weight:700;color:var(--muted);text-transform:uppercase}
+.lv{font-size:10px;font-weight:700;color:#0f172a;line-height:1.2;word-break:break-all}
+.lf.full{grid-column:1/-1}
+.lf.full .lv{font-size:10px}
+.lqbox{display:flex;align-items:baseline;gap:2px}
+.lqbig{font-size:18px;font-weight:700;color:var(--navy);line-height:1}
+.lqunit{font-size:9px;font-weight:600;color:var(--muted)}
+.ldiv{border:none;border-top:1px dashed #94a3b8;margin:5px 0}
+.lbc{text-align:center;background:#fff;padding:3px;border-radius:3px;border:1px solid #e2e8f0;overflow:hidden}
+.lbc svg{max-width:100%!important;height:auto!important;display:block;margin:0 auto}
+.lbc .qrh{display:flex;justify-content:center}
+.lbc .qrh canvas{max-width:78px!important;max-height:78px!important}
+.lbclbl{font-size:6.5px;color:var(--muted);margin-top:2px;font-family:'JetBrains Mono',monospace;word-break:break-all}
+.lft{display:flex;justify-content:space-between;align-items:center;margin-top:4px;padding-top:3px;border-top:1px solid #e2e8f0;font-size:6.5px;color:var(--muted)}
 
-  /* ══════════════════════════════════════════
-     PRINT: A4 — 15 ดวงต่อหน้า (3 x 5)
-     ขนาดจริง A4 = 210x297mm, margin ~8mm
-     พื้นที่ใช้งาน ~194x281mm
-     3 col → ~64mm/col  |  5 row → ~56mm/row
-  ═══════════════════════════════════════════ */
-  #print-area { display:none; }
+/* ═══════════════════════════════════════════
+   SETTINGS / DOCS pages
+═══════════════════════════════════════════ */
+.setpage,.docpage{display:none;padding:20px 24px;max-width:680px;margin:0 auto}
+.scard,.dcard{background:var(--card);border-radius:10px;box-shadow:var(--shadow);padding:20px;margin-bottom:16px;border:1px solid var(--border)}
+.scard h2,.dcard h2{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:6px}
+.scard p,.dcard p{font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.8}
+.sfg{margin-bottom:12px}
+.sfg label{display:block;font-size:9.5px;font-weight:700;color:var(--muted);margin-bottom:4px;text-transform:uppercase}
+.sfg input{width:100%;padding:8px 11px;font-size:12px;font-family:'JetBrains Mono',monospace;border:1.5px solid var(--border);border-radius:7px;background:#f8fafc;color:var(--text);transition:.2s}
+.sfg input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.12);background:#fff}
+.btn-s{padding:8px 16px;color:#fff;border:none;border-radius:7px;font-family:'Kanit';font-size:12px;font-weight:700;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:5px}
+.btn-s:hover{filter:brightness(1.08)}
+.fmtbox{background:#f8fafc;border:1px solid var(--border);border-radius:7px;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--navy);line-height:2;margin-top:12px}
+.fmtbox .c{color:var(--blue);font-weight:700}
+#gs-status{font-size:11px;font-weight:600;margin-top:7px;min-height:16px}
+.ptnbox{background:#f8fafc;border:1px solid var(--border);border-radius:7px;padding:11px 13px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--navy);font-weight:500}
 
-  @media print {
-    @page { size:A4 portrait; margin:6mm; }
-    body { background:#fff; }
-    .app-header,.tab-bar,.form-panel,.preview-panel,
-    #tab-docs,#tab-settings,.modal-ov { display:none!important; }
-    #tab-gen.active { display:block!important; padding:0!important; max-width:none!important; }
+/* ═══════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════ */
+.moverlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.moverlay.on{display:flex}
+.mbox{background:#fff;border-radius:12px;padding:22px;width:430px;max-width:95vw;box-shadow:0 20px 60px rgba(15,23,42,.3);animation:mIn .22s ease}
+@keyframes mIn{from{opacity:0;transform:scale(.95) translateY(-8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.mt{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.ms{font-size:11px;color:var(--muted);margin-bottom:16px}
+.mfg{margin-bottom:10px}
+.mfg label{display:block;font-size:9.5px;font-weight:700;color:var(--muted);margin-bottom:4px;text-transform:uppercase}
+.mfg input,.mfg select{width:100%;padding:8px 11px;font-size:13px;font-family:'Kanit';border:1.5px solid var(--border);border-radius:7px;background:#f8fafc;color:var(--text);transition:.2s}
+.mfg input:focus,.mfg select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.12);background:#fff}
+.macts{display:flex;gap:8px;margin-top:16px}
+.btn-mok{flex:1;padding:10px;background:var(--green);color:#fff;border:none;border-radius:7px;font-family:'Kanit';font-size:13px;font-weight:700;cursor:pointer;transition:.2s}
+.btn-mok:hover{background:#059669}
+.btn-mno{padding:10px 14px;background:#f1f5f9;color:var(--muted);border:none;border-radius:7px;font-family:'Kanit';font-size:13px;font-weight:600;cursor:pointer}
+.merr{background:#fef2f2;border:1px solid #fca5a5;border-radius:6px;padding:8px 11px;font-size:11px;color:var(--red);margin-bottom:9px;display:none}
 
-    #print-area {
-      display:grid!important;
-      grid-template-columns:repeat(3, 1fr);
-      gap:2mm;
-      width:100%;
-    }
-    .label-card {
-      width:100%!important; max-width:none!important;
-      box-shadow:none!important; border:0.5px solid #555!important;
-      border-radius:2px!important;
-      padding:3mm 3.5mm!important;
-      break-inside:avoid;
-      page-break-inside:avoid;
-    }
-    .lbl-co { font-size:7pt!important; }
-    .lbl-badge { font-size:6pt!important; padding:1px 5px!important; }
-    .lf-key { font-size:6pt!important; }
-    .lf-val { font-size:8.5pt!important; }
-    .lbl-field.full .lf-val { font-size:8pt!important; }
-    .lbl-qty-big { font-size:16pt!important; }
-    .lbl-qty-unit { font-size:8pt!important; }
-    .lbl-divider { margin:2mm 0!important; }
-    .lbl-bc-label { font-size:6pt!important; }
-    .lbl-footer { font-size:6pt!important; }
-    /* barcode height สำหรับพิมพ์ */
-    .lbl-bc-section svg { height:28px!important; max-width:100%!important; }
-    /* QR พิมพ์ */
-    .lbl-bc-section .qr-holder canvas { max-width:55px!important; max-height:55px!important; }
-  }
-  </style>
+/* ═══════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════ */
+#toast{position:fixed;bottom:22px;right:22px;background:var(--navy);color:#fff;padding:10px 16px;border-radius:9px;font-family:'Kanit';font-size:13px;font-weight:600;z-index:99999;box-shadow:0 8px 28px rgba(0,0,0,.3);transition:opacity .3s;opacity:0;pointer-events:none}
+
+/* ═══════════════════════════════════════════
+   PRINT  — A4  3 cols × 5 rows = 15 tags
+═══════════════════════════════════════════ */
+#pa{display:none}
+@media print{
+  @page{size:A4 portrait;margin:5mm}
+  body{background:#fff}
+  .hdr,.tabs,.fpanel,.rpanel,.setpage,.docpage,.moverlay,#toast{display:none!important}
+  #gen-page{display:block!important;padding:0!important;max-width:none!important}
+  #pa{display:block!important}
+  .ppage{display:grid;grid-template-columns:repeat(3,1fr);gap:2mm;width:100%;page-break-after:always}
+  .ppage:last-child{page-break-after:auto}
+  .lcard{width:100%!important;max-width:none!important;box-shadow:none!important;border:0.5pt solid #444!important;border-radius:2px!important;padding:2mm 2.5mm!important;break-inside:avoid;page-break-inside:avoid}
+  .lco{font-size:6pt!important}
+  .lbadge{font-size:5.5pt!important;padding:1px 4px!important}
+  .lk{font-size:5.5pt!important}
+  .lv{font-size:7.5pt!important}
+  .lf.full .lv{font-size:7pt!important}
+  .lqbig{font-size:13pt!important}
+  .lqunit{font-size:7pt!important}
+  .ldiv{margin:1.5mm 0!important}
+  .lbclbl{font-size:5.5pt!important}
+  .lft{font-size:5.5pt!important;margin-top:2px!important;padding-top:2px!important}
+  .lbc svg{height:20px!important;max-width:100%!important}
+  .lbc .qrh canvas{max-width:46px!important;max-height:46px!important}
+}
+</style>
 </head>
 <body>
 
-<!-- MODAL -->
-<div class="modal-ov" id="modal-add">
-  <div class="modal-box">
-    <div class="modal-title">➕ เพิ่มสินค้า (Local)</div>
-    <div class="modal-sub">บันทึกในเครื่องนี้ — เสริมจากข้อมูล Google Sheets</div>
-    <div class="modal-err" id="modal-err"></div>
+<!-- ═══ MODAL: Add local product ═══ -->
+<div class="moverlay" id="modal">
+  <div class="mbox">
+    <div class="mt">➕ เพิ่มสินค้า (Local)</div>
+    <div class="ms">บันทึกในเครื่องนี้ — เสริมจาก Google Sheets</div>
+    <div class="merr" id="merr"></div>
     <div class="mfg"><label>Part / Product No. *</label>
-      <input id="m-part" placeholder="เช่น ABT-X-9999" style="font-family:'JetBrains Mono',monospace;font-size:12px;">
+      <input id="m-part" placeholder="เช่น ABT-X-9999" style="font-family:'JetBrains Mono',monospace;font-size:12px">
     </div>
-    <div class="mfg"><label>ชื่อสินค้า / วัสดุ *</label><input id="m-name" placeholder="ชื่อสินค้า"></div>
+    <div class="mfg"><label>ชื่อสินค้า *</label><input id="m-name" placeholder="ชื่อสินค้า"></div>
     <div class="mfg"><label>ประเภท</label>
-      <select id="m-type"><option value="RM">📥 Raw Material (RM)</option><option value="FG">📦 Finished Goods (FG)</option></select>
+      <select id="m-type">
+        <option value="RM">📥 Raw Material (RM)</option>
+        <option value="FG">📦 Finished Goods (FG)</option>
+      </select>
     </div>
-    <div class="mfg"><label>หน่วยเริ่มต้น</label>
+    <div class="mfg"><label>หน่วย</label>
       <select id="m-unit">
         <option value="Kgs">Kgs</option><option value="Pcs">Pcs</option>
         <option value="Rolls">Rolls</option><option value="ม้วน">ม้วน</option>
         <option value="ชิ้น">ชิ้น</option><option value="กล่อง">กล่อง</option>
       </select>
     </div>
-    <div class="mactions">
-      <button class="btn-mc" onclick="closeModal()">ยกเลิก</button>
-      <button class="btn-ms" onclick="saveNewProduct()">💾 บันทึก</button>
+    <div class="macts">
+      <button class="btn-mno" onclick="closeModal()">ยกเลิก</button>
+      <button class="btn-mok" onclick="saveLocalProduct()">💾 บันทึก</button>
     </div>
   </div>
 </div>
 
-<!-- HEADER -->
-<div class="app-header">
-  <div class="logo-text">Universal <span>Label System</span></div>
-  <div class="vbadge">v5.1</div>
-  <div class="ds-chip" onclick="gotoSettings()" title="ตั้งค่าแหล่งข้อมูล">
-    <div class="ds-dot" id="ds-dot"></div>
-    <span id="ds-label">ไม่ได้เชื่อมต่อ</span>
+<!-- ═══ HEADER ═══ -->
+<div class="hdr">
+  <div class="hdr-logo">Universal <span>Label System</span></div>
+  <div class="hdr-ver">v6.0</div>
+  <div class="hdr-ds" onclick="goSettings()" title="ตั้งค่าแหล่งข้อมูล">
+    <div class="dot" id="hdr-dot"></div>
+    <span id="hdr-ds-lbl">ไม่ได้เชื่อมต่อ</span>
   </div>
 </div>
 
-<!-- TABS -->
-<div class="tab-bar">
-  <button class="tab-btn active" data-tab="gen"      onclick="switchTab('gen',this)">🏷️ สร้าง Label</button>
-  <button class="tab-btn"        data-tab="settings" onclick="switchTab('settings',this)">⚙️ ตั้งค่าระบบ</button>
-  <button class="tab-btn"        data-tab="docs"     onclick="switchTab('docs',this)">📖 คู่มือ</button>
+<!-- ═══ TABS ═══ -->
+<div class="tabs">
+  <button class="tab on" data-page="gen" onclick="switchPage('gen',this)">🏷️ สร้าง Label</button>
+  <button class="tab" data-page="set"   onclick="switchPage('set',this)">⚙️ ตั้งค่าระบบ</button>
+  <button class="tab" data-page="doc"   onclick="switchPage('doc',this)">📖 คู่มือ</button>
 </div>
 
-<!-- ════ TAB GEN ════ -->
-<div id="tab-gen" class="app-body active">
+<!-- ═══════════════════════════════════════════
+     PAGE: GENERATOR
+═══════════════════════════════════════════ -->
+<div id="gen-page" class="page on">
 
-  <!-- FORM -->
-  <div class="form-panel">
-    <div class="panel-title">🛠️ กรอกข้อมูล Label</div>
-
-    <div class="dsbanner" id="dsbanner">
-      <div class="spin" id="ds-spin"></div>
-      <span id="dsban-txt">กำลังโหลดข้อมูล...</span>
+  <!-- LEFT FORM -->
+  <div class="fpanel">
+    <div class="ptitle">
+      🛠️ กรอกข้อมูล Label
+      <span class="etag" id="etag" style="display:none">แก้ไข</span>
     </div>
 
-    <div class="fg"><label>ชื่อองค์กร / บริษัท</label>
-      <input type="text" id="in-co" value="Partner Company Co., Ltd." oninput="liveUpdate()">
+    <!-- Loading banner -->
+    <div class="banner" id="banner">
+      <div class="spin-el" id="spin-el"></div>
+      <span id="banner-txt"></span>
     </div>
 
-    <div class="fg"><label>ประเภท Label</label>
-      <select id="in-type" onchange="updateTypeUI()">
+    <!-- Edit-mode bar -->
+    <div class="editbar" id="editbar">
+      <span>✏️ แก้ไข Label #<span id="edit-num">0</span></span>
+      <button class="btn-cedit" onclick="cancelEdit()">✕ ยกเลิก</button>
+    </div>
+
+    <!-- Company -->
+    <div class="fg">
+      <label>ชื่อองค์กร / บริษัท</label>
+      <input type="text" id="f-co" value="Partner Company Co., Ltd." oninput="preview()">
+    </div>
+
+    <!-- Type -->
+    <div class="fg">
+      <label>ประเภท Label</label>
+      <select id="f-type" onchange="onTypeChange()">
         <option value="RM">📥 วัตถุดิบ (Raw Material)</option>
         <option value="FG">📦 สินค้าสำเร็จรูป (Finished Goods)</option>
       </select>
     </div>
 
-    <!-- Scan type toggle -->
-    <div class="fg"><label>รูปแบบ Code บน Label</label>
-      <div class="scan-toggle">
-        <input type="radio" name="st" id="st-bc" value="barcode" checked onchange="liveUpdate()">
-        <label for="st-bc">▌▌▌ Barcode (1D)</label>
-        <input type="radio" name="st" id="st-qr" value="qr" onchange="liveUpdate()">
-        <label for="st-qr">⊞ QR Code (2D)</label>
+    <!-- Code type -->
+    <div class="fg">
+      <label>รูปแบบ Code</label>
+      <div class="stog">
+        <input type="radio" name="code" id="c-bc" value="bc" checked onchange="preview()">
+        <label for="c-bc">▌▌▌ Barcode (1D)</label>
+        <input type="radio" name="code" id="c-qr" value="qr" onchange="preview()">
+        <label for="c-qr">⊞ QR Code (2D)</label>
       </div>
     </div>
 
-    <!-- Part No. -->
-    <div class="form-row">
-      <div class="fg" style="position:relative;">
+    <!-- Part No. + Lot -->
+    <div class="frow">
+      <div class="fg" style="position:relative">
         <label>Part / Product No.</label>
-        <div class="ac-wrap">
-          <div class="ac-row">
-            <input type="text" id="in-part" placeholder="พิมพ์เพื่อค้นหา..." oninput="onPartInput()" onkeydown="onPartKeydown(event)" autocomplete="off">
-            <button class="btn-plus" onclick="openModal()" title="เพิ่มสินค้าใหม่">+</button>
+        <div class="acwrap">
+          <div class="acrow">
+            <input type="text" id="f-part" placeholder="พิมพ์เพื่อค้นหา…" oninput="onPartInput()" onkeydown="onPartKey(event)" autocomplete="off">
+            <button class="btnplus" onclick="openModal()" title="เพิ่มสินค้าใหม่">+</button>
           </div>
           <div class="acdrop" id="acdrop"></div>
         </div>
       </div>
-      <div class="fg"><label>Lot No.</label><input type="text" id="in-lot" placeholder="เช่น L04" oninput="liveUpdate()"></div>
+      <div class="fg">
+        <label>Lot No.</label>
+        <input type="text" id="f-lot" placeholder="เช่น L04" oninput="preview()">
+      </div>
     </div>
 
+    <!-- Name (readonly, auto-filled) -->
     <div class="fg">
-      <label>ชื่อสินค้า / วัสดุ <span id="af-badge" style="display:none" class="af-badge">✓ ดึงจากฐานข้อมูล</span></label>
-      <input type="text" id="in-name" placeholder="จะขึ้นอัตโนมัติเมื่อเลือก Part No." readonly style="cursor:default;">
+      <label>ชื่อสินค้า / วัสดุ <span class="afbadge" id="afbadge">✓ DB</span></label>
+      <input type="text" id="f-name" placeholder="จะขึ้นอัตโนมัติเมื่อเลือก Part No." readonly style="cursor:default">
     </div>
 
-    <div class="form-row">
-      <div class="fg"><label>จำนวน (Qty รวม)</label><input type="number" id="in-qty" value="500" step="0.001" oninput="liveUpdate()"></div>
-      <div class="fg"><label>หน่วย (Unit)</label>
-        <select id="in-unit" onchange="liveUpdate()">
+    <!-- Qty + Unit -->
+    <div class="frow">
+      <div class="fg">
+        <label>Qty รวม</label>
+        <input type="number" id="f-qty" value="500" step="0.001" oninput="preview()">
+      </div>
+      <div class="fg">
+        <label>Unit</label>
+        <select id="f-unit" onchange="preview()">
           <option value="Kgs">Kgs</option><option value="ม้วน">ม้วน</option>
           <option value="ชิ้น">ชิ้น</option><option value="Pcs">Pcs</option>
           <option value="Rolls">Rolls</option><option value="กล่อง">กล่อง</option>
@@ -347,577 +413,837 @@
       </div>
     </div>
 
-    <div class="form-row">
-      <!-- RM: Rolls | FG: Pack count (number) -->
-      <div class="fg" id="wrap-rolls"><label>จำนวน Roll / Batch</label><input type="number" id="in-rolls" value="1" min="1" oninput="liveUpdate()"></div>
-      <div class="fg" id="wrap-packs" style="display:none"><label>จำนวนแพ็ค (สำหรับแยกพิมพ์)</label><input type="number" id="in-packs" value="1" min="1" oninput="liveUpdate()"></div>
-      <div class="fg"><label>Supplier</label><input type="text" id="in-sup" placeholder="ชื่อ Supplier" oninput="liveUpdate()"></div>
+    <!-- Roll / Pack + Supplier -->
+    <div class="frow">
+      <div class="fg" id="wrap-roll">
+        <label>จำนวน Roll / Batch</label>
+        <input type="number" id="f-rolls" value="1" min="1" oninput="preview()">
+      </div>
+      <div class="fg" id="wrap-pack" style="display:none">
+        <label>จำนวนแพ็ค</label>
+        <input type="number" id="f-packs" value="1" min="1" oninput="preview()">
+      </div>
+      <div class="fg">
+        <label>Supplier</label>
+        <input type="text" id="f-sup" placeholder="ชื่อ Supplier" oninput="preview()">
+      </div>
     </div>
 
-    <div class="form-row">
-      <div class="fg"><label>Ref No.</label><input type="text" id="in-ref" placeholder="REF-001" oninput="liveUpdate()"></div>
-      <div class="fg"><label>PO No.</label><input type="text" id="in-po" placeholder="PO-1234" oninput="liveUpdate()"></div>
+    <!-- Ref + PO -->
+    <div class="frow">
+      <div class="fg">
+        <label>Ref No.</label>
+        <input type="text" id="f-ref" placeholder="REF-001" oninput="preview()">
+      </div>
+      <div class="fg">
+        <label>PO No.</label>
+        <input type="text" id="f-po" placeholder="PO-1234" oninput="preview()">
+      </div>
     </div>
 
-    <div id="fg-mc" style="display:none; background:#f1f5f9; padding:9px; border-radius:7px; margin-bottom:12px; border:1px solid #e2e8f0;">
-      <div class="fg" style="margin-bottom:0"><label>M/C (เครื่องจักร)</label><input type="text" id="in-mc" placeholder="M/C No." oninput="liveUpdate()"></div>
+    <!-- M/C (FG only) -->
+    <div id="fg-mc" style="display:none;background:#f1f5f9;padding:8px;border-radius:7px;margin-bottom:10px;border:1px solid #e2e8f0">
+      <div class="fg" style="margin-bottom:0">
+        <label>M/C (เครื่องจักร)</label>
+        <input type="text" id="f-mc" placeholder="M/C No." oninput="preview()">
+      </div>
     </div>
 
-    <div class="fg"><label>รูปแบบการพิมพ์</label>
-      <select id="in-mode" onchange="updatePrintBtn()">
-        <option value="split">✂️ พิมพ์แยก (แบ่ง QTY ตามม้วน/แพ็ค)</option>
-        <option value="single">📦 พิมพ์ใบรวม (1 ดวง รวมยอดทั้งหมด)</option>
+    <!-- Split mode -->
+    <div class="fg">
+      <label>รูปแบบที่จะเพิ่ม</label>
+      <select id="f-mode">
+        <option value="single">📦 ใบรวม (1 ดวง)</option>
+        <option value="split" id="split-opt">✂️ แยกตามม้วน (หลายดวง)</option>
       </select>
     </div>
 
-    <div class="bc-box"><div class="bl">Data String (7 Segments)</div><div id="bc-str">—</div></div>
-
-    <button id="btn-print" class="btn-print" onclick="doPrint()" style="background:var(--blue)">
-      <span id="pi">🖨️</span><span id="pt">พิมพ์ Label</span>
-    </button>
-  </div>
-
-  <!-- PREVIEW -->
-  <div class="preview-panel">
-    <div class="preview-hd">
-      <div class="preview-title">👁️ ตัวอย่าง Label (Mini — 15 ดวง/A4)</div>
-      <div class="live-dot">Live</div>
+    <!-- Data string preview -->
+    <div class="dsbox">
+      <div class="dsbox-lbl">Data String (WMS Standard)</div>
+      <div id="ds-str">—</div>
     </div>
-    <div class="lbl-wrap">
-      <div class="label-card" id="label-card">
-        <div class="lbl-head">
-          <div class="lbl-co" id="lbl-co">Partner Company Co., Ltd.</div>
-          <span class="lbl-badge" id="lbl-badge">QC · RM</span>
+
+    <!-- ADD TO QUEUE -->
+    <button class="btn-addq" id="btn-addq" onclick="addToQueue()" style="background:var(--green)">
+      <span id="addq-ico">➕</span><span id="addq-lbl">เพิ่มลงรายการพิมพ์</span>
+    </button>
+  </div><!-- end fpanel -->
+
+  <!-- RIGHT: Queue + Preview -->
+  <div class="rpanel">
+
+    <!-- QUEUE -->
+    <div class="qpanel">
+      <div class="qhdr">
+        <div class="qhdr-l">
+          📋 รายการรอพิมพ์
+          <span class="qstat cnt" id="q-cnt">0 ดวง</span>
+          <span class="qstat pg"  id="q-pg">0 หน้า A4</span>
         </div>
-        <div class="lbl-grid">
-          <div class="lbl-field full"><div class="lf-key">ชื่อสินค้า</div><div class="lf-val" id="lbl-name">—</div></div>
-          <div class="lbl-field"><div class="lf-key">Part No.</div><div class="lf-val" id="lbl-part">—</div></div>
-          <div class="lbl-field"><div class="lf-key">Lot No.</div><div class="lf-val" id="lbl-lot">—</div></div>
-          <div class="lbl-field">
-            <div class="lf-key">Qty</div>
-            <div class="lbl-qty-box"><div class="lbl-qty-big" id="lbl-qty">0</div><div class="lbl-qty-unit" id="lbl-unit">Kgs</div></div>
+        <div class="qhdr-r">
+          <button class="btn-qact btn-pall"   onclick="doPrint()">🖨️ พิมพ์ทั้งหมด</button>
+          <button class="btn-qact btn-clrall" onclick="clearAll()">🗑️ ล้างทั้งหมด</button>
+        </div>
+      </div>
+      <div id="q-body">
+        <div class="qempty">
+          <div class="qempty-icon">📭</div>
+          <p>ยังไม่มีรายการ<br>กรอกข้อมูลแล้วกด <strong style="color:var(--green)">เพิ่มลงรายการพิมพ์</strong></p>
+        </div>
+      </div>
+      <div class="qprog" id="q-prog" style="display:none">
+        <div class="qprog-bar-wrap"><div class="qprog-bar" id="q-bar" style="width:0%"></div></div>
+        <div class="qprog-txt" id="q-prog-txt">0 / 15</div>
+      </div>
+    </div>
+
+    <!-- PREVIEW -->
+    <div class="pvwrap">
+      <div class="pvhdr">
+        <div class="pvhdr-t">👁️ ตัวอย่าง Label (Mini · 15 ดวง / A4)</div>
+        <div class="livedot">Live</div>
+      </div>
+      <div class="pvbody">
+        <!-- MASTER TEMPLATE — hidden in print, cloned for queue -->
+        <div class="lcard" id="lcard-tpl">
+          <div class="lhd">
+            <div class="lco"    id="p-co">Company</div>
+            <span class="lbadge" id="p-badge">QC · RM</span>
           </div>
-          <div class="lbl-field"><div class="lf-key">วันที่</div><div class="lf-val" id="lbl-date">—</div></div>
-          <div class="lbl-field" id="wr-rolls"><div class="lf-key">Roll</div><div class="lf-val" id="lbl-rolls">1</div></div>
-          <div class="lbl-field" id="wr-pack" style="display:none"><div class="lf-key">Pack</div><div class="lf-val" id="lbl-pack">—</div></div>
-          <div class="lbl-field"><div class="lf-key">Supplier</div><div class="lf-val" id="lbl-sup">—</div></div>
-          <div class="lbl-field"><div class="lf-key">Ref No.</div><div class="lf-val" id="lbl-ref">—</div></div>
-          <div class="lbl-field"><div class="lf-key">PO No.</div><div class="lf-val" id="lbl-po">—</div></div>
-          <div class="lbl-field" id="wr-mc" style="display:none"><div class="lf-key">M/C</div><div class="lf-val" id="lbl-mc">—</div></div>
-        </div>
-        <hr class="lbl-divider">
-        <div class="lbl-bc-section" id="lbl-bc-sec">
-          <svg id="bc-main" style="display:block;margin:0 auto;"></svg>
-          <div class="qr-holder" id="qr-holder" style="display:none;justify-content:center;"></div>
-          <div class="lbl-bc-label" id="lbl-bc-txt">—</div>
-        </div>
-        <div class="lbl-footer">
-          <span>Universal WMS v5.1</span>
-          <span id="lbl-code-type" style="font-weight:700;color:var(--blue)">BARCODE</span>
+          <div class="lgrid">
+            <div class="lf full"><div class="lk">ชื่อสินค้า</div><div class="lv" id="p-name">—</div></div>
+            <div class="lf"><div class="lk">Part No.</div><div class="lv" id="p-part">—</div></div>
+            <div class="lf"><div class="lk">Lot No.</div><div class="lv" id="p-lot">—</div></div>
+            <div class="lf">
+              <div class="lk">Qty</div>
+              <div class="lqbox"><div class="lqbig" id="p-qty">0</div><div class="lqunit" id="p-unit">Kgs</div></div>
+            </div>
+            <div class="lf"><div class="lk">วันที่</div><div class="lv" id="p-date">—</div></div>
+            <div class="lf" id="pw-roll"><div class="lk">Roll</div><div class="lv" id="p-roll">1</div></div>
+            <div class="lf" id="pw-pack" style="display:none"><div class="lk">Pack</div><div class="lv" id="p-pack">—</div></div>
+            <div class="lf"><div class="lk">Supplier</div><div class="lv" id="p-sup">—</div></div>
+            <div class="lf"><div class="lk">Ref No.</div><div class="lv" id="p-ref">—</div></div>
+            <div class="lf"><div class="lk">PO No.</div><div class="lv" id="p-po">—</div></div>
+            <div class="lf" id="pw-mc" style="display:none"><div class="lk">M/C</div><div class="lv" id="p-mc">—</div></div>
+          </div>
+          <div class="ldiv"></div>
+          <div class="lbc" id="p-bcbox">
+            <svg id="p-bc" style="display:block;margin:0 auto"></svg>
+            <div class="qrh" id="p-qr" style="display:none;justify-content:center"></div>
+            <div class="lbclbl" id="p-bclbl">—</div>
+          </div>
+          <div class="lft">
+            <span>Universal WMS v6.0</span>
+            <span id="p-codetype" style="font-weight:700;color:var(--blue)">BARCODE</span>
+          </div>
         </div>
       </div>
     </div>
-    <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 14px;font-size:12px;color:#065f46;font-weight:600;">
-      💡 ขนาด Mini Label — พิมพ์ได้ <strong>15 ดวงต่อหน้า A4</strong> (3 คอลัมน์ × 5 แถว)
-    </div>
-  </div>
 
-  <div id="print-area"></div>
-</div>
+  </div><!-- end rpanel -->
 
-<!-- ════ TAB SETTINGS ════ -->
-<div id="tab-settings">
-  <div class="settings-card">
+  <!-- Print area (invisible until print) -->
+  <div id="pa"></div>
+
+</div><!-- end gen-page -->
+
+<!-- ═══════════════════════════════════════════
+     PAGE: SETTINGS
+═══════════════════════════════════════════ -->
+<div id="set-page" class="setpage">
+  <div class="scard">
     <h2>🔗 แหล่งข้อมูลสินค้า (Google Sheets)</h2>
-    <p>วางลิงก์ <strong>Published CSV</strong> ของ Google Sheets — Partner จะค้นหาได้แต่<strong>ไม่เห็นรายการทั้งหมด</strong></p>
+    <p>วางลิงก์ <strong>Published CSV</strong> — ข้อมูลจะถูกโหลดและ Cache ไว้<br>Partner ค้นหาได้แต่ <strong>ไม่เห็นรายการทั้งหมด</strong></p>
     <div class="sfg">
       <label>Google Sheets CSV URL</label>
       <input type="text" id="gs-url" placeholder="https://docs.google.com/spreadsheets/d/e/…/pub?output=csv">
     </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="btn-gs" style="background:var(--blue)" onclick="saveAndLoad()">💾 บันทึกและโหลดข้อมูล</button>
-      <button class="btn-gs" style="background:var(--navy)" onclick="loadGS(true)">🔄 โหลดใหม่</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn-s" style="background:var(--blue)"  onclick="saveAndLoadGS()">💾 บันทึกและโหลดข้อมูล</button>
+      <button class="btn-s" style="background:var(--navy)"  onclick="loadGS(true)">🔄 โหลดใหม่</button>
     </div>
-    <div id="gs-status" class="status-idle">— ยังไม่ได้ตั้งค่า</div>
-    <div class="gs-fmtbox">
-      <div style="font-weight:700;margin-bottom:6px;">📋 รูปแบบ Google Sheets (Column A→E)</div>
-      <div><span class="c">A</span>: <span class="v">Part No.</span>  <span class="c">B</span>: <span class="v">Product Name</span>  <span class="c">C</span>: <span class="v">RM หรือ FG</span>  <span class="c">D</span>: <span class="v">Unit</span>  <span class="c">E</span>: <span class="v">Note (ข้ามได้)</span></div>
-      <div style="margin-top:6px;color:var(--muted);font-size:10px;">แถว 1 = Header (ข้ามอัตโนมัติ) · ตัวอย่าง: AAP050C400, A-PET CLEAR 0.50mm*400mm, RM, Kgs</div>
+    <div id="gs-status" style="font-size:11px;font-weight:600;margin-top:7px;color:var(--muted)">— ยังไม่ได้ตั้งค่า</div>
+    <div class="fmtbox">
+      <div style="font-weight:700;margin-bottom:5px">📋 รูปแบบ Google Sheets (Column A→E)</div>
+      <div><span class="c">A</span>: Part No. &nbsp;<span class="c">B</span>: Product Name &nbsp;<span class="c">C</span>: RM หรือ FG &nbsp;<span class="c">D</span>: Unit &nbsp;<span class="c">E</span>: Note</div>
+      <div style="margin-top:5px;color:var(--muted);font-size:10px">แถว 1 = Header (ข้ามอัตโนมัติ) · ตัวอย่าง: AAP050C400, A-PET CLEAR 0.50mm*400mm, RM, Kgs</div>
     </div>
-    <div style="margin-top:16px;padding:12px 16px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:7px;font-size:12px;color:#0369a1;line-height:1.9;">
-      <strong>วิธี Publish Google Sheets เป็น CSV:</strong><br>
-      ไฟล์ → แชร์ → เผยแพร่ไปยังเว็บ → เลือก Sheet → เลือก <em>Comma-separated values (.csv)</em> → เผยแพร่ → คัดลอก URL มาวาง
+    <div style="margin-top:14px;padding:11px 13px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:7px;font-size:12px;color:#0369a1;line-height:2">
+      <strong>วิธี Publish Google Sheets เป็น CSV</strong><br>
+      ไฟล์ → แชร์ → เผยแพร่ไปยังเว็บ → เลือก Sheet → <em>Comma-separated values (.csv)</em> → เผยแพร่ → คัดลอก URL
     </div>
   </div>
-  <div class="settings-card">
+  <div class="scard">
     <h2>📊 สถานะข้อมูล</h2>
-    <div id="gs-stats" style="font-size:13px;color:var(--muted);">กำลังตรวจสอบ...</div>
-    <div style="margin-top:12px;">
-      <button class="btn-gs" style="background:var(--red)" onclick="clearCache()">🗑️ ล้าง Cache</button>
+    <div id="gs-stats" style="font-size:13px;color:var(--muted)">กำลังตรวจสอบ…</div>
+    <div style="margin-top:10px">
+      <button class="btn-s" style="background:var(--red)" onclick="clearCache()">🗑️ ล้าง Cache ทั้งหมด</button>
     </div>
   </div>
 </div>
 
-<!-- ════ TAB DOCS ════ -->
-<div id="tab-docs">
-  <div class="doc-section">
-    <h2>📊 Data String มาตรฐาน WMS (ใช้ทั้ง Barcode และ QR)</h2>
-    <div class="pattern-box" style="text-align:center;font-size:14px;margin-bottom:10px;">
-      Part <span style="color:var(--red)">|</span> Lot <span style="color:var(--red)">|</span> Qty <span style="color:var(--red)">|</span> Unit <span style="color:var(--red)">|</span> Rolls <span style="color:var(--red)">|</span> Ref <span style="color:var(--red)">|</span> PO
-    </div>
-    <p style="font-size:12px;color:var(--muted);">*ท้ายที่ว่างจะถูกตัดทิ้ง · Scanner 1D/2D สแกนได้ทั้งสองรูปแบบ</p>
-  </div>
-  <div class="doc-section">
-    <h2>🖨️ ขนาด Label และการพิมพ์</h2>
-    <p style="font-size:13px;line-height:1.9;">
-      Label ขนาด <strong>Mini</strong> — พิมพ์ได้ <strong>15 ดวง/A4</strong> (3 คอลัมน์ × 5 แถว)<br>
-      เหมาะสำหรับติดสินค้าชิ้นเล็ก ประหยัดกระดาษและหมึก<br>
-      เปิด Print Dialog → ตั้งค่า <em>Scale = 100%</em> และ <em>Margin = None/Minimum</em>
+<!-- ═══════════════════════════════════════════
+     PAGE: DOCS
+═══════════════════════════════════════════ -->
+<div id="doc-page" class="docpage">
+  <div class="dcard">
+    <h2>📋 Print Queue — วิธีใช้งาน</h2>
+    <p>
+      1. กรอกข้อมูล Label ทางซ้าย<br>
+      2. กด <strong style="color:var(--green)">➕ เพิ่มลงรายการพิมพ์</strong> — สามารถเพิ่มได้เรื่อยๆ<br>
+      3. แต่ละรายการ <strong>แก้ไข ✏️</strong> หรือ <strong>ลบ 🗑️</strong> ได้<br>
+      4. ทุก 15 ดวงจะขึ้นหน้า A4 ใหม่โดยอัตโนมัติ<br>
+      5. กด <strong style="color:var(--blue)">🖨️ พิมพ์ทั้งหมด</strong> ได้เลย — ไม่ต้องรอครบ 15
     </p>
   </div>
-  <div class="doc-section">
-    <h2>🔗 วิธีเชื่อม Google Sheets</h2>
-    <p style="font-size:13px;line-height:1.9;">
-      ไปที่ <strong>⚙️ ตั้งค่าระบบ</strong> → วาง Published CSV URL → กด "บันทึกและโหลด"<br>
-      ระบบจะ Cache ข้อมูลไว้ในเครื่อง ใช้ได้แม้ออฟไลน์ชั่วคราว
+  <div class="dcard">
+    <h2>📊 Data String มาตรฐาน WMS</h2>
+    <div class="ptnbox" style="text-align:center;font-size:13px">
+      Part <span style="color:var(--red)">|</span> Lot <span style="color:var(--red)">|</span> Qty <span style="color:var(--red)">|</span>
+      Unit <span style="color:var(--red)">|</span> Roll <span style="color:var(--red)">|</span> Ref <span style="color:var(--red)">|</span> PO
+    </div>
+    <p style="margin-top:10px;margin-bottom:0">ใช้ได้ทั้ง Barcode (CODE128) และ QR Code · Scanner 1D/2D สแกนได้ทั้งสองรูปแบบ</p>
+  </div>
+  <div class="dcard">
+    <h2>🖨️ การตั้งค่าพิมพ์</h2>
+    <p style="margin-bottom:0">
+      ขนาด Label Mini — <strong>15 ดวง/A4</strong> (3 คอลัมน์ × 5 แถว)<br>
+      ตั้งค่า Print Dialog: <em>Scale = 100%</em> และ <em>Margins = None/Minimum</em>
     </p>
   </div>
 </div>
 
 <div id="toast"></div>
 
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════ -->
 <script>
 'use strict';
 
-// ── KEYS ──
-const LS_URL   = 'wms_gs_url_v5';
-const LS_CACHE = 'wms_gs_cache_v5';
-const LS_LOCAL = 'wms_local_v5';
-const LS_CO    = 'wms_co_v5';
+/* ── Storage keys ── */
+const KEY_URL   = 'wms_url_v6';
+const KEY_CACHE = 'wms_cache_v6';
+const KEY_LOCAL = 'wms_local_v6';
+const KEY_CO    = 'wms_co_v6';
+const PER_PAGE  = 15;
+const TODAY     = new Date().toLocaleDateString('en-GB');
 
-let gsProds = [], localProds = [];
-let acIdx = -1, acRes = [];
+/* ── State ── */
+let GS   = [];   // products from Google Sheets
+let LOC  = [];   // locally added products
+let AC   = [];   // autocomplete results
+let ACI  = -1;   // autocomplete cursor
+let QUEUE = [];  // [{_id, _qid, co, type, code, part, lot, qty, unit, rolls, pack, sup, ref, po, mc, name, bcStr, date}]
+let EDIT_QID = null; // qid currently being edited
 
-// ══════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════
-window.onload = async () => {
-  document.getElementById('lbl-date').textContent = new Date().toLocaleDateString('en-GB');
-  try { localProds = JSON.parse(localStorage.getItem(LS_LOCAL)||'[]'); } catch{ localProds=[]; }
-  try { gsProds    = JSON.parse(localStorage.getItem(LS_CACHE)||'[]'); } catch{ gsProds=[]; }
-  const co = localStorage.getItem(LS_CO);
-  if (co) document.getElementById('in-co').value = co;
-  const url = localStorage.getItem(LS_URL)||'';
-  document.getElementById('gs-url').value = url;
-  updateDsChip();
-  updateStats();
-  updateTypeUI(false);
-  updatePrintBtn();
-  liveUpdate();
+/* ═══════════════ INIT ═══════════════ */
+window.addEventListener('DOMContentLoaded', async () => {
+  document.getElementById('p-date').textContent = TODAY;
+  try { LOC = JSON.parse(localStorage.getItem(KEY_LOCAL) || '[]'); } catch { LOC = []; }
+  try { GS  = JSON.parse(localStorage.getItem(KEY_CACHE) || '[]'); } catch { GS  = []; }
+  const co = localStorage.getItem(KEY_CO);
+  if (co) document.getElementById('f-co').value = co;
+  document.getElementById('gs-url').value = localStorage.getItem(KEY_URL) || '';
+  updateDsChip(); updateStats(); applyTypeUI(false); preview();
+  const url = localStorage.getItem(KEY_URL);
   if (url) await loadGS(false);
-};
+});
 
-// ══════════════════════════════════════
-//  GOOGLE SHEETS — multi-proxy fallback
-// ══════════════════════════════════════
+/* ═══════════════ PAGE SWITCH ═══════════════ */
+function switchPage(id, btn) {
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('on'));
+  if (btn) btn.classList.add('on');
+  document.getElementById('gen-page').classList.remove('on');
+  document.getElementById('set-page').style.display = 'none';
+  document.getElementById('doc-page').style.display = 'none';
+  if (id === 'gen') { document.getElementById('gen-page').classList.add('on'); }
+  else { document.getElementById(id + '-page').style.display = 'block'; }
+}
+function goSettings() { switchPage('set', document.querySelector('[data-page=set]')); }
+
+/* ═══════════════ GOOGLE SHEETS ═══════════════ */
 const PROXIES = [
   u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
   u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
   u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
 ];
 
-async function fetchWithProxy(rawUrl) {
-  // Normalize: ถ้าเป็น /pub?...output=csv ใช้ตรง
-  // ถ้าเป็น pubhtml ให้แปลงเป็น output=csv
+async function fetchCSV(rawUrl) {
   let url = rawUrl.trim();
-  if (url.includes('/pubhtml')) url = url.replace('/pubhtml','').replace('pubhtml','') + '/pub?output=csv';
-  if (!url.includes('output=csv')) {
-    if (url.includes('?')) url += '&output=csv';
-    else url += '?output=csv';
-  }
-
-  for (const makeProxy of PROXIES) {
+  if (url.includes('/pubhtml')) url = url.split('/pubhtml')[0] + '/pub?output=csv';
+  if (!url.includes('output=csv')) url += (url.includes('?') ? '&' : '?') + 'output=csv';
+  for (const mkP of PROXIES) {
     try {
-      const res = await fetch(makeProxy(url), { cache:'no-cache', signal: AbortSignal.timeout(10000) });
-      if (!res.ok) continue;
-      const text = await res.text();
-      if (text && text.length > 10) return text;
-    } catch(e) { /* try next */ }
+      const r = await fetch(mkP(url), { cache: 'no-cache', signal: AbortSignal.timeout(10000) });
+      if (!r.ok) continue;
+      const t = await r.text();
+      if (t && t.length > 10) return t;
+    } catch {}
   }
-  throw new Error('ไม่สามารถดึงข้อมูลได้ (ลอง Proxy 3 ตัวแล้ว) — ตรวจสอบ URL หรือการ Publish');
+  throw new Error('ดึงข้อมูลไม่ได้ (ลอง 3 Proxy แล้ว) — ตรวจสอบ URL หรือการ Publish');
 }
 
-async function saveAndLoad() {
+function saveAndLoadGS() {
   const url = document.getElementById('gs-url').value.trim();
-  if (!url) { setGsStatus('กรุณาใส่ URL','err'); return; }
-  localStorage.setItem(LS_URL, url);
-  await loadGS(true);
+  if (!url) { setGsStatus('กรุณาใส่ URL', 'err'); return; }
+  localStorage.setItem(KEY_URL, url);
+  loadGS(true);
 }
 
-async function loadGS(showFeedback=true) {
-  const url = localStorage.getItem(LS_URL);
+async function loadGS(fb = true) {
+  const url = localStorage.getItem(KEY_URL);
   if (!url) { updateDsChip(); return; }
-  setBanner('loading','กำลังโหลดข้อมูลสินค้าจาก Google Sheets...');
-  setDot('loading','กำลังโหลด...');
-  if(showFeedback) setGsStatus('⏳ กำลังโหลด...','idle');
+  setBanner('loading', 'กำลังโหลดข้อมูลสินค้าจาก Google Sheets…');
+  setDot('spin-c', 'กำลังโหลด…');
+  if (fb) setGsStatus('⏳ กำลังโหลด…', '');
   try {
-    const csv = await fetchWithProxy(url);
-    const parsed = parseCSV(csv);
-    if (!parsed.length) throw new Error('ไม่พบข้อมูล — ตรวจสอบ Format ใน Sheets');
-    gsProds = parsed;
-    localStorage.setItem(LS_CACHE, JSON.stringify(gsProds));
-    setBanner('ok',`✅ โหลดสำเร็จ ${gsProds.length} รายการ`);
-    setTimeout(()=>setBanner('hide'),3000);
-    setDot('ok',`${gsProds.length} รายการ`);
-    if(showFeedback) setGsStatus(`✅ โหลดสำเร็จ ${gsProds.length} รายการ`,'ok');
+    const csv = await fetchCSV(url);
+    const rows = parseCSV(csv);
+    if (!rows.length) throw new Error('ไม่พบข้อมูล — ตรวจสอบ Format (ต้องมีแถว 2 เป็นต้นไป)');
+    GS = rows;
+    localStorage.setItem(KEY_CACHE, JSON.stringify(GS));
+    setBanner('ok', `✅ โหลดสำเร็จ ${GS.length} รายการ`);
+    setTimeout(() => setBanner('', ''), 3500);
+    setDot('ok', `${GS.length} รายการ`);
+    if (fb) setGsStatus(`✅ โหลดสำเร็จ ${GS.length} รายการ`, 'ok');
     updateStats();
-  } catch(e) {
-    console.error(e);
-    const fallback = gsProds.length ? ` (ใช้ Cache ${gsProds.length} รายการ)` : '';
-    setBanner('err',`❌ ${e.message}${fallback}`);
-    setTimeout(()=>setBanner('hide'),6000);
-    setDot(gsProds.length?'ok':'err', gsProds.length?`Cache ${gsProds.length} รายการ`:'ไม่มีข้อมูล');
-    if(showFeedback) setGsStatus(`❌ ${e.message}`,'err');
+  } catch (e) {
+    const fb2 = GS.length ? ` (ใช้ Cache ${GS.length} รายการ)` : '';
+    setBanner('err', `❌ ${e.message}${fb2}`);
+    setTimeout(() => setBanner('', ''), 7000);
+    setDot(GS.length ? 'ok' : 'err', GS.length ? `Cache ${GS.length}` : 'ไม่มีข้อมูล');
+    if (fb) setGsStatus(`❌ ${e.message}`, 'err');
   }
 }
 
 function parseCSV(csv) {
-  const lines = csv.split('\n').map(l=>l.trim()).filter(Boolean);
-  const out = [];
-  for (let i=1;i<lines.length;i++) {
-    const c = splitCSV(lines[i]);
-    const part = clean(c[0]), name = clean(c[1]);
-    const type = clean(c[2]).toUpperCase()==='FG'?'FG':'RM';
-    const unit = clean(c[3])||'Kgs';
-    if (part && name) out.push({part,name,type,unit,src:'sheets'});
+  const rows = [];
+  const lines = csv.split('\n').map(l => l.trim()).filter(Boolean);
+  for (let i = 1; i < lines.length; i++) {
+    const c = splitLine(lines[i]);
+    const part = cl(c[0]), name = cl(c[1]);
+    const type = cl(c[2]).toUpperCase() === 'FG' ? 'FG' : 'RM';
+    const unit = cl(c[3]) || 'Kgs';
+    if (part && name) rows.push({ part, name, type, unit, src: 'gs' });
   }
-  return out;
+  return rows;
 }
-function clean(s){ return (s||'').trim().replace(/^"+|"+$/g,'').trim(); }
-function splitCSV(line){
-  const r=[];let cur='';let inQ=false;
-  for(const c of line){ if(c==='"'){inQ=!inQ;}else if(c===','&&!inQ){r.push(cur);cur='';}else{cur+=c;} }
+function cl(s) { return (s || '').trim().replace(/^"+|"+$/g, '').trim(); }
+function splitLine(line) {
+  const r = []; let cur = ''; let q = false;
+  for (const c of line) { if (c === '"') { q = !q; } else if (c === ',' && !q) { r.push(cur); cur = ''; } else { cur += c; } }
   r.push(cur); return r;
 }
 
-// ══════════════════════════════════════
-//  PRODUCT DB
-// ══════════════════════════════════════
-function getAll(){ const sf=gsProds.filter(g=>!localProds.find(l=>l.part.toUpperCase()===g.part.toUpperCase())); return [...localProds,...sf]; }
-function findProd(q){ return getAll().find(p=>p.part.toUpperCase()===(q||'').trim().toUpperCase())||null; }
-function searchProd(q){ const lq=(q||'').trim().toLowerCase(); if(!lq) return []; return getAll().filter(p=>p.part.toLowerCase().includes(lq)||p.name.toLowerCase().includes(lq)).slice(0,12); }
+/* ═══════════════ PRODUCT LOOKUP ═══════════════ */
+function allProds() {
+  const seen = new Set(LOC.map(l => l.part.toUpperCase()));
+  return [...LOC, ...GS.filter(g => !seen.has(g.part.toUpperCase()))];
+}
+function findProd(q) { return allProds().find(p => p.part.toUpperCase() === (q || '').trim().toUpperCase()) || null; }
+function searchProd(q) {
+  const lq = (q || '').trim().toLowerCase();
+  if (!lq) return [];
+  return allProds().filter(p => p.part.toLowerCase().includes(lq) || p.name.toLowerCase().includes(lq)).slice(0, 12);
+}
 
-// ══════════════════════════════════════
-//  AUTOCOMPLETE
-// ══════════════════════════════════════
-function onPartInput(){
-  const q=document.getElementById('in-part').value;
-  acRes=searchProd(q); acIdx=-1;
-  const ex=findProd(q);
-  if(ex) autoFill(ex); else clearFill();
-  renderDrop(q); liveUpdate();
+/* ═══════════════ AUTOCOMPLETE ═══════════════ */
+function onPartInput() {
+  const q = document.getElementById('f-part').value;
+  AC = searchProd(q); ACI = -1;
+  const ex = findProd(q);
+  if (ex) autoFill(ex); else clearFill();
+  renderDrop(q); preview();
 }
-function renderDrop(q){
-  const dd=document.getElementById('acdrop');
-  if(!q.trim()){dd.className='acdrop';dd.innerHTML='';return;}
-  if(!acRes.length){dd.innerHTML=`<div class="ac-none">ไม่พบ "<b>${q}</b>" — กด <b style="color:var(--green)">+</b> เพื่อเพิ่มเอง</div>`;dd.className='acdrop open';return;}
-  dd.innerHTML=acRes.map((p,i)=>`<div class="ac-item" data-i="${i}" onmousedown="selProd(${i})">
-    <div class="ac-p">${hl(p.part,q)}</div><div class="ac-n">${hl(p.name,q)}</div>
-    <div class="ac-tags"><span class="act ${p.type.toLowerCase()}">${p.type}</span>${p.src==='local'?'<span class="act loc">Local</span>':''}</div>
-  </div>`).join('');
-  dd.className='acdrop open';
-}
-function hl(t,q){if(!q.trim())return t;const i=t.toLowerCase().indexOf(q.toLowerCase());if(i<0)return t;return t.slice(0,i)+`<mark class="hl">${t.slice(i,i+q.length)}</mark>`+t.slice(i+q.length);}
-function onPartKeydown(e){
-  const items=document.getElementById('acdrop').querySelectorAll('.ac-item');
-  if(!items.length)return;
-  if(e.key==='ArrowDown'){e.preventDefault();acIdx=Math.min(acIdx+1,items.length-1);updFocus(items);}
-  else if(e.key==='ArrowUp'){e.preventDefault();acIdx=Math.max(acIdx-1,0);updFocus(items);}
-  else if(e.key==='Enter'&&acIdx>=0){e.preventDefault();selProd(acIdx);}
-  else if(e.key==='Escape') closeDrop();
-}
-function updFocus(items){items.forEach((el,i)=>el.classList.toggle('sel',i===acIdx));if(acIdx>=0)items[acIdx].scrollIntoView({block:'nearest'});}
-function selProd(i){const p=acRes[i];if(!p)return;document.getElementById('in-part').value=p.part;autoFill(p);closeDrop();liveUpdate();}
-function autoFill(p){
-  const n=document.getElementById('in-name');n.value=p.name;n.classList.add('name-ok');
-  document.getElementById('af-badge').style.display='inline-flex';
-  document.getElementById('in-type').value=p.type;
-  updateTypeUI(false);
-  const us=document.getElementById('in-unit');
-  if([...us.options].map(o=>o.value).includes(p.unit)) us.value=p.unit;
-}
-function clearFill(){const n=document.getElementById('in-name');n.value='';n.classList.remove('name-ok');document.getElementById('af-badge').style.display='none';}
-function closeDrop(){document.getElementById('acdrop').className='acdrop';acIdx=-1;}
-document.addEventListener('click',e=>{if(!e.target.closest('.ac-wrap'))closeDrop();});
 
-// ══════════════════════════════════════
-//  MODAL
-// ══════════════════════════════════════
-function openModal(){
-  const t=document.getElementById('in-part').value.trim();
-  document.getElementById('m-part').value=t;
-  document.getElementById('m-name').value='';
-  document.getElementById('modal-err').style.display='none';
-  document.getElementById('modal-add').classList.add('open');
-  setTimeout(()=>document.getElementById('m-name').focus(),100);
+function renderDrop(q) {
+  const dd = document.getElementById('acdrop');
+  if (!q.trim()) { dd.className = 'acdrop'; dd.innerHTML = ''; return; }
+  if (!AC.length) {
+    dd.innerHTML = `<div class="acnone">ไม่พบ "<b>${esc(q)}</b>" — กด <b style="color:var(--green)">+</b> เพื่อเพิ่มเอง</div>`;
+    dd.className = 'acdrop on'; return;
+  }
+  dd.innerHTML = AC.map((p, i) => `
+    <div class="aci" onmousedown="selProd(${i})">
+      <div class="aci-p">${hl(p.part, q)}</div>
+      <div class="aci-n">${hl(p.name, q)}</div>
+      <div class="aci-tags">
+        <span class="atag ${p.type.toLowerCase()}">${p.type}</span>
+        ${p.src === 'local' ? '<span class="atag loc">Local</span>' : ''}
+      </div>
+    </div>`).join('');
+  dd.className = 'acdrop on';
 }
-function closeModal(){document.getElementById('modal-add').classList.remove('open');}
-function saveNewProduct(){
-  const part=(document.getElementById('m-part').value||'').trim().toUpperCase();
-  const name=(document.getElementById('m-name').value||'').trim();
-  const type=document.getElementById('m-type').value;
-  const unit=document.getElementById('m-unit').value;
-  const err=document.getElementById('modal-err');
-  if(!part){err.textContent='กรุณาใส่ Part No.';err.style.display='block';return;}
-  if(!name){err.textContent='กรุณาใส่ชื่อสินค้า';err.style.display='block';return;}
-  localProds=localProds.filter(p=>p.part.toUpperCase()!==part);
-  localProds.unshift({part,name,type,unit,src:'local'});
-  localStorage.setItem(LS_LOCAL,JSON.stringify(localProds));
+
+function hl(t, q) {
+  const i = t.toLowerCase().indexOf(q.toLowerCase());
+  if (i < 0) return esc(t);
+  return esc(t.slice(0, i)) + `<mark class="hl">${esc(t.slice(i, i + q.length))}</mark>` + esc(t.slice(i + q.length));
+}
+
+function onPartKey(e) {
+  const items = document.getElementById('acdrop').querySelectorAll('.aci');
+  if (!items.length) return;
+  if (e.key === 'ArrowDown') { e.preventDefault(); ACI = Math.min(ACI + 1, items.length - 1); updAcFocus(items); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); ACI = Math.max(ACI - 1, 0); updAcFocus(items); }
+  else if (e.key === 'Enter' && ACI >= 0) { e.preventDefault(); selProd(ACI); }
+  else if (e.key === 'Escape') closeDrop();
+}
+function updAcFocus(items) {
+  items.forEach((el, i) => el.classList.toggle('sel', i === ACI));
+  if (ACI >= 0) items[ACI].scrollIntoView({ block: 'nearest' });
+}
+function selProd(i) {
+  const p = AC[i]; if (!p) return;
+  document.getElementById('f-part').value = p.part;
+  autoFill(p); closeDrop(); preview();
+}
+function autoFill(p) {
+  const n = document.getElementById('f-name');
+  n.value = p.name; n.classList.add('name-ok');
+  document.getElementById('afbadge').style.display = 'inline';
+  document.getElementById('f-type').value = p.type; applyTypeUI(false);
+  const us = document.getElementById('f-unit');
+  if ([...us.options].map(o => o.value).includes(p.unit)) us.value = p.unit;
+}
+function clearFill() {
+  const n = document.getElementById('f-name');
+  n.value = ''; n.classList.remove('name-ok');
+  document.getElementById('afbadge').style.display = 'none';
+}
+function closeDrop() { document.getElementById('acdrop').className = 'acdrop'; ACI = -1; }
+document.addEventListener('click', e => { if (!e.target.closest('.acwrap')) closeDrop(); });
+
+/* ═══════════════ MODAL ═══════════════ */
+function openModal() {
+  document.getElementById('m-part').value = document.getElementById('f-part').value.trim();
+  document.getElementById('m-name').value = '';
+  document.getElementById('merr').style.display = 'none';
+  document.getElementById('modal').classList.add('on');
+  setTimeout(() => document.getElementById('m-name').focus(), 80);
+}
+function closeModal() { document.getElementById('modal').classList.remove('on'); }
+function saveLocalProduct() {
+  const part = (document.getElementById('m-part').value || '').trim().toUpperCase();
+  const name = (document.getElementById('m-name').value || '').trim();
+  const type = document.getElementById('m-type').value;
+  const unit = document.getElementById('m-unit').value;
+  const err  = document.getElementById('merr');
+  if (!part) { err.textContent = 'กรุณาใส่ Part No.'; err.style.display = 'block'; return; }
+  if (!name) { err.textContent = 'กรุณาใส่ชื่อสินค้า'; err.style.display = 'block'; return; }
+  LOC = LOC.filter(p => p.part.toUpperCase() !== part);
+  LOC.unshift({ part, name, type, unit, src: 'local' });
+  localStorage.setItem(KEY_LOCAL, JSON.stringify(LOC));
   closeModal();
-  document.getElementById('in-part').value=part;
-  autoFill({part,name,type,unit,src:'local'});
-  liveUpdate(); updateStats();
-  toast(`✅ เพิ่ม "${name}" เรียบร้อย`);
+  document.getElementById('f-part').value = part;
+  autoFill({ part, name, type, unit, src: 'local' });
+  preview(); updateStats();
+  showToast(`✅ เพิ่ม "${name}" เรียบร้อย`);
 }
 
-// ══════════════════════════════════════
-//  BARCODE / QR RENDER
-// ══════════════════════════════════════
-function getScan(){ return document.getElementById('st-qr').checked?'qr':'barcode'; }
+/* ═══════════════ TYPE UI (RM / FG) ═══════════════ */
+function onTypeChange() { applyTypeUI(true); }
+function applyTypeUI(doPreview = true) {
+  const isFG = document.getElementById('f-type').value === 'FG';
+  document.getElementById('wrap-roll').style.display = isFG ? 'none' : '';
+  document.getElementById('wrap-pack').style.display = isFG ? '' : 'none';
+  document.getElementById('pw-roll').style.display   = isFG ? 'none' : '';
+  document.getElementById('pw-pack').style.display   = isFG ? '' : 'none';
+  document.getElementById('fg-mc').style.display     = isFG ? 'block' : 'none';
+  document.getElementById('pw-mc').style.display     = isFG ? '' : 'none';
+  document.getElementById('p-badge').textContent = `QC · ${isFG ? 'FG' : 'RM'}`;
+  document.getElementById('p-badge').className   = 'lbadge' + (isFG ? ' fg' : '');
+  document.getElementById('split-opt').textContent = isFG ? '✂️ แยกตามแพ็ค (หลายดวง)' : '✂️ แยกตามม้วน (หลายดวง)';
+  if (doPreview) preview();
+}
 
-// QR: ใช้ new QRCode(element, options) — qrcodejs API
+/* ═══════════════ BARCODE / QR ═══════════════ */
+function codeType() { return document.getElementById('c-qr').checked ? 'qr' : 'bc'; }
+
 function renderQR(container, text, size) {
   container.innerHTML = '';
   if (!text) return;
-  try {
-    new QRCode(container, {
-      text: text,
-      width:  size,
-      height: size,
-      colorDark:  '#0f172a',
-      colorLight: '#ffffff',
-      correctLevel: QRCode.CorrectLevel.M
-    });
-  } catch(e){ console.warn('QR error',e); }
+  try { new QRCode(container, { text, width: size, height: size, colorDark: '#0f172a', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); }
+  catch (e) { console.warn('QR:', e); }
 }
 
-function renderCodeOnLabel(bcStr, svgId, qrHolderId, forPrint=false) {
-  const type = getScan();
-  const svgEl  = document.getElementById(svgId);
-  const qrHold = document.getElementById(qrHolderId);
-  if (!svgEl || !qrHold) return;
+function applyCode(svgEl, qrEl, str, forPrint) {
+  const isQR = codeType() === 'qr';
+  svgEl.style.display = isQR ? 'none' : 'block';
+  qrEl.style.display  = isQR ? 'flex'  : 'none';
+  if (isQR) {
+    renderQR(qrEl, str, forPrint ? 50 : 80);
+  } else if (str) {
+    try {
+      JsBarcode(svgEl, str, { format: 'CODE128', lineColor: forPrint ? '#000' : '#0f172a', width: 1.2, height: forPrint ? 22 : 42, displayValue: false, margin: 3 });
+    } catch { svgEl.innerHTML = ''; }
+  } else { svgEl.innerHTML = ''; }
+}
 
-  if (type === 'barcode') {
-    svgEl.style.display  = 'block';
-    qrHold.style.display = 'none';
-    if (bcStr) {
-      try {
-        JsBarcode('#'+svgId, bcStr, {
-          format:'CODE128', lineColor: forPrint?'#000':'#0f172a',
-          width:1.2, height: forPrint?28:45, displayValue:false, margin:4
-        });
-      } catch(e){ svgEl.innerHTML=''; }
-    } else { svgEl.innerHTML=''; }
+/* ═══════════════ BUILD DATA STRING ═══════════════ */
+function mkStr(part, lot, qty, unit, rolls, ref, po) {
+  return [part, lot, qty, unit, rolls, ref, po].map(v => String(v || '').trim()).join('|').replace(/\|+$/, '');
+}
+
+/* ═══════════════ LIVE PREVIEW ═══════════════ */
+function preview() {
+  const isFG = document.getElementById('f-type').value === 'FG';
+  const co   = fv('f-co'), part = fv('f-part'), lot = fv('f-lot');
+  const qty  = fv('f-qty'), unit = fv('f-unit');
+  const rolls = fv('f-rolls') || '1', packs = fv('f-packs') || '1';
+  const name = document.getElementById('f-name').value;
+  const sup  = fv('f-sup'), mc = fv('f-mc'), ref = fv('f-ref'), po = fv('f-po');
+
+  if (co) localStorage.setItem(KEY_CO, co);
+
+  tx('p-co',   co || 'Company');
+  tx('p-name', name || '—'); tx('p-part', part || '—'); tx('p-lot', lot || '—');
+  tx('p-qty',  qty  || '0'); tx('p-unit', unit);
+  tx('p-roll', rolls); tx('p-pack', packs);
+  tx('p-sup',  sup  || '—'); tx('p-mc',  mc  || '—');
+  tx('p-ref',  ref  || '—'); tx('p-po',  po  || '—');
+
+  const str = mkStr(part, lot, qty, unit, isFG ? packs : rolls, ref, po);
+  document.getElementById('ds-str').innerHTML = str
+    ? str.replace(/\|/g, '<span style="color:var(--red)">|</span>')
+    : '—';
+  tx('p-bclbl', str || '—');
+  document.getElementById('p-codetype').textContent = codeType() === 'qr' ? 'QR CODE' : 'BARCODE';
+
+  applyCode(document.getElementById('p-bc'), document.getElementById('p-qr'), str, false);
+}
+
+/* ═══════════════ COLLECT FORM → label objects ═══════════════ */
+function uid() { return '_' + Math.random().toString(36).slice(2, 10) + Date.now(); }
+
+function collectLabels() {
+  const isFG   = document.getElementById('f-type').value === 'FG';
+  const mode   = fv('f-mode');
+  const co     = fv('f-co') || 'Company';
+  const type   = fv('f-type');
+  const code   = codeType();
+  const part   = fv('f-part'), baseLot = fv('f-lot');
+  const totQty = parseFloat(fv('f-qty')) || 0;
+  const unit   = fv('f-unit');
+  const rollsN = parseInt(fv('f-rolls')) || 1;
+  const packsN = parseInt(fv('f-packs')) || 1;
+  const splitN = isFG ? packsN : rollsN;
+  const sup    = fv('f-sup'), ref = fv('f-ref'), po = fv('f-po'), mc = fv('f-mc');
+  const name   = document.getElementById('f-name').value;
+  const qid    = uid();
+  const labels = [];
+
+  if (mode === 'split' && splitN > 1) {
+    const qtyPer = (totQty / splitN).toFixed(3);
+    for (let i = 1; i <= splitN; i++) {
+      const lot   = isFG ? `${baseLot}-P${i}` : `${baseLot}-R${i}`;
+      const disp  = isFG ? `แพ็ค ${i}/${splitN}` : `ม้วน ${i}/${splitN}`;
+      const bcStr = mkStr(part, lot, qtyPer, unit, 1, ref, po);
+      labels.push({ _id: uid(), _qid: qid, co, type, code, part, lot, qty: qtyPer, unit, rolls: disp, pack: disp, sup, ref, po, mc, name, bcStr, date: TODAY });
+    }
   } else {
-    svgEl.style.display  = 'none';
-    qrHold.style.display = 'flex';
-    const sz = forPrint ? 60 : 90;
-    renderQR(qrHold, bcStr, sz);
+    const bcStr = mkStr(part, baseLot, totQty, unit, isFG ? packsN : rollsN, ref, po);
+    const disp  = isFG ? String(packsN) : String(rollsN);
+    labels.push({ _id: uid(), _qid: qid, co, type, code, part, lot: baseLot, qty: String(totQty), unit, rolls: disp, pack: disp, sup, ref, po, mc, name, bcStr, date: TODAY });
   }
+  return labels;
 }
 
-// ══════════════════════════════════════
-//  BUILD STRING
-// ══════════════════════════════════════
-function buildStr(part,lot,qty,unit,rolls,ref,po){
-  return [part,lot,qty,unit,rolls,ref,po].map(v=>String(v||'').trim()).join('|').replace(/\|+$/,'');
-}
+/* ═══════════════ QUEUE OPERATIONS ═══════════════ */
+function addToQueue() {
+  const labels = collectLabels();
+  if (!labels[0].part) { showToast('⚠️ กรุณาใส่ Part No.'); return; }
 
-// ══════════════════════════════════════
-//  LIVE UPDATE
-// ══════════════════════════════════════
-function liveUpdate(){
-  const isFG = v('in-type')==='FG';
-  const co=v('in-co'), part=v('in-part'), lot=v('in-lot');
-  const qty=v('in-qty'), unit=v('in-unit');
-  const rolls=v('in-rolls')||'1', packs=v('in-packs')||'1';
-  const name=document.getElementById('in-name').value;
-  const sup=v('in-sup'), mc=v('in-mc'), ref=v('in-ref'), po=v('in-po');
-  const scanType=getScan();
-
-  if(co) localStorage.setItem(LS_CO,co);
-  s('lbl-co',co||'Company'); s('lbl-part',part||'—'); s('lbl-lot',lot||'—');
-  s('lbl-qty',qty||'0'); s('lbl-unit',unit); s('lbl-name',name||'—');
-  s('lbl-rolls',rolls); s('lbl-pack',packs); s('lbl-sup',sup||'—');
-  s('lbl-mc',mc||'—'); s('lbl-ref',ref||'—'); s('lbl-po',po||'—');
-
-  const bcStr = buildStr(part,lot,qty,unit,isFG?packs:rolls,ref,po);
-  document.getElementById('bc-str').innerHTML = bcStr?bcStr.replace(/\|/g,'<span style="color:var(--red)">|</span>'):'—';
-  s('lbl-bc-txt',bcStr||'—');
-  document.getElementById('lbl-code-type').textContent = scanType==='qr'?'QR CODE':'BARCODE';
-
-  renderCodeOnLabel(bcStr,'bc-main','qr-holder',false);
-}
-
-// ══════════════════════════════════════
-//  TYPE UI
-// ══════════════════════════════════════
-function updateTypeUI(doUpdate=true){
-  const isFG=v('in-type')==='FG';
-  document.getElementById('wrap-rolls').style.display  = isFG?'none':'';
-  document.getElementById('wrap-packs').style.display  = isFG?'':'none';
-  document.getElementById('wr-rolls').style.display    = isFG?'none':'';
-  document.getElementById('wr-pack').style.display     = isFG?'':'none';
-  document.getElementById('fg-mc').style.display       = isFG?'block':'none';
-  document.getElementById('wr-mc').style.display       = isFG?'':'none';
-  document.getElementById('lbl-badge').textContent     = isFG?'QC · FG':'QC · RM';
-  document.getElementById('lbl-badge').className       = 'lbl-badge'+(isFG?' fg':'');
-
-  // print mode options
-  const pm=document.getElementById('in-mode');
-  pm.options[0].textContent = isFG
-    ? '✂️ พิมพ์แยกตามแพ็ค (แบ่ง QTY / Pack)'
-    : '✂️ พิมพ์แยกตามม้วน (แบ่ง QTY / Roll)';
-  pm.options[0].disabled=false; // both RM and FG can split now
-
-  if(doUpdate) liveUpdate();
-}
-
-function updatePrintBtn(){
-  const m=v('in-mode');
-  document.getElementById('pt').innerHTML=m==='split'?'พิมพ์ Label แยก':'พิมพ์ Label ใบรวม';
-  document.getElementById('pi').innerHTML=m==='split'?'✂️':'📦';
-  document.getElementById('btn-print').style.background=m==='split'?'var(--blue)':'var(--navy)';
-}
-
-// ══════════════════════════════════════
-//  PRINT — 15 per A4
-// ══════════════════════════════════════
-async function doPrint(){
-  const mode=v('in-mode'), isFG=v('in-type')==='FG';
-  const rollsIn=parseInt(v('in-rolls'))||1;
-  const packsIn=parseInt(v('in-packs'))||1;
-  const splitCount = isFG ? packsIn : rollsIn;
-  const part=v('in-part'), baseLot=v('in-lot'), unit=v('in-unit');
-  const ref=v('in-ref'), po=v('in-po');
-  const totalQty=parseFloat(v('in-qty'))||0;
-  const pa=document.getElementById('print-area');
-  pa.innerHTML='';
-
-  let loop=1, qtyPer=totalQty;
-  if(mode==='split'){
-    loop=splitCount;
-    qtyPer=loop>1?(totalQty/loop).toFixed(3):totalQty;
+  if (EDIT_QID !== null) {
+    /* Replace editing entry */
+    const insertAt = QUEUE.findIndex(l => l._qid === EDIT_QID);
+    QUEUE = QUEUE.filter(l => l._qid !== EDIT_QID);
+    const newQid = uid();
+    labels.forEach((l, i) => { l._qid = newQid; QUEUE.splice(Math.min(insertAt + i, QUEUE.length), 0, l); });
+    showToast('✅ บันทึกการแก้ไขเรียบร้อย');
+    exitEditMode();
+  } else {
+    labels.forEach(l => QUEUE.push(l));
+    showToast(`✅ เพิ่ม ${labels.length} ดวง · รวม ${QUEUE.length} ดวงในคิว`);
   }
 
-  const qrRenders=[];
+  renderQueue();
+  resetFormPartial();
+}
 
-  for(let i=1;i<=loop;i++){
-    let curLot=baseLot;
-    let dispRoll=isFG?packsIn:rollsIn;
+function editItem(qid) {
+  const items = QUEUE.filter(l => l._qid === qid);
+  if (!items.length) return;
+  const lbl = items[0];
+  EDIT_QID = qid;
 
-    if(mode==='split'&&loop>1){
-      curLot=isFG?`${baseLot}-P${i}`:`${baseLot}-R${i}`;
-      dispRoll=isFG?`แพ็ค ${i}/${loop}`:`ม้วน ${i}/${loop}`;
+  /* Fill form */
+  document.getElementById('f-co').value   = lbl.co;
+  document.getElementById('f-type').value = lbl.type;
+  document.getElementById('f-part').value = lbl.part;
+  /* Strip -R1/-P1 suffix from lot for base lot */
+  document.getElementById('f-lot').value  = lbl.lot.replace(/-[RP]\d+$/, '');
+  document.getElementById('f-name').value = lbl.name || '';
+  if (lbl.name) { document.getElementById('f-name').classList.add('name-ok'); document.getElementById('afbadge').style.display = 'inline'; }
+  /* Restore qty (multiply back if split) */
+  const cnt = items.length;
+  document.getElementById('f-qty').value   = (parseFloat(lbl.qty) * cnt).toFixed(cnt > 1 ? 3 : 0);
+  document.getElementById('f-unit').value  = lbl.unit;
+  document.getElementById('f-sup').value   = lbl.sup || '';
+  document.getElementById('f-ref').value   = lbl.ref || '';
+  document.getElementById('f-po').value    = lbl.po  || '';
+  document.getElementById('f-mc').value    = lbl.mc  || '';
+  /* Rolls/packs */
+  const isMulti = cnt > 1;
+  if (lbl.type === 'FG') { document.getElementById('f-packs').value = isMulti ? cnt : (parseInt(lbl.pack) || 1); }
+  else { document.getElementById('f-rolls').value = isMulti ? cnt : (parseInt(lbl.rolls) || 1); }
+  document.getElementById('f-mode').value = isMulti ? 'split' : 'single';
+  /* Code type */
+  document.getElementById(lbl.code === 'qr' ? 'c-qr' : 'c-bc').checked = true;
+
+  applyTypeUI(false);
+
+  /* Show edit-mode UI */
+  const idx = QUEUE.findIndex(l => l._qid === qid) + 1;
+  document.getElementById('edit-num').textContent = idx;
+  document.getElementById('editbar').classList.add('on');
+  document.getElementById('etag').style.display = 'inline-flex';
+  document.getElementById('addq-ico').textContent = '💾';
+  document.getElementById('addq-lbl').textContent = 'บันทึกการแก้ไข';
+  document.getElementById('btn-addq').style.background = 'var(--amber)';
+
+  preview();
+  document.querySelector('.fpanel').scrollIntoView({ behavior: 'smooth' });
+  renderQueue();
+}
+
+function cancelEdit() { exitEditMode(); renderQueue(); }
+
+function exitEditMode() {
+  EDIT_QID = null;
+  document.getElementById('editbar').classList.remove('on');
+  document.getElementById('etag').style.display = 'none';
+  document.getElementById('addq-ico').textContent = '➕';
+  document.getElementById('addq-lbl').textContent = 'เพิ่มลงรายการพิมพ์';
+  document.getElementById('btn-addq').style.background = 'var(--green)';
+}
+
+function deleteItem(qid) {
+  QUEUE = QUEUE.filter(l => l._qid !== qid);
+  if (EDIT_QID === qid) exitEditMode();
+  renderQueue();
+  showToast('🗑️ ลบรายการแล้ว');
+}
+
+function clearAll() {
+  if (!QUEUE.length) return;
+  if (!confirm(`ล้างรายการทั้งหมด ${QUEUE.length} ดวง?`)) return;
+  QUEUE = []; exitEditMode(); renderQueue();
+  showToast('🗑️ ล้างทั้งหมดแล้ว');
+}
+
+/* ═══════════════ RENDER QUEUE ═══════════════ */
+function renderQueue() {
+  const body  = document.getElementById('q-body');
+  const total = QUEUE.length;
+  const pages = Math.ceil(total / PER_PAGE) || 0;
+
+  document.getElementById('q-cnt').textContent = `${total} ดวง`;
+  document.getElementById('q-pg').textContent  = `${pages} หน้า A4`;
+  updateTabBadge(total);
+
+  if (!total) {
+    body.innerHTML = `<div class="qempty"><div class="qempty-icon">📭</div><p>ยังไม่มีรายการ<br>กรอกข้อมูลแล้วกด <strong style="color:var(--green)">เพิ่มลงรายการพิมพ์</strong></p></div>`;
+    document.getElementById('q-prog').style.display = 'none';
+    return;
+  }
+
+  /* Progress bar */
+  const slotFilled = total % PER_PAGE || PER_PAGE;
+  document.getElementById('q-prog').style.display = '';
+  document.getElementById('q-bar').style.width = (slotFilled / PER_PAGE * 100) + '%';
+  document.getElementById('q-prog-txt').textContent = `${slotFilled} / ${PER_PAGE}  (หน้า ${pages})`;
+
+  /* Build rows grouped by page */
+  let html = '';
+  let curPage = 0;
+  const seenQid = new Set();
+
+  QUEUE.forEach((lbl, i) => {
+    const page = Math.floor(i / PER_PAGE) + 1;
+    if (page !== curPage) {
+      curPage = page;
+      const cnt = Math.min(PER_PAGE, total - (page - 1) * PER_PAGE);
+      html += `<div class="pg-hdr"><span>📄 หน้า ${page}</span><span>${cnt} ดวง</span></div>`;
     }
+    const isEdit  = lbl._qid === EDIT_QID;
+    const isFirst = !seenQid.has(lbl._qid);
+    if (isFirst) seenQid.add(lbl._qid);
 
-    const embedCount=mode==='split'?1:(isFG?packsIn:rollsIn);
-    const bcStr=buildStr(part,curLot,qtyPer,unit,embedCount,ref,po);
+    html += `<div class="qrow${isEdit ? ' editing' : ''}">
+      <div class="qrow-num">${i + 1}</div>
+      <div class="qrow-info">
+        <div class="qrow-name">${esc(lbl.name || lbl.part || '—')}</div>
+        <div class="qrow-meta">
+          <span>${esc(lbl.part || '—')}</span>·
+          <span>Lot: ${esc(lbl.lot || '—')}</span>·
+          <span>${esc(lbl.qty)} ${esc(lbl.unit)}</span>
+          <span class="qtag ${lbl.type.toLowerCase()}">${lbl.type}</span>
+          <span style="font-size:9px;color:${lbl.code === 'qr' ? 'var(--purple)' : 'var(--blue)'}">${lbl.code === 'qr' ? '⊞QR' : '▌BC'}</span>
+        </div>
+      </div>
+      <div class="qrow-acts">
+        ${isFirst ? `<button class="btn-qa ed" onclick="editItem('${lbl._qid}')" title="แก้ไข">✏️</button>` : ''}
+        ${isFirst ? `<button class="btn-qa dl" onclick="deleteItem('${lbl._qid}')" title="ลบ">🗑️</button>` : ''}
+      </div>
+    </div>`;
+  });
 
-    const clone=document.getElementById('label-card').cloneNode(true);
-    clone.id='pc'+i;
-    clone.querySelector('#lbl-lot').innerText=curLot;
-    clone.querySelector('#lbl-qty').innerText=qtyPer;
-    clone.querySelector('#wr-rolls .lf-val').innerText=dispRoll;
-    clone.querySelector('#wr-pack .lf-val').innerText=dispRoll;
-    clone.querySelector('.lbl-bc-label').innerText=bcStr;
-    clone.querySelector('#lbl-code-type').textContent=getScan()==='qr'?'QR CODE':'BARCODE';
+  body.innerHTML = html;
+}
 
-    const pSvg=clone.querySelector('#bc-main');  pSvg.id='psv'+i;
-    const pQr =clone.querySelector('#qr-holder'); pQr.id='pqr'+i;
-    pa.appendChild(clone);
+function updateTabBadge(n) {
+  const tab = document.querySelector('[data-page=gen]');
+  if (!tab) return;
+  let b = tab.querySelector('.qbadge');
+  if (n > 0) {
+    if (!b) { b = document.createElement('span'); b.className = 'qbadge'; tab.appendChild(b); }
+    b.textContent = n;
+  } else { if (b) b.remove(); }
+}
 
-    if(getScan()==='barcode'){
-      pQr.style.display='none'; pSvg.style.display='block';
-      try{ JsBarcode('#psv'+i,bcStr,{format:'CODE128',lineColor:'#000',width:1.2,height:28,displayValue:false,margin:4}); }catch(e){}
-    } else {
-      pSvg.style.display='none'; pQr.style.display='flex';
-      qrRenders.push({el:pQr,text:bcStr});
+/* ═══════════════ RESET FORM (partial) ═══════════════ */
+function resetFormPartial() {
+  /* Keep: company, type, code, part, name  — clear transactional fields */
+  document.getElementById('f-lot').value   = '';
+  document.getElementById('f-qty').value   = '500';
+  document.getElementById('f-rolls').value = '1';
+  document.getElementById('f-packs').value = '1';
+  document.getElementById('f-sup').value   = '';
+  document.getElementById('f-ref').value   = '';
+  document.getElementById('f-po').value    = '';
+  document.getElementById('f-mc').value    = '';
+  preview();
+}
+
+/* ═══════════════ PRINT ═══════════════ */
+async function doPrint() {
+  if (!QUEUE.length) { showToast('⚠️ ยังไม่มีรายการ'); return; }
+  const pa = document.getElementById('pa');
+  pa.innerHTML = '';
+  const pages  = Math.ceil(QUEUE.length / PER_PAGE);
+  const qrTodo = [];
+
+  for (let p = 0; p < pages; p++) {
+    const pdiv  = document.createElement('div');
+    pdiv.className = 'ppage';
+    const slice = QUEUE.slice(p * PER_PAGE, (p + 1) * PER_PAGE);
+
+    for (let j = 0; j < slice.length; j++) {
+      const lbl   = slice[j];
+      const clone = document.getElementById('lcard-tpl').cloneNode(true);
+      clone.id = `pc-${p}-${j}`;
+
+      /* Fill values */
+      const isFG = lbl.type === 'FG';
+      clone.querySelector('#p-co').textContent      = lbl.co;
+      clone.querySelector('#p-name').textContent    = lbl.name  || '—';
+      clone.querySelector('#p-part').textContent    = lbl.part  || '—';
+      clone.querySelector('#p-lot').textContent     = lbl.lot   || '—';
+      clone.querySelector('#p-qty').textContent     = lbl.qty;
+      clone.querySelector('#p-unit').textContent    = lbl.unit;
+      clone.querySelector('#p-roll').textContent    = lbl.rolls || '—';
+      clone.querySelector('#p-pack').textContent    = lbl.pack  || '—';
+      clone.querySelector('#p-sup').textContent     = lbl.sup   || '—';
+      clone.querySelector('#p-ref').textContent     = lbl.ref   || '—';
+      clone.querySelector('#p-po').textContent      = lbl.po    || '—';
+      clone.querySelector('#p-mc').textContent      = lbl.mc    || '—';
+      clone.querySelector('#p-date').textContent    = lbl.date  || TODAY;
+      clone.querySelector('#p-bclbl').textContent   = lbl.bcStr || '—';
+      clone.querySelector('#p-codetype').textContent = lbl.code === 'qr' ? 'QR CODE' : 'BARCODE';
+      clone.querySelector('#p-badge').textContent   = `QC · ${lbl.type}`;
+      clone.querySelector('#p-badge').className     = 'lbadge' + (isFG ? ' fg' : '');
+
+      /* Field visibility */
+      clone.querySelector('#pw-roll').style.display = isFG ? 'none' : '';
+      clone.querySelector('#pw-pack').style.display = isFG ? '' : 'none';
+      clone.querySelector('#pw-mc').style.display   = isFG ? '' : 'none';
+
+      /* Code */
+      const svgEl = clone.querySelector('#p-bc');
+      const qrEl  = clone.querySelector('#p-qr');
+      svgEl.id = `psv-${p}-${j}`; qrEl.id = `pqr-${p}-${j}`;
+
+      if (lbl.code === 'qr') {
+        svgEl.style.display = 'none'; qrEl.style.display = 'flex';
+        qrTodo.push({ el: qrEl, text: lbl.bcStr || 'ERROR' });
+      } else {
+        svgEl.style.display = 'block'; qrEl.style.display = 'none';
+        try { JsBarcode(svgEl, lbl.bcStr || 'ERROR', { format: 'CODE128', lineColor: '#000', width: 1.2, height: 22, displayValue: false, margin: 3 }); } catch {}
+      }
+
+      pdiv.appendChild(clone);
     }
+    pa.appendChild(pdiv);
   }
 
-  // render QR codes (sync after DOM is ready)
-  for(const {el,text} of qrRenders) renderQR(el,text,60);
+  /* Render all QR codes */
+  for (const { el, text } of qrTodo) renderQR(el, text, 50);
 
-  setTimeout(()=>window.print(),400);
-}
-
-// ══════════════════════════════════════
-//  TAB SWITCHING
-// ══════════════════════════════════════
-function switchTab(id,btn){
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-  document.getElementById('tab-gen').classList.remove('active');
-  document.getElementById('tab-settings').style.display='none';
-  document.getElementById('tab-docs').style.display='none';
-  if(id==='gen') document.getElementById('tab-gen').classList.add('active');
-  else document.getElementById('tab-'+id).style.display='block';
+  setTimeout(() => window.print(), 380);
 }
 
-function gotoSettings(){
-  switchTab('settings', document.querySelector('[data-tab=settings]'));
+/* ═══════════════ SETTINGS HELPERS ═══════════════ */
+function setBanner(state, msg) {
+  const el  = document.getElementById('banner');
+  const sp  = document.getElementById('spin-el');
+  const btx = document.getElementById('banner-txt');
+  if (!state) { el.className = 'banner'; return; }
+  el.className = `banner on ${state}`;
+  sp.style.display = state === 'loading' ? '' : 'none';
+  btx.textContent = msg;
 }
-
-// ══════════════════════════════════════
-//  UI HELPERS
-// ══════════════════════════════════════
-function setBanner(state,msg){
-  const el=document.getElementById('dsbanner');
-  const sp=document.getElementById('ds-spin');
-  const tx=document.getElementById('dsban-txt');
-  if(state==='hide'){el.className='dsbanner';return;}
-  el.className='dsbanner show'+(state==='err'?' err':state==='ok'?' ok':'');
-  sp.style.display=state==='loading'?'':'none';
-  tx.textContent=msg;
+function setDot(cls, lbl) {
+  document.getElementById('hdr-dot').className = 'dot ' + cls;
+  document.getElementById('hdr-ds-lbl').textContent = lbl;
 }
-function setDot(state,lbl){
-  document.getElementById('ds-dot').className='ds-dot '+state;
-  document.getElementById('ds-label').textContent=lbl;
+function updateDsChip() {
+  if (!localStorage.getItem(KEY_URL)) { setDot('', 'ไม่ได้เชื่อมต่อ'); return; }
+  if (GS.length) setDot('ok', `${GS.length} รายการ`);
+  else setDot('err', 'ยังไม่ได้โหลด');
 }
-function updateDsChip(){
-  const hasUrl=!!localStorage.getItem(LS_URL);
-  if(!hasUrl){setDot('','ไม่ได้เชื่อมต่อ');return;}
-  if(gsProds.length) setDot('ok',`${gsProds.length} รายการ`);
-  else setDot('err','ยังไม่ได้โหลด');
+function setGsStatus(msg, state) {
+  const el = document.getElementById('gs-status');
+  el.textContent = msg;
+  el.style.color = state === 'ok' ? 'var(--green)' : state === 'err' ? 'var(--red)' : 'var(--muted)';
 }
-function setGsStatus(msg,state){
-  const el=document.getElementById('gs-status');
-  el.textContent=msg;
-  el.style.color=state==='ok'?'var(--green)':state==='err'?'var(--red)':'var(--muted)';
-}
-function updateStats(){
-  const el=document.getElementById('gs-stats');
-  if(!el)return;
-  el.innerHTML=`<div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:8px;">
-    <div><span style="font-size:20px;font-weight:700;color:var(--blue)">${gsProds.length}</span><br>จาก Google Sheets</div>
-    <div><span style="font-size:20px;font-weight:700;color:var(--green)">${localProds.length}</span><br>Local</div>
-    <div><span style="font-size:20px;font-weight:700;color:var(--navy)">${gsProds.length+localProds.length}</span><br>รวมทั้งหมด</div>
+function updateStats() {
+  const el = document.getElementById('gs-stats');
+  if (!el) return;
+  el.innerHTML = `<div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:6px">
+    <div><b style="font-size:20px;color:var(--blue)">${GS.length}</b><br>Google Sheets</div>
+    <div><b style="font-size:20px;color:var(--green)">${LOC.length}</b><br>Local</div>
+    <div><b style="font-size:20px;color:var(--navy)">${GS.length + LOC.length}</b><br>รวมทั้งหมด</div>
   </div>`;
 }
-function clearCache(){
-  if(!confirm('ล้าง Cache ทั้งหมด?')) return;
-  localStorage.removeItem(LS_CACHE); localStorage.removeItem(LS_LOCAL);
-  gsProds=[]; localProds=[];
-  updateDsChip(); updateStats(); toast('🗑️ ล้าง Cache เรียบร้อย');
+function clearCache() {
+  if (!confirm('ล้าง Cache และข้อมูล Local ทั้งหมด?')) return;
+  localStorage.removeItem(KEY_CACHE); localStorage.removeItem(KEY_LOCAL);
+  GS = []; LOC = []; updateDsChip(); updateStats();
+  showToast('🗑️ ล้าง Cache แล้ว');
 }
-function toast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.style.opacity='1';
-  clearTimeout(t._t); t._t=setTimeout(()=>{t.style.opacity='0';},2800);
+
+/* ═══════════════ UTILITIES ═══════════════ */
+function fv(id) { return (document.getElementById(id) || {}).value || ''; }
+function tx(id, v) { const el = document.getElementById(id); if (el) el.textContent = String(v || ''); }
+function esc(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.opacity = '1';
+  clearTimeout(t._t); t._t = setTimeout(() => { t.style.opacity = '0'; }, 2800);
 }
-function v(id){return(document.getElementById(id)||{}).value||'';}
-function s(id,val){const el=document.getElementById(id);if(el)el.textContent=String(val||'');}
 </script>
 </body>
 </html>
