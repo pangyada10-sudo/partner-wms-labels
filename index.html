@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Universal Label System — WMS V6.0</title>
+<title>Universal Label System — WMS V6.1</title>
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
@@ -65,6 +65,16 @@ body{font-family:'Kanit',sans-serif;background:var(--bg);color:var(--text);min-h
 .fg input,.fg select{width:100%;padding:7px 10px;font-size:13px;font-family:'Kanit';border:1.5px solid var(--border);border-radius:7px;background:#f8fafc;color:var(--text);transition:.15s}
 .fg input:focus,.fg select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.12);background:#fff}
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+/* Label size toggle */
+.lsize-toggle{display:flex;border:1.5px solid var(--border);border-radius:7px;overflow:hidden;margin-bottom:10px}
+.lsize-toggle input[type=radio]{display:none}
+.lsize-toggle label{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:8px 6px;cursor:pointer;font-size:11px;font-weight:700;color:var(--muted);background:#f8fafc;transition:.2s;margin:0;text-transform:none;letter-spacing:0;border:none;flex-direction:column;line-height:1.3}
+.lsize-toggle label .ls-title{font-size:11px;font-weight:700}
+.lsize-toggle label .ls-sub{font-size:9px;font-weight:400;opacity:.7}
+.lsize-toggle label:first-of-type{border-right:1.5px solid var(--border)}
+.lsize-toggle input[type=radio]:checked+label{background:var(--navy);color:#fff}
+.lsize-toggle input[type=radio]:checked+label .ls-sub{opacity:.8}
 
 /* scan toggle */
 .stog{display:flex;border:1.5px solid var(--border);border-radius:7px;overflow:hidden}
@@ -156,6 +166,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
 .qtag{font-size:9px;font-weight:700;padding:1px 5px;border-radius:20px}
 .qtag.rm{background:#dbeafe;color:#1d4ed8}
 .qtag.fg{background:#d1fae5;color:#065f46}
+.qtag.stk{background:#fae8ff;color:#7e22ce}
 .qrow-acts{display:flex;gap:3px;flex-shrink:0}
 .btn-qa{width:26px;height:26px;border:none;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:.12s}
 .btn-qa.ed{background:#eff6ff;color:var(--blue)}
@@ -179,7 +190,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
 .pvbody{padding:12px;overflow-x:auto}
 
 /* ═══════════════════════════════════════════
-   MINI LABEL CARD  (preview + print)
+   MINI LABEL CARD (original)
    Screen: 220px wide
    Print:  ~64mm × ~52mm  (3×5 on A4)
 ═══════════════════════════════════════════ */
@@ -203,6 +214,82 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
 .lbc .qrh canvas{max-width:78px!important;max-height:78px!important}
 .lbclbl{font-size:6.5px;color:var(--muted);margin-top:2px;font-family:'JetBrains Mono',monospace;word-break:break-all}
 .lft{display:flex;justify-content:space-between;align-items:center;margin-top:4px;padding-top:3px;border-top:1px solid #e2e8f0;font-size:6.5px;color:var(--muted)}
+
+/* ═══════════════════════════════════════════
+   STICKER 100×50mm LABEL CARD
+   Screen preview: 340px wide (approx 2:1 ratio)
+   Print: 100mm × 50mm exactly (3 cols × 6 rows = 18/A4)
+═══════════════════════════════════════════ */
+.scard100{
+  background:#fff;
+  border:1.5px solid #1e293b;
+  border-radius:5px;
+  width:340px;
+  height:170px;
+  padding:8px 10px;
+  font-family:'Kanit';
+  flex-shrink:0;
+  box-shadow:0 3px 12px rgba(0,0,0,.1);
+  display:flex;
+  flex-direction:column;
+  position:relative;
+  overflow:hidden;
+}
+/* Top header bar */
+.sc-hdr{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding-bottom:5px;
+  border-bottom:2px solid #0f172a;
+  margin-bottom:6px;
+  flex-shrink:0;
+}
+.sc-co{font-size:8.5px;font-weight:700;color:#0f172a;line-height:1.2;flex:1;word-break:break-word}
+.sc-badge{font-size:7px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap;margin-left:5px;flex-shrink:0;background:#0f172a;color:#fff}
+.sc-badge.fg{background:var(--green)}
+
+/* Main body: QR left | Info right */
+.sc-body{display:flex;gap:8px;flex:1;min-height:0;align-items:stretch}
+
+/* QR column */
+.sc-qrcol{
+  flex-shrink:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  width:88px;
+  background:#f8fafc;
+  border-radius:4px;
+  border:1px solid #e2e8f0;
+  padding:4px 3px 3px;
+}
+.sc-qrbox{display:flex;align-items:center;justify-content:center}
+.sc-qrbox canvas{max-width:76px!important;max-height:76px!important}
+.sc-qrbox svg{max-width:100%!important;height:28px!important;display:block}
+.sc-qrlbl{font-size:5.5px;color:var(--muted);font-family:'JetBrains Mono',monospace;word-break:break-all;text-align:center;margin-top:2px;line-height:1.3}
+.sc-codetype{font-size:6.5px;font-weight:700;color:var(--blue);margin-top:1px}
+
+/* Info column */
+.sc-infocol{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0;justify-content:flex-start}
+.sc-name{font-size:10px;font-weight:700;color:#0f172a;line-height:1.25;word-break:break-word;margin-bottom:3px;border-bottom:1px dashed #cbd5e1;padding-bottom:3px}
+.sc-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 6px}
+.sc-f{}
+.sc-k{font-size:6.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;line-height:1}
+.sc-v{font-size:9px;font-weight:700;color:#0f172a;line-height:1.2;word-break:break-all}
+.sc-v.big{font-size:12px;font-weight:800;color:var(--navy)}
+.sc-v .sc-unit{font-size:7px;font-weight:600;color:var(--muted)}
+.sc-f.span2{grid-column:1/-1}
+
+/* footer */
+.sc-ft{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-top:4px;padding-top:3px;
+  border-top:1px solid #e2e8f0;
+  font-size:5.5px;color:var(--muted);
+  flex-shrink:0;
+}
 
 /* ═══════════════════════════════════════════
    SETTINGS / DOCS pages
@@ -247,7 +334,21 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
 #toast{position:fixed;bottom:22px;right:22px;background:var(--navy);color:#fff;padding:10px 16px;border-radius:9px;font-family:'Kanit';font-size:13px;font-weight:600;z-index:99999;box-shadow:0 8px 28px rgba(0,0,0,.3);transition:opacity .3s;opacity:0;pointer-events:none}
 
 /* ═══════════════════════════════════════════
-   PRINT  — A4  3 cols × 5 rows = 15 tags
+   PRINT — A4
+
+   MINI (original):  3 cols × 5 rows = 15 tags
+   STICKER 100×50:   3 cols × 6 rows = 18 tags
+   
+   A4 = 210mm × 297mm, margin 5mm each side
+   usable = 200mm × 287mm
+   100×50 → 2 cols fit in 200mm, 5 rows in 250mm
+   BUT we want 3 cols → 3×100=300mm > 210mm
+   So scale: each label = (200/3)mm ≈ 66.7mm wide, 50mm tall
+   Actually for 100×50 real stickers: 2 cols × 5 rows = 10/page
+   OR use landscape A4: 297×210 → 2 cols×100=200mm, 4 rows×50=200mm = 8/page
+   
+   Best approach for 100×50 on A4 portrait:
+   2 cols (100mm each = 200mm) × 5 rows (50mm each = 250mm) = 10/page, fits in A4 297mm tall ✓
 ═══════════════════════════════════════════ */
 #pa{display:none}
 @media print{
@@ -256,21 +357,73 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
   .hdr,.tabs,.fpanel,.rpanel,.setpage,.docpage,.moverlay,#toast{display:none!important}
   #gen-page{display:block!important;padding:0!important;max-width:none!important}
   #pa{display:block!important}
-  .ppage{display:grid;grid-template-columns:repeat(3,1fr);gap:2mm;width:100%;page-break-after:always}
-  .ppage:last-child{page-break-after:auto}
-  .lcard{width:100%!important;max-width:none!important;box-shadow:none!important;border:0.5pt solid #444!important;border-radius:2px!important;padding:2mm 2.5mm!important;break-inside:avoid;page-break-inside:avoid}
-  .lco{font-size:6pt!important}
-  .lbadge{font-size:5.5pt!important;padding:1px 4px!important}
-  .lk{font-size:5.5pt!important}
-  .lv{font-size:7.5pt!important}
-  .lf.full .lv{font-size:7pt!important}
-  .lqbig{font-size:13pt!important}
-  .lqunit{font-size:7pt!important}
-  .ldiv{margin:1.5mm 0!important}
-  .lbclbl{font-size:5.5pt!important}
-  .lft{font-size:5.5pt!important;margin-top:2px!important;padding-top:2px!important}
-  .lbc svg{height:20px!important;max-width:100%!important}
-  .lbc .qrh canvas{max-width:46px!important;max-height:46px!important}
+
+  /* ── Mini label print (original 3×5=15) ── */
+  .ppage-mini{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:2mm;
+    width:100%;
+    page-break-after:always;
+  }
+  .ppage-mini:last-child{page-break-after:auto}
+  .ppage-mini .lcard{
+    width:100%!important;max-width:none!important;
+    box-shadow:none!important;border:0.5pt solid #444!important;
+    border-radius:2px!important;padding:2mm 2.5mm!important;
+    break-inside:avoid;page-break-inside:avoid;
+  }
+  .ppage-mini .lco{font-size:6pt!important}
+  .ppage-mini .lbadge{font-size:5.5pt!important;padding:1px 4px!important}
+  .ppage-mini .lk{font-size:5.5pt!important}
+  .ppage-mini .lv{font-size:7.5pt!important}
+  .ppage-mini .lf.full .lv{font-size:7pt!important}
+  .ppage-mini .lqbig{font-size:13pt!important}
+  .ppage-mini .lqunit{font-size:7pt!important}
+  .ppage-mini .ldiv{margin:1.5mm 0!important}
+  .ppage-mini .lbclbl{font-size:5.5pt!important}
+  .ppage-mini .lft{font-size:5.5pt!important;margin-top:2px!important;padding-top:2px!important}
+  .ppage-mini .lbc svg{height:20px!important;max-width:100%!important}
+  .ppage-mini .lbc .qrh canvas{max-width:46px!important;max-height:46px!important}
+
+  /* ── Sticker 100×50mm print (2×5=10 per A4) ── */
+  /* A4 usable: 200mm × 287mm → 2 cols × 100mm, 5 rows × 50mm + gaps */
+  .ppage-stk{
+    display:grid;
+    grid-template-columns:repeat(2, 100mm);
+    grid-template-rows:repeat(5, 50mm);
+    gap:1.5mm 2mm;
+    width:204mm;
+    page-break-after:always;
+  }
+  .ppage-stk:last-child{page-break-after:auto}
+  .ppage-stk .scard100{
+    width:100mm!important;
+    height:50mm!important;
+    box-shadow:none!important;
+    border:0.4pt solid #334155!important;
+    border-radius:1.5px!important;
+    padding:2mm 2.5mm!important;
+    break-inside:avoid;
+    page-break-inside:avoid;
+    overflow:hidden!important;
+  }
+  .ppage-stk .sc-hdr{padding-bottom:1.5mm!important;margin-bottom:1.5mm!important;border-bottom-width:1.2pt!important}
+  .ppage-stk .sc-co{font-size:6pt!important}
+  .ppage-stk .sc-badge{font-size:5.5pt!important;padding:1px 3px!important}
+  .ppage-stk .sc-qrcol{width:26mm!important;padding:1mm 1mm 0.5mm!important;border-radius:1.5px!important}
+  .ppage-stk .sc-qrbox canvas{max-width:22mm!important;max-height:22mm!important}
+  .ppage-stk .sc-qrbox svg{max-width:100%!important;height:10mm!important}
+  .ppage-stk .sc-qrlbl{font-size:4pt!important;margin-top:1px!important}
+  .ppage-stk .sc-codetype{font-size:5pt!important}
+  .ppage-stk .sc-name{font-size:7pt!important;margin-bottom:1mm!important;padding-bottom:1mm!important}
+  .ppage-stk .sc-k{font-size:5pt!important}
+  .ppage-stk .sc-v{font-size:6.5pt!important}
+  .ppage-stk .sc-v.big{font-size:9pt!important}
+  .ppage-stk .sc-v .sc-unit{font-size:5pt!important}
+  .ppage-stk .sc-ft{font-size:4.5pt!important;margin-top:1mm!important;padding-top:1mm!important}
+  .ppage-stk .sc-body{gap:3mm!important}
+  .ppage-stk .sc-grid{gap:1px 4px!important}
 }
 </style>
 </head>
@@ -309,7 +462,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
 <!-- ═══ HEADER ═══ -->
 <div class="hdr">
   <div class="hdr-logo">Universal <span>Label System</span></div>
-  <div class="hdr-ver">v6.0</div>
+  <div class="hdr-ver">v6.1</div>
   <div class="hdr-ds" onclick="goSettings()" title="ตั้งค่าแหล่งข้อมูล">
     <div class="dot" id="hdr-dot"></div>
     <span id="hdr-ds-lbl">ไม่ได้เชื่อมต่อ</span>
@@ -347,6 +500,23 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       <button class="btn-cedit" onclick="cancelEdit()">✕ ยกเลิก</button>
     </div>
 
+    <!-- ★ NEW: Label Size Selector ★ -->
+    <div class="fg">
+      <label>ขนาด Label / รูปแบบการพิมพ์</label>
+      <div class="lsize-toggle">
+        <input type="radio" name="lsize" id="ls-mini" value="mini" checked onchange="onLsizeChange()">
+        <label for="ls-mini">
+          <span class="ls-title">🏷️ Mini Label</span>
+          <span class="ls-sub">64×52mm · 15 ดวง/A4</span>
+        </label>
+        <input type="radio" name="lsize" id="ls-stk" value="stk" onchange="onLsizeChange()">
+        <label for="ls-stk">
+          <span class="ls-title">📦 Sticker 100×50</span>
+          <span class="ls-sub">100×50mm · 10 ดวง/A4</span>
+        </label>
+      </div>
+    </div>
+
     <!-- Company -->
     <div class="fg">
       <label>ชื่อองค์กร / บริษัท</label>
@@ -366,9 +536,9 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
     <div class="fg">
       <label>รูปแบบ Code</label>
       <div class="stog">
-        <input type="radio" name="code" id="c-bc" value="bc" checked onchange="preview()">
+        <input type="radio" name="code" id="c-bc" value="bc" onchange="preview()">
         <label for="c-bc">▌▌▌ Barcode (1D)</label>
-        <input type="radio" name="code" id="c-qr" value="qr" onchange="preview()">
+        <input type="radio" name="code" id="c-qr" value="qr" checked onchange="preview()">
         <label for="c-qr">⊞ QR Code (2D)</label>
       </div>
     </div>
@@ -501,43 +671,114 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
     <!-- PREVIEW -->
     <div class="pvwrap">
       <div class="pvhdr">
-        <div class="pvhdr-t">👁️ ตัวอย่าง Label (Mini · 15 ดวง / A4)</div>
+        <div class="pvhdr-t" id="pv-title">👁️ ตัวอย่าง Label (Mini · 15 ดวง / A4)</div>
         <div class="livedot">Live</div>
       </div>
-      <div class="pvbody">
-        <!-- MASTER TEMPLATE — hidden in print, cloned for queue -->
-        <div class="lcard" id="lcard-tpl">
-          <div class="lhd">
-            <div class="lco"    id="p-co">Company</div>
-            <span class="lbadge" id="p-badge">QC · RM</span>
-          </div>
-          <div class="lgrid">
-            <div class="lf full"><div class="lk">ชื่อสินค้า</div><div class="lv" id="p-name">—</div></div>
-            <div class="lf"><div class="lk">Part No.</div><div class="lv" id="p-part">—</div></div>
-            <div class="lf"><div class="lk">Lot No.</div><div class="lv" id="p-lot">—</div></div>
-            <div class="lf">
-              <div class="lk">Qty</div>
-              <div class="lqbox"><div class="lqbig" id="p-qty">0</div><div class="lqunit" id="p-unit">Kgs</div></div>
+      <div class="pvbody" id="pvbody">
+
+        <!-- ── MINI TEMPLATE (hidden when sticker mode) ── -->
+        <div id="tpl-mini">
+          <div class="lcard" id="lcard-tpl">
+            <div class="lhd">
+              <div class="lco"    id="p-co">Company</div>
+              <span class="lbadge" id="p-badge">QC · RM</span>
             </div>
-            <div class="lf"><div class="lk">วันที่</div><div class="lv" id="p-date">—</div></div>
-            <div class="lf" id="pw-roll"><div class="lk">Roll</div><div class="lv" id="p-roll">1</div></div>
-            <div class="lf" id="pw-pack" style="display:none"><div class="lk">Pack</div><div class="lv" id="p-pack">—</div></div>
-            <div class="lf"><div class="lk">Supplier</div><div class="lv" id="p-sup">—</div></div>
-            <div class="lf"><div class="lk">Ref No.</div><div class="lv" id="p-ref">—</div></div>
-            <div class="lf"><div class="lk">PO No.</div><div class="lv" id="p-po">—</div></div>
-            <div class="lf" id="pw-mc" style="display:none"><div class="lk">M/C</div><div class="lv" id="p-mc">—</div></div>
-          </div>
-          <div class="ldiv"></div>
-          <div class="lbc" id="p-bcbox">
-            <svg id="p-bc" style="display:block;margin:0 auto"></svg>
-            <div class="qrh" id="p-qr" style="display:none;justify-content:center"></div>
-            <div class="lbclbl" id="p-bclbl">—</div>
-          </div>
-          <div class="lft">
-            <span>Universal WMS v6.0</span>
-            <span id="p-codetype" style="font-weight:700;color:var(--blue)">BARCODE</span>
+            <div class="lgrid">
+              <div class="lf full"><div class="lk">ชื่อสินค้า</div><div class="lv" id="p-name">—</div></div>
+              <div class="lf"><div class="lk">Part No.</div><div class="lv" id="p-part">—</div></div>
+              <div class="lf"><div class="lk">Lot No.</div><div class="lv" id="p-lot">—</div></div>
+              <div class="lf">
+                <div class="lk">Qty</div>
+                <div class="lqbox"><div class="lqbig" id="p-qty">0</div><div class="lqunit" id="p-unit">Kgs</div></div>
+              </div>
+              <div class="lf"><div class="lk">วันที่</div><div class="lv" id="p-date">—</div></div>
+              <div class="lf" id="pw-roll"><div class="lk">Roll</div><div class="lv" id="p-roll">1</div></div>
+              <div class="lf" id="pw-pack" style="display:none"><div class="lk">Pack</div><div class="lv" id="p-pack">—</div></div>
+              <div class="lf"><div class="lk">Supplier</div><div class="lv" id="p-sup">—</div></div>
+              <div class="lf"><div class="lk">Ref No.</div><div class="lv" id="p-ref">—</div></div>
+              <div class="lf"><div class="lk">PO No.</div><div class="lv" id="p-po">—</div></div>
+              <div class="lf" id="pw-mc" style="display:none"><div class="lk">M/C</div><div class="lv" id="p-mc">—</div></div>
+            </div>
+            <div class="ldiv"></div>
+            <div class="lbc" id="p-bcbox">
+              <svg id="p-bc" style="display:block;margin:0 auto"></svg>
+              <div class="qrh" id="p-qr" style="display:none;justify-content:center"></div>
+              <div class="lbclbl" id="p-bclbl">—</div>
+            </div>
+            <div class="lft">
+              <span>Universal WMS v6.1</span>
+              <span id="p-codetype" style="font-weight:700;color:var(--blue)">QR CODE</span>
+            </div>
           </div>
         </div>
+
+        <!-- ── STICKER 100×50mm TEMPLATE ── -->
+        <div id="tpl-stk" style="display:none">
+          <div class="scard100" id="scard-tpl">
+            <div class="sc-hdr">
+              <div class="sc-co" id="s-co">Company</div>
+              <span class="sc-badge" id="s-badge">QC · RM</span>
+            </div>
+            <div class="sc-body">
+              <!-- QR / Barcode column -->
+              <div class="sc-qrcol">
+                <div class="sc-qrbox">
+                  <svg id="s-bc" style="display:none;max-width:100%;height:28px"></svg>
+                  <div id="s-qr" style="display:flex;justify-content:center;align-items:center"></div>
+                </div>
+                <div class="sc-qrlbl" id="s-bclbl">—</div>
+                <div class="sc-codetype" id="s-codetype">QR CODE</div>
+              </div>
+              <!-- Info column -->
+              <div class="sc-infocol">
+                <div class="sc-name" id="s-name">—</div>
+                <div class="sc-grid">
+                  <div class="sc-f">
+                    <div class="sc-k">Part No.</div>
+                    <div class="sc-v" id="s-part">—</div>
+                  </div>
+                  <div class="sc-f">
+                    <div class="sc-k">Lot No.</div>
+                    <div class="sc-v" id="s-lot">—</div>
+                  </div>
+                  <div class="sc-f">
+                    <div class="sc-k">Qty</div>
+                    <div class="sc-v big" id="s-qty">0 <span class="sc-unit" id="s-unit">Kgs</span></div>
+                  </div>
+                  <div class="sc-f">
+                    <div class="sc-k">วันที่</div>
+                    <div class="sc-v" id="s-date">—</div>
+                  </div>
+                  <div class="sc-f" id="sw-roll">
+                    <div class="sc-k">Roll</div>
+                    <div class="sc-v" id="s-roll">—</div>
+                  </div>
+                  <div class="sc-f" id="sw-pack" style="display:none">
+                    <div class="sc-k">Pack</div>
+                    <div class="sc-v" id="s-pack">—</div>
+                  </div>
+                  <div class="sc-f">
+                    <div class="sc-k">Supplier</div>
+                    <div class="sc-v" id="s-sup">—</div>
+                  </div>
+                  <div class="sc-f">
+                    <div class="sc-k">PO No.</div>
+                    <div class="sc-v" id="s-po">—</div>
+                  </div>
+                  <div class="sc-f" id="sw-mc" style="display:none">
+                    <div class="sc-k">M/C</div>
+                    <div class="sc-v" id="s-mc">—</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="sc-ft">
+              <span>Universal WMS v6.1</span>
+              <span style="color:var(--blue);font-weight:700" id="s-ft-code">QR CODE</span>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -590,11 +831,19 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
   <div class="dcard">
     <h2>📋 Print Queue — วิธีใช้งาน</h2>
     <p>
-      1. กรอกข้อมูล Label ทางซ้าย<br>
-      2. กด <strong style="color:var(--green)">➕ เพิ่มลงรายการพิมพ์</strong> — สามารถเพิ่มได้เรื่อยๆ<br>
-      3. แต่ละรายการ <strong>แก้ไข ✏️</strong> หรือ <strong>ลบ 🗑️</strong> ได้<br>
-      4. ทุก 15 ดวงจะขึ้นหน้า A4 ใหม่โดยอัตโนมัติ<br>
-      5. กด <strong style="color:var(--blue)">🖨️ พิมพ์ทั้งหมด</strong> ได้เลย — ไม่ต้องรอครบ 15
+      1. เลือก <strong>ขนาด Label</strong> ก่อน: Mini หรือ Sticker 100×50mm<br>
+      2. กรอกข้อมูล Label ทางซ้าย<br>
+      3. กด <strong style="color:var(--green)">➕ เพิ่มลงรายการพิมพ์</strong> — สามารถเพิ่มได้เรื่อยๆ<br>
+      4. แต่ละรายการ <strong>แก้ไข ✏️</strong> หรือ <strong>ลบ 🗑️</strong> ได้<br>
+      5. กด <strong style="color:var(--blue)">🖨️ พิมพ์ทั้งหมด</strong> ได้เลย
+    </p>
+  </div>
+  <div class="dcard">
+    <h2>📦 ขนาด Label ที่รองรับ</h2>
+    <p style="margin-bottom:0">
+      <strong>Mini Label</strong> — ~64×52mm, 3 คอลัมน์ × 5 แถว = <strong>15 ดวง/A4</strong><br>
+      <strong>Sticker 100×50mm</strong> — 100×50mm จริง, 2 คอลัมน์ × 5 แถว = <strong>10 ดวง/A4</strong><br>
+      Layout: QR Code ซ้าย + ข้อมูลสินค้าขวา · เหมาะสำหรับแปะสินค้า
     </p>
   </div>
   <div class="dcard">
@@ -608,8 +857,8 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
   <div class="dcard">
     <h2>🖨️ การตั้งค่าพิมพ์</h2>
     <p style="margin-bottom:0">
-      ขนาด Label Mini — <strong>15 ดวง/A4</strong> (3 คอลัมน์ × 5 แถว)<br>
-      ตั้งค่า Print Dialog: <em>Scale = 100%</em> และ <em>Margins = None/Minimum</em>
+      ตั้งค่า Print Dialog: <em>Scale = 100%</em> และ <em>Margins = None/Minimum</em><br>
+      <strong>Sticker 100×50mm</strong>: กระดาษ A4 → ได้ 10 ดวง/หน้า (2×5)
     </p>
   </div>
 </div>
@@ -627,20 +876,25 @@ const KEY_URL   = 'wms_url_v6';
 const KEY_CACHE = 'wms_cache_v6';
 const KEY_LOCAL = 'wms_local_v6';
 const KEY_CO    = 'wms_co_v6';
-const PER_PAGE  = 15;
-const TODAY     = new Date().toLocaleDateString('en-GB');
+
+/* Per-page counts by label size */
+const PER_PAGE_MINI = 15;
+const PER_PAGE_STK  = 10;  /* 2 cols × 5 rows on A4 */
+
+const TODAY = new Date().toLocaleDateString('en-GB');
 
 /* ── State ── */
-let GS   = [];   // products from Google Sheets
-let LOC  = [];   // locally added products
-let AC   = [];   // autocomplete results
-let ACI  = -1;   // autocomplete cursor
-let QUEUE = [];  // [{_id, _qid, co, type, code, part, lot, qty, unit, rolls, pack, sup, ref, po, mc, name, bcStr, date}]
-let EDIT_QID = null; // qid currently being edited
+let GS   = [];
+let LOC  = [];
+let AC   = [];
+let ACI  = -1;
+let QUEUE = [];
+let EDIT_QID = null;
 
 /* ═══════════════ INIT ═══════════════ */
 window.addEventListener('DOMContentLoaded', async () => {
-  document.getElementById('p-date').textContent = TODAY;
+  document.getElementById('p-date').textContent  = TODAY;
+  document.getElementById('s-date').textContent  = TODAY;
   try { LOC = JSON.parse(localStorage.getItem(KEY_LOCAL) || '[]'); } catch { LOC = []; }
   try { GS  = JSON.parse(localStorage.getItem(KEY_CACHE) || '[]'); } catch { GS  = []; }
   const co = localStorage.getItem(KEY_CO);
@@ -650,6 +904,24 @@ window.addEventListener('DOMContentLoaded', async () => {
   const url = localStorage.getItem(KEY_URL);
   if (url) await loadGS(false);
 });
+
+/* ═══════════════ LABEL SIZE ═══════════════ */
+function labelSize() { return document.getElementById('ls-stk').checked ? 'stk' : 'mini'; }
+function perPage()   { return labelSize() === 'stk' ? PER_PAGE_STK : PER_PAGE_MINI; }
+
+function onLsizeChange() {
+  const isStk = labelSize() === 'stk';
+  document.getElementById('tpl-mini').style.display = isStk ? 'none' : '';
+  document.getElementById('tpl-stk').style.display  = isStk ? '' : 'none';
+  /* Sticker mode: default to QR */
+  if (isStk) document.getElementById('c-qr').checked = true;
+  /* Update preview title */
+  document.getElementById('pv-title').textContent = isStk
+    ? '👁️ ตัวอย่าง Sticker 100×50mm (10 ดวง / A4)'
+    : '👁️ ตัวอย่าง Label (Mini · 15 ดวง / A4)';
+  preview();
+  renderQueue();
+}
 
 /* ═══════════════ PAGE SWITCH ═══════════════ */
 function switchPage(id, btn) {
@@ -701,7 +973,7 @@ async function loadGS(fb = true) {
   try {
     const csv = await fetchCSV(url);
     const rows = parseCSV(csv);
-    if (!rows.length) throw new Error('ไม่พบข้อมูล — ตรวจสอบ Format (ต้องมีแถว 2 เป็นต้นไป)');
+    if (!rows.length) throw new Error('ไม่พบข้อมูล — ตรวจสอบ Format');
     GS = rows;
     localStorage.setItem(KEY_CACHE, JSON.stringify(GS));
     setBanner('ok', `✅ โหลดสำเร็จ ${GS.length} รายการ`);
@@ -847,14 +1119,28 @@ function saveLocalProduct() {
 function onTypeChange() { applyTypeUI(true); }
 function applyTypeUI(doPreview = true) {
   const isFG = document.getElementById('f-type').value === 'FG';
+
+  /* Mini template visibility */
   document.getElementById('wrap-roll').style.display = isFG ? 'none' : '';
   document.getElementById('wrap-pack').style.display = isFG ? '' : 'none';
   document.getElementById('pw-roll').style.display   = isFG ? 'none' : '';
   document.getElementById('pw-pack').style.display   = isFG ? '' : 'none';
   document.getElementById('fg-mc').style.display     = isFG ? 'block' : 'none';
   document.getElementById('pw-mc').style.display     = isFG ? '' : 'none';
-  document.getElementById('p-badge').textContent = `QC · ${isFG ? 'FG' : 'RM'}`;
-  document.getElementById('p-badge').className   = 'lbadge' + (isFG ? ' fg' : '');
+
+  /* Sticker template visibility */
+  document.getElementById('sw-roll').style.display   = isFG ? 'none' : '';
+  document.getElementById('sw-pack').style.display   = isFG ? '' : 'none';
+  document.getElementById('sw-mc').style.display     = isFG ? '' : 'none';
+
+  /* Badges */
+  const badgeText = `QC · ${isFG ? 'FG' : 'RM'}`;
+  const badgeClass = 'lbadge' + (isFG ? ' fg' : '');
+  document.getElementById('p-badge').textContent = badgeText;
+  document.getElementById('p-badge').className   = badgeClass;
+  document.getElementById('s-badge').textContent = badgeText;
+  document.getElementById('s-badge').className   = 'sc-badge' + (isFG ? ' fg' : '');
+
   document.getElementById('split-opt').textContent = isFG ? '✂️ แยกตามแพ็ค (หลายดวง)' : '✂️ แยกตามม้วน (หลายดวง)';
   if (doPreview) preview();
 }
@@ -865,19 +1151,27 @@ function codeType() { return document.getElementById('c-qr').checked ? 'qr' : 'b
 function renderQR(container, text, size) {
   container.innerHTML = '';
   if (!text) return;
-  try { new QRCode(container, { text, width: size, height: size, colorDark: '#0f172a', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); }
-  catch (e) { console.warn('QR:', e); }
+  try {
+    new QRCode(container, {
+      text, width: size, height: size,
+      colorDark: '#0f172a', colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  } catch (e) { console.warn('QR:', e); }
 }
 
-function applyCode(svgEl, qrEl, str, forPrint) {
+function applyCode(svgEl, qrEl, str, forPrint, qrSize) {
   const isQR = codeType() === 'qr';
   svgEl.style.display = isQR ? 'none' : 'block';
   qrEl.style.display  = isQR ? 'flex'  : 'none';
   if (isQR) {
-    renderQR(qrEl, str, forPrint ? 50 : 80);
+    renderQR(qrEl, str, qrSize || 80);
   } else if (str) {
     try {
-      JsBarcode(svgEl, str, { format: 'CODE128', lineColor: forPrint ? '#000' : '#0f172a', width: 1.2, height: forPrint ? 22 : 42, displayValue: false, margin: 3 });
+      JsBarcode(svgEl, str, {
+        format: 'CODE128', lineColor: forPrint ? '#000' : '#0f172a',
+        width: 1.2, height: forPrint ? 22 : 28, displayValue: false, margin: 3
+      });
     } catch { svgEl.innerHTML = ''; }
   } else { svgEl.innerHTML = ''; }
 }
@@ -890,6 +1184,7 @@ function mkStr(part, lot, qty, unit, rolls, ref, po) {
 /* ═══════════════ LIVE PREVIEW ═══════════════ */
 function preview() {
   const isFG = document.getElementById('f-type').value === 'FG';
+  const isStk = labelSize() === 'stk';
   const co   = fv('f-co'), part = fv('f-part'), lot = fv('f-lot');
   const qty  = fv('f-qty'), unit = fv('f-unit');
   const rolls = fv('f-rolls') || '1', packs = fv('f-packs') || '1';
@@ -898,21 +1193,37 @@ function preview() {
 
   if (co) localStorage.setItem(KEY_CO, co);
 
+  const str = mkStr(part, lot, qty, unit, isFG ? packs : rolls, ref, po);
+
+  /* ── Mini template ── */
   tx('p-co',   co || 'Company');
   tx('p-name', name || '—'); tx('p-part', part || '—'); tx('p-lot', lot || '—');
   tx('p-qty',  qty  || '0'); tx('p-unit', unit);
   tx('p-roll', rolls); tx('p-pack', packs);
   tx('p-sup',  sup  || '—'); tx('p-mc',  mc  || '—');
   tx('p-ref',  ref  || '—'); tx('p-po',  po  || '—');
+  tx('p-bclbl', str || '—');
+  document.getElementById('p-codetype').textContent = codeType() === 'qr' ? 'QR CODE' : 'BARCODE';
+  if (!isStk) applyCode(document.getElementById('p-bc'), document.getElementById('p-qr'), str, false);
 
-  const str = mkStr(part, lot, qty, unit, isFG ? packs : rolls, ref, po);
+  /* ── Sticker template ── */
+  tx('s-co',   co || 'Company');
+  tx('s-name', name || '—'); tx('s-part', part || '—'); tx('s-lot', lot || '—');
+  const sQtyEl = document.getElementById('s-qty');
+  sQtyEl.innerHTML = `${qty || '0'} <span class="sc-unit">${unit}</span>`;
+  tx('s-roll', rolls); tx('s-pack', packs);
+  tx('s-sup',  sup  || '—'); tx('s-mc',  mc  || '—');
+  tx('s-po',   po   || '—');
+  tx('s-bclbl', str || '—');
+  const ctLabel = codeType() === 'qr' ? 'QR CODE' : 'BARCODE';
+  document.getElementById('s-codetype').textContent = ctLabel;
+  document.getElementById('s-ft-code').textContent  = ctLabel;
+  if (isStk) applyCode(document.getElementById('s-bc'), document.getElementById('s-qr'), str, false, 76);
+
+  /* Data string display */
   document.getElementById('ds-str').innerHTML = str
     ? str.replace(/\|/g, '<span style="color:var(--red)">|</span>')
     : '—';
-  tx('p-bclbl', str || '—');
-  document.getElementById('p-codetype').textContent = codeType() === 'qr' ? 'QR CODE' : 'BARCODE';
-
-  applyCode(document.getElementById('p-bc'), document.getElementById('p-qr'), str, false);
 }
 
 /* ═══════════════ COLLECT FORM → label objects ═══════════════ */
@@ -920,6 +1231,7 @@ function uid() { return '_' + Math.random().toString(36).slice(2, 10) + Date.now
 
 function collectLabels() {
   const isFG   = document.getElementById('f-type').value === 'FG';
+  const lsize  = labelSize();
   const mode   = fv('f-mode');
   const co     = fv('f-co') || 'Company';
   const type   = fv('f-type');
@@ -941,12 +1253,12 @@ function collectLabels() {
       const lot   = isFG ? `${baseLot}-P${i}` : `${baseLot}-R${i}`;
       const disp  = isFG ? `แพ็ค ${i}/${splitN}` : `ม้วน ${i}/${splitN}`;
       const bcStr = mkStr(part, lot, qtyPer, unit, 1, ref, po);
-      labels.push({ _id: uid(), _qid: qid, co, type, code, part, lot, qty: qtyPer, unit, rolls: disp, pack: disp, sup, ref, po, mc, name, bcStr, date: TODAY });
+      labels.push({ _id: uid(), _qid: qid, lsize, co, type, code, part, lot, qty: qtyPer, unit, rolls: disp, pack: disp, sup, ref, po, mc, name, bcStr, date: TODAY });
     }
   } else {
     const bcStr = mkStr(part, baseLot, totQty, unit, isFG ? packsN : rollsN, ref, po);
     const disp  = isFG ? String(packsN) : String(rollsN);
-    labels.push({ _id: uid(), _qid: qid, co, type, code, part, lot: baseLot, qty: String(totQty), unit, rolls: disp, pack: disp, sup, ref, po, mc, name, bcStr, date: TODAY });
+    labels.push({ _id: uid(), _qid: qid, lsize, co, type, code, part, lot: baseLot, qty: String(totQty), unit, rolls: disp, pack: disp, sup, ref, po, mc, name, bcStr, date: TODAY });
   }
   return labels;
 }
@@ -957,7 +1269,6 @@ function addToQueue() {
   if (!labels[0].part) { showToast('⚠️ กรุณาใส่ Part No.'); return; }
 
   if (EDIT_QID !== null) {
-    /* Replace editing entry */
     const insertAt = QUEUE.findIndex(l => l._qid === EDIT_QID);
     QUEUE = QUEUE.filter(l => l._qid !== EDIT_QID);
     const newQid = uid();
@@ -979,15 +1290,12 @@ function editItem(qid) {
   const lbl = items[0];
   EDIT_QID = qid;
 
-  /* Fill form */
   document.getElementById('f-co').value   = lbl.co;
   document.getElementById('f-type').value = lbl.type;
   document.getElementById('f-part').value = lbl.part;
-  /* Strip -R1/-P1 suffix from lot for base lot */
   document.getElementById('f-lot').value  = lbl.lot.replace(/-[RP]\d+$/, '');
   document.getElementById('f-name').value = lbl.name || '';
   if (lbl.name) { document.getElementById('f-name').classList.add('name-ok'); document.getElementById('afbadge').style.display = 'inline'; }
-  /* Restore qty (multiply back if split) */
   const cnt = items.length;
   document.getElementById('f-qty').value   = (parseFloat(lbl.qty) * cnt).toFixed(cnt > 1 ? 3 : 0);
   document.getElementById('f-unit').value  = lbl.unit;
@@ -995,17 +1303,16 @@ function editItem(qid) {
   document.getElementById('f-ref').value   = lbl.ref || '';
   document.getElementById('f-po').value    = lbl.po  || '';
   document.getElementById('f-mc').value    = lbl.mc  || '';
-  /* Rolls/packs */
   const isMulti = cnt > 1;
   if (lbl.type === 'FG') { document.getElementById('f-packs').value = isMulti ? cnt : (parseInt(lbl.pack) || 1); }
   else { document.getElementById('f-rolls').value = isMulti ? cnt : (parseInt(lbl.rolls) || 1); }
   document.getElementById('f-mode').value = isMulti ? 'split' : 'single';
-  /* Code type */
   document.getElementById(lbl.code === 'qr' ? 'c-qr' : 'c-bc').checked = true;
-
+  /* Restore label size */
+  document.getElementById(lbl.lsize === 'stk' ? 'ls-stk' : 'ls-mini').checked = true;
+  onLsizeChange();
   applyTypeUI(false);
 
-  /* Show edit-mode UI */
   const idx = QUEUE.findIndex(l => l._qid === qid) + 1;
   document.getElementById('edit-num').textContent = idx;
   document.getElementById('editbar').classList.add('on');
@@ -1020,7 +1327,6 @@ function editItem(qid) {
 }
 
 function cancelEdit() { exitEditMode(); renderQueue(); }
-
 function exitEditMode() {
   EDIT_QID = null;
   document.getElementById('editbar').classList.remove('on');
@@ -1048,7 +1354,10 @@ function clearAll() {
 function renderQueue() {
   const body  = document.getElementById('q-body');
   const total = QUEUE.length;
-  const pages = Math.ceil(total / PER_PAGE) || 0;
+  /* Mixed sizes: count pages separately */
+  const miniQ = QUEUE.filter(l => l.lsize !== 'stk');
+  const stkQ  = QUEUE.filter(l => l.lsize === 'stk');
+  const pages = Math.ceil(miniQ.length / PER_PAGE_MINI) + Math.ceil(stkQ.length / PER_PAGE_STK) || 0;
 
   document.getElementById('q-cnt').textContent = `${total} ดวง`;
   document.getElementById('q-pg').textContent  = `${pages} หน้า A4`;
@@ -1060,23 +1369,25 @@ function renderQueue() {
     return;
   }
 
-  /* Progress bar */
-  const slotFilled = total % PER_PAGE || PER_PAGE;
+  /* Progress — use current label size's per-page */
+  const pp = perPage();
+  const slotFilled = total % pp || pp;
   document.getElementById('q-prog').style.display = '';
-  document.getElementById('q-bar').style.width = (slotFilled / PER_PAGE * 100) + '%';
-  document.getElementById('q-prog-txt').textContent = `${slotFilled} / ${PER_PAGE}  (หน้า ${pages})`;
+  document.getElementById('q-bar').style.width = (slotFilled / pp * 100) + '%';
+  document.getElementById('q-prog-txt').textContent = `${slotFilled} / ${pp}  (หน้า ${pages})`;
 
-  /* Build rows grouped by page */
   let html = '';
   let curPage = 0;
   const seenQid = new Set();
 
   QUEUE.forEach((lbl, i) => {
-    const page = Math.floor(i / PER_PAGE) + 1;
+    const pp2  = lbl.lsize === 'stk' ? PER_PAGE_STK : PER_PAGE_MINI;
+    const page = Math.floor(i / pp2) + 1;
     if (page !== curPage) {
       curPage = page;
-      const cnt = Math.min(PER_PAGE, total - (page - 1) * PER_PAGE);
-      html += `<div class="pg-hdr"><span>📄 หน้า ${page}</span><span>${cnt} ดวง</span></div>`;
+      const cnt = Math.min(pp2, total - (page - 1) * pp2);
+      const sizeLabel = lbl.lsize === 'stk' ? '📦 100×50mm' : '🏷️ Mini';
+      html += `<div class="pg-hdr"><span>📄 หน้า ${page} ${sizeLabel}</span><span>${cnt} ดวง</span></div>`;
     }
     const isEdit  = lbl._qid === EDIT_QID;
     const isFirst = !seenQid.has(lbl._qid);
@@ -1091,6 +1402,7 @@ function renderQueue() {
           <span>Lot: ${esc(lbl.lot || '—')}</span>·
           <span>${esc(lbl.qty)} ${esc(lbl.unit)}</span>
           <span class="qtag ${lbl.type.toLowerCase()}">${lbl.type}</span>
+          <span class="qtag stk" style="${lbl.lsize === 'stk' ? '' : 'display:none'}"">100×50</span>
           <span style="font-size:9px;color:${lbl.code === 'qr' ? 'var(--purple)' : 'var(--blue)'}">${lbl.code === 'qr' ? '⊞QR' : '▌BC'}</span>
         </div>
       </div>
@@ -1116,7 +1428,6 @@ function updateTabBadge(n) {
 
 /* ═══════════════ RESET FORM (partial) ═══════════════ */
 function resetFormPartial() {
-  /* Keep: company, type, code, part, name  — clear transactional fields */
   document.getElementById('f-lot').value   = '';
   document.getElementById('f-qty').value   = '500';
   document.getElementById('f-rolls').value = '1';
@@ -1133,55 +1444,107 @@ async function doPrint() {
   if (!QUEUE.length) { showToast('⚠️ ยังไม่มีรายการ'); return; }
   const pa = document.getElementById('pa');
   pa.innerHTML = '';
-  const pages  = Math.ceil(QUEUE.length / PER_PAGE);
   const qrTodo = [];
 
-  for (let p = 0; p < pages; p++) {
-    const pdiv  = document.createElement('div');
-    pdiv.className = 'ppage';
-    const slice = QUEUE.slice(p * PER_PAGE, (p + 1) * PER_PAGE);
+  /* Separate queues by label size */
+  const miniItems = QUEUE.filter(l => l.lsize !== 'stk');
+  const stkItems  = QUEUE.filter(l => l.lsize === 'stk');
 
+  /* ── Render Mini pages ── */
+  const miniPages = Math.ceil(miniItems.length / PER_PAGE_MINI);
+  for (let p = 0; p < miniPages; p++) {
+    const pdiv = document.createElement('div');
+    pdiv.className = 'ppage-mini';
+    const slice = miniItems.slice(p * PER_PAGE_MINI, (p + 1) * PER_PAGE_MINI);
     for (let j = 0; j < slice.length; j++) {
       const lbl   = slice[j];
       const clone = document.getElementById('lcard-tpl').cloneNode(true);
-      clone.id = `pc-${p}-${j}`;
-
-      /* Fill values */
+      clone.id = `pm-${p}-${j}`;
       const isFG = lbl.type === 'FG';
-      clone.querySelector('#p-co').textContent      = lbl.co;
-      clone.querySelector('#p-name').textContent    = lbl.name  || '—';
-      clone.querySelector('#p-part').textContent    = lbl.part  || '—';
-      clone.querySelector('#p-lot').textContent     = lbl.lot   || '—';
-      clone.querySelector('#p-qty').textContent     = lbl.qty;
-      clone.querySelector('#p-unit').textContent    = lbl.unit;
-      clone.querySelector('#p-roll').textContent    = lbl.rolls || '—';
-      clone.querySelector('#p-pack').textContent    = lbl.pack  || '—';
-      clone.querySelector('#p-sup').textContent     = lbl.sup   || '—';
-      clone.querySelector('#p-ref').textContent     = lbl.ref   || '—';
-      clone.querySelector('#p-po').textContent      = lbl.po    || '—';
-      clone.querySelector('#p-mc').textContent      = lbl.mc    || '—';
-      clone.querySelector('#p-date').textContent    = lbl.date  || TODAY;
-      clone.querySelector('#p-bclbl').textContent   = lbl.bcStr || '—';
+      clone.querySelector('#p-co').textContent    = lbl.co;
+      clone.querySelector('#p-name').textContent  = lbl.name  || '—';
+      clone.querySelector('#p-part').textContent  = lbl.part  || '—';
+      clone.querySelector('#p-lot').textContent   = lbl.lot   || '—';
+      clone.querySelector('#p-qty').textContent   = lbl.qty;
+      clone.querySelector('#p-unit').textContent  = lbl.unit;
+      clone.querySelector('#p-roll').textContent  = lbl.rolls || '—';
+      clone.querySelector('#p-pack').textContent  = lbl.pack  || '—';
+      clone.querySelector('#p-sup').textContent   = lbl.sup   || '—';
+      clone.querySelector('#p-ref').textContent   = lbl.ref   || '—';
+      clone.querySelector('#p-po').textContent    = lbl.po    || '—';
+      clone.querySelector('#p-mc').textContent    = lbl.mc    || '—';
+      clone.querySelector('#p-date').textContent  = lbl.date  || TODAY;
+      clone.querySelector('#p-bclbl').textContent = lbl.bcStr || '—';
       clone.querySelector('#p-codetype').textContent = lbl.code === 'qr' ? 'QR CODE' : 'BARCODE';
-      clone.querySelector('#p-badge').textContent   = `QC · ${lbl.type}`;
-      clone.querySelector('#p-badge').className     = 'lbadge' + (isFG ? ' fg' : '');
-
-      /* Field visibility */
+      clone.querySelector('#p-badge').textContent = `QC · ${lbl.type}`;
+      clone.querySelector('#p-badge').className   = 'lbadge' + (isFG ? ' fg' : '');
       clone.querySelector('#pw-roll').style.display = isFG ? 'none' : '';
       clone.querySelector('#pw-pack').style.display = isFG ? '' : 'none';
       clone.querySelector('#pw-mc').style.display   = isFG ? '' : 'none';
-
-      /* Code */
       const svgEl = clone.querySelector('#p-bc');
       const qrEl  = clone.querySelector('#p-qr');
-      svgEl.id = `psv-${p}-${j}`; qrEl.id = `pqr-${p}-${j}`;
-
+      svgEl.id = `pmv-${p}-${j}`; qrEl.id = `pmr-${p}-${j}`;
       if (lbl.code === 'qr') {
         svgEl.style.display = 'none'; qrEl.style.display = 'flex';
-        qrTodo.push({ el: qrEl, text: lbl.bcStr || 'ERROR' });
+        qrTodo.push({ el: qrEl, text: lbl.bcStr || 'ERROR', size: 50 });
       } else {
         svgEl.style.display = 'block'; qrEl.style.display = 'none';
         try { JsBarcode(svgEl, lbl.bcStr || 'ERROR', { format: 'CODE128', lineColor: '#000', width: 1.2, height: 22, displayValue: false, margin: 3 }); } catch {}
+      }
+      pdiv.appendChild(clone);
+    }
+    pa.appendChild(pdiv);
+  }
+
+  /* ── Render Sticker 100×50mm pages ── */
+  const stkPages = Math.ceil(stkItems.length / PER_PAGE_STK);
+  for (let p = 0; p < stkPages; p++) {
+    const pdiv = document.createElement('div');
+    pdiv.className = 'ppage-stk';
+    const slice = stkItems.slice(p * PER_PAGE_STK, (p + 1) * PER_PAGE_STK);
+
+    for (let j = 0; j < slice.length; j++) {
+      const lbl   = slice[j];
+      const clone = document.getElementById('scard-tpl').cloneNode(true);
+      clone.id = `ps-${p}-${j}`;
+      const isFG = lbl.type === 'FG';
+
+      /* Fill sticker fields */
+      clone.querySelector('#s-co').textContent    = lbl.co;
+      clone.querySelector('#s-badge').textContent = `QC · ${lbl.type}`;
+      clone.querySelector('#s-badge').className   = 'sc-badge' + (isFG ? ' fg' : '');
+      clone.querySelector('#s-name').textContent  = lbl.name  || '—';
+      clone.querySelector('#s-part').textContent  = lbl.part  || '—';
+      clone.querySelector('#s-lot').textContent   = lbl.lot   || '—';
+      /* Qty with unit */
+      const qtyDiv = clone.querySelector('#s-qty');
+      qtyDiv.innerHTML = `${lbl.qty} <span class="sc-unit">${lbl.unit}</span>`;
+      clone.querySelector('#s-date').textContent  = lbl.date  || TODAY;
+      clone.querySelector('#s-roll').textContent  = lbl.rolls || '—';
+      clone.querySelector('#s-pack').textContent  = lbl.pack  || '—';
+      clone.querySelector('#s-sup').textContent   = lbl.sup   || '—';
+      clone.querySelector('#s-po').textContent    = lbl.po    || '—';
+      clone.querySelector('#s-mc').textContent    = lbl.mc    || '—';
+      clone.querySelector('#s-bclbl').textContent = lbl.bcStr || '—';
+      const ctLabel = lbl.code === 'qr' ? 'QR CODE' : 'BARCODE';
+      clone.querySelector('#s-codetype').textContent = ctLabel;
+      clone.querySelector('#s-ft-code').textContent  = ctLabel;
+
+      /* Row visibility */
+      clone.querySelector('#sw-roll').style.display = isFG ? 'none' : '';
+      clone.querySelector('#sw-pack').style.display = isFG ? '' : 'none';
+      clone.querySelector('#sw-mc').style.display   = isFG ? '' : 'none';
+
+      /* Code */
+      const svgEl = clone.querySelector('#s-bc');
+      const qrEl  = clone.querySelector('#s-qr');
+      svgEl.id = `ssv-${p}-${j}`; qrEl.id = `sqr-${p}-${j}`;
+      if (lbl.code === 'qr') {
+        svgEl.style.display = 'none'; qrEl.style.display = 'flex';
+        qrTodo.push({ el: qrEl, text: lbl.bcStr || 'ERROR', size: 84 });
+      } else {
+        svgEl.style.display = 'block'; qrEl.style.display = 'none';
+        try { JsBarcode(svgEl, lbl.bcStr || 'ERROR', { format: 'CODE128', lineColor: '#000', width: 1.4, height: 28, displayValue: false, margin: 3 }); } catch {}
       }
 
       pdiv.appendChild(clone);
@@ -1190,7 +1553,7 @@ async function doPrint() {
   }
 
   /* Render all QR codes */
-  for (const { el, text } of qrTodo) renderQR(el, text, 50);
+  for (const { el, text, size } of qrTodo) renderQR(el, text, size);
 
   setTimeout(() => window.print(), 380);
 }
