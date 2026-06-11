@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Universal Label System — WMS V6.1</title>
+<title>Universal Label System — WMS V6.2</title>
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
@@ -15,6 +15,7 @@
 :root{
   --navy:#0f172a;--blue:#3b82f6;--blue-dk:#1d4ed8;
   --green:#10b981;--amber:#f59e0b;--red:#ef4444;--purple:#8b5cf6;
+  --orange:#f97316;
   --bg:#f1f5f9;--card:#fff;--border:#e2e8f0;
   --text:#1e293b;--muted:#64748b;
   --shadow:0 4px 20px rgba(15,23,42,.08);
@@ -65,6 +66,74 @@ body{font-family:'Kanit',sans-serif;background:var(--bg);color:var(--text);min-h
 .fg input,.fg select{width:100%;padding:7px 10px;font-size:13px;font-family:'Kanit';border:1.5px solid var(--border);border-radius:7px;background:#f8fafc;color:var(--text);transition:.15s}
 .fg input:focus,.fg select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.12);background:#fff}
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+/* ═══════════════════════════════════════════
+   ★ PRINT MODE SELECTOR (NEW v6.2)
+═══════════════════════════════════════════ */
+.pmode-wrap{
+  background:linear-gradient(135deg,#f0f9ff,#e0f2fe);
+  border:1.5px solid #bae6fd;
+  border-radius:9px;
+  padding:10px;
+  margin-bottom:12px;
+}
+.pmode-title{
+  font-size:9.5px;font-weight:700;color:#0369a1;
+  text-transform:uppercase;letter-spacing:.07em;
+  margin-bottom:8px;display:flex;align-items:center;gap:5px;
+}
+.pmode-title span{
+  background:#0369a1;color:#fff;font-size:8px;
+  padding:1px 5px;border-radius:10px;
+}
+.pmode-toggle{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:6px;
+}
+.pmode-btn{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;padding:10px 6px;
+  border:2px solid var(--border);border-radius:8px;
+  background:#fff;cursor:pointer;transition:.2s;
+  position:relative;overflow:hidden;
+}
+.pmode-btn:hover{border-color:var(--blue);background:#eff6ff}
+.pmode-btn.active-a4{
+  border-color:#3b82f6;background:#eff6ff;
+  box-shadow:0 0 0 3px rgba(59,130,246,.15);
+}
+.pmode-btn.active-thermal{
+  border-color:#f97316;background:#fff7ed;
+  box-shadow:0 0 0 3px rgba(249,115,22,.15);
+}
+.pmode-ico{font-size:20px;line-height:1}
+.pmode-lbl{font-size:11px;font-weight:700;color:var(--navy)}
+.pmode-sub{font-size:9px;color:var(--muted);text-align:center;line-height:1.4}
+.pmode-badge{
+  position:absolute;top:5px;right:5px;
+  font-size:7.5px;font-weight:700;padding:1px 4px;
+  border-radius:8px;
+}
+.pmode-badge.a4{background:#dbeafe;color:#1d4ed8}
+.pmode-badge.th{background:#ffedd5;color:#c2410c}
+
+/* Thermal DPI hint */
+.dpi-hint{
+  display:none;
+  background:#fff7ed;border:1px solid #fed7aa;border-radius:7px;
+  padding:8px 11px;margin-bottom:10px;
+  font-size:11px;color:#9a3412;line-height:1.7;
+}
+.dpi-hint.on{display:block}
+.dpi-hint strong{color:#c2410c}
+.dpi-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.dpi-chip{
+  background:#fff;border:1px solid #fdba74;border-radius:5px;
+  padding:3px 8px;font-size:10px;font-weight:700;cursor:pointer;transition:.15s;
+  color:#9a3412;
+}
+.dpi-chip:hover{background:#ffedd5}
+.dpi-chip.sel{background:#ea580c;color:#fff;border-color:#ea580c}
 
 /* Label size toggle */
 .lsize-toggle{display:flex;border:1.5px solid var(--border);border-radius:7px;overflow:hidden;margin-bottom:10px}
@@ -167,6 +236,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
 .qtag.rm{background:#dbeafe;color:#1d4ed8}
 .qtag.fg{background:#d1fae5;color:#065f46}
 .qtag.stk{background:#fae8ff;color:#7e22ce}
+.qtag.thermal{background:#ffedd5;color:#c2410c}
 .qrow-acts{display:flex;gap:3px;flex-shrink:0}
 .btn-qa{width:26px;height:26px;border:none;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:.12s}
 .btn-qa.ed{background:#eff6ff;color:var(--blue)}
@@ -191,8 +261,6 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
 
 /* ═══════════════════════════════════════════
    MINI LABEL CARD (original)
-   Screen: 220px wide
-   Print:  ~64mm × ~52mm  (3×5 on A4)
 ═══════════════════════════════════════════ */
 .lcard{background:#fff;border:1px solid #334155;border-radius:4px;width:220px;padding:7px 9px;font-family:'Kanit';flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.08)}
 .lhd{display:flex;align-items:flex-start;justify-content:space-between;padding-bottom:5px;border-bottom:1.5px solid #1e293b;margin-bottom:7px}
@@ -217,79 +285,33 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
 
 /* ═══════════════════════════════════════════
    STICKER 100×50mm LABEL CARD
-   Screen preview: 340px wide (approx 2:1 ratio)
-   Print: 100mm × 50mm exactly (3 cols × 6 rows = 18/A4)
 ═══════════════════════════════════════════ */
 .scard100{
-  background:#fff;
-  border:1.5px solid #1e293b;
-  border-radius:5px;
-  width:340px;
-  height:170px;
-  padding:8px 10px;
-  font-family:'Kanit';
-  flex-shrink:0;
-  box-shadow:0 3px 12px rgba(0,0,0,.1);
-  display:flex;
-  flex-direction:column;
-  position:relative;
-  overflow:hidden;
+  background:#fff;border:1.5px solid #1e293b;border-radius:5px;
+  width:340px;height:170px;padding:8px 10px;font-family:'Kanit';
+  flex-shrink:0;box-shadow:0 3px 12px rgba(0,0,0,.1);
+  display:flex;flex-direction:column;position:relative;overflow:hidden;
 }
-/* Top header bar */
-.sc-hdr{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding-bottom:5px;
-  border-bottom:2px solid #0f172a;
-  margin-bottom:6px;
-  flex-shrink:0;
-}
+.sc-hdr{display:flex;align-items:center;justify-content:space-between;padding-bottom:5px;border-bottom:2px solid #0f172a;margin-bottom:6px;flex-shrink:0}
 .sc-co{font-size:8.5px;font-weight:700;color:#0f172a;line-height:1.2;flex:1;word-break:break-word}
 .sc-badge{font-size:7px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap;margin-left:5px;flex-shrink:0;background:#0f172a;color:#fff}
 .sc-badge.fg{background:var(--green)}
-
-/* Main body: QR left | Info right */
 .sc-body{display:flex;gap:8px;flex:1;min-height:0;align-items:stretch}
-
-/* QR column */
-.sc-qrcol{
-  flex-shrink:0;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  width:88px;
-  background:#f8fafc;
-  border-radius:4px;
-  border:1px solid #e2e8f0;
-  padding:4px 3px 3px;
-}
+.sc-qrcol{flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;width:88px;background:#f8fafc;border-radius:4px;border:1px solid #e2e8f0;padding:4px 3px 3px}
 .sc-qrbox{display:flex;align-items:center;justify-content:center}
 .sc-qrbox canvas{max-width:76px!important;max-height:76px!important}
 .sc-qrbox svg{max-width:100%!important;height:28px!important;display:block}
 .sc-qrlbl{font-size:5.5px;color:var(--muted);font-family:'JetBrains Mono',monospace;word-break:break-all;text-align:center;margin-top:2px;line-height:1.3}
 .sc-codetype{font-size:6.5px;font-weight:700;color:var(--blue);margin-top:1px}
-
-/* Info column */
 .sc-infocol{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0;justify-content:flex-start}
 .sc-name{font-size:10px;font-weight:700;color:#0f172a;line-height:1.25;word-break:break-word;margin-bottom:3px;border-bottom:1px dashed #cbd5e1;padding-bottom:3px}
 .sc-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 6px}
-.sc-f{}
 .sc-k{font-size:6.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;line-height:1}
 .sc-v{font-size:9px;font-weight:700;color:#0f172a;line-height:1.2;word-break:break-all}
 .sc-v.big{font-size:12px;font-weight:800;color:var(--navy)}
 .sc-v .sc-unit{font-size:7px;font-weight:600;color:var(--muted)}
 .sc-f.span2{grid-column:1/-1}
-
-/* footer */
-.sc-ft{
-  display:flex;justify-content:space-between;align-items:center;
-  margin-top:4px;padding-top:3px;
-  border-top:1px solid #e2e8f0;
-  font-size:5.5px;color:var(--muted);
-  flex-shrink:0;
-}
+.sc-ft{display:flex;justify-content:space-between;align-items:center;margin-top:4px;padding-top:3px;border-top:1px solid #e2e8f0;font-size:5.5px;color:var(--muted);flex-shrink:0}
 
 /* ═══════════════════════════════════════════
    SETTINGS / DOCS pages
@@ -334,44 +356,31 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
 #toast{position:fixed;bottom:22px;right:22px;background:var(--navy);color:#fff;padding:10px 16px;border-radius:9px;font-family:'Kanit';font-size:13px;font-weight:600;z-index:99999;box-shadow:0 8px 28px rgba(0,0,0,.3);transition:opacity .3s;opacity:0;pointer-events:none}
 
 /* ═══════════════════════════════════════════
-   PRINT — A4
-
-   MINI (original):  3 cols × 5 rows = 15 tags
-   STICKER 100×50:   3 cols × 6 rows = 18 tags
-   
-   A4 = 210mm × 297mm, margin 5mm each side
-   usable = 200mm × 287mm
-   100×50 → 2 cols fit in 200mm, 5 rows in 250mm
-   BUT we want 3 cols → 3×100=300mm > 210mm
-   So scale: each label = (200/3)mm ≈ 66.7mm wide, 50mm tall
-   Actually for 100×50 real stickers: 2 cols × 5 rows = 10/page
-   OR use landscape A4: 297×210 → 2 cols×100=200mm, 4 rows×50=200mm = 8/page
-   
-   Best approach for 100×50 on A4 portrait:
-   2 cols (100mm each = 200mm) × 5 rows (50mm each = 250mm) = 10/page, fits in A4 297mm tall ✓
+   PRINT — A4 (Sheet mode)
 ═══════════════════════════════════════════ */
 #pa{display:none}
-@media print{
-  @page{size:A4 portrait;margin:5mm}
-  body{background:#fff}
-  .hdr,.tabs,.fpanel,.rpanel,.setpage,.docpage,.moverlay,#toast{display:none!important}
-  #gen-page{display:block!important;padding:0!important;max-width:none!important}
-  #pa{display:block!important}
 
-  /* ── Mini label print (original 3×5=15) ── */
-  .ppage-mini{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:2mm;
-    width:100%;
-    page-break-after:always;
+@media print {
+  @page { size: A4 portrait; margin: 5mm }
+  body { background: #fff }
+  .hdr,.tabs,.fpanel,.rpanel,.setpage,.docpage,.moverlay,#toast { display:none!important }
+  #gen-page { display:block!important; padding:0!important; max-width:none!important }
+  #pa { display:block!important }
+
+  /* ── Mini label A4 (3×5=15) ── */
+  .ppage-mini {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 2mm;
+    width: 100%;
+    page-break-after: always;
   }
-  .ppage-mini:last-child{page-break-after:auto}
-  .ppage-mini .lcard{
-    width:100%!important;max-width:none!important;
-    box-shadow:none!important;border:0.5pt solid #444!important;
-    border-radius:2px!important;padding:2mm 2.5mm!important;
-    break-inside:avoid;page-break-inside:avoid;
+  .ppage-mini:last-child { page-break-after: auto }
+  .ppage-mini .lcard {
+    width:100%!important; max-width:none!important;
+    box-shadow:none!important; border:0.5pt solid #444!important;
+    border-radius:2px!important; padding:2mm 2.5mm!important;
+    break-inside:avoid; page-break-inside:avoid;
   }
   .ppage-mini .lco{font-size:6pt!important}
   .ppage-mini .lbadge{font-size:5.5pt!important;padding:1px 4px!important}
@@ -386,27 +395,21 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
   .ppage-mini .lbc svg{height:20px!important;max-width:100%!important}
   .ppage-mini .lbc .qrh canvas{max-width:46px!important;max-height:46px!important}
 
-  /* ── Sticker 100×50mm print (2×5=10 per A4) ── */
-  /* A4 usable: 200mm × 287mm → 2 cols × 100mm, 5 rows × 50mm + gaps */
-  .ppage-stk{
-    display:grid;
-    grid-template-columns:repeat(2, 100mm);
-    grid-template-rows:repeat(5, 50mm);
-    gap:1.5mm 2mm;
-    width:204mm;
-    page-break-after:always;
+  /* ── Sticker 100×50mm A4 Sheet (2×5=10/page) ── */
+  .ppage-stk {
+    display: grid;
+    grid-template-columns: repeat(2, 100mm);
+    grid-template-rows: repeat(5, 50mm);
+    gap: 1.5mm 2mm;
+    width: 204mm;
+    page-break-after: always;
   }
-  .ppage-stk:last-child{page-break-after:auto}
-  .ppage-stk .scard100{
-    width:100mm!important;
-    height:50mm!important;
-    box-shadow:none!important;
-    border:0.4pt solid #334155!important;
-    border-radius:1.5px!important;
-    padding:2mm 2.5mm!important;
-    break-inside:avoid;
-    page-break-inside:avoid;
-    overflow:hidden!important;
+  .ppage-stk:last-child { page-break-after: auto }
+  .ppage-stk .scard100 {
+    width:100mm!important; height:50mm!important;
+    box-shadow:none!important; border:0.4pt solid #334155!important;
+    border-radius:1.5px!important; padding:2mm 2.5mm!important;
+    break-inside:avoid; page-break-inside:avoid; overflow:hidden!important;
   }
   .ppage-stk .sc-hdr{padding-bottom:1.5mm!important;margin-bottom:1.5mm!important;border-bottom-width:1.2pt!important}
   .ppage-stk .sc-co{font-size:6pt!important}
@@ -424,6 +427,45 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
   .ppage-stk .sc-ft{font-size:4.5pt!important;margin-top:1mm!important;padding-top:1mm!important}
   .ppage-stk .sc-body{gap:3mm!important}
   .ppage-stk .sc-grid{gap:1px 4px!important}
+
+  /* ═══════════════════════════════════════════
+     THERMAL ROLL PRINTER MODE
+     Each label = exactly 100mm × 50mm
+     1 label per page — no grid, no A4
+     @page overridden dynamically in JS
+  ═══════════════════════════════════════════ */
+  .ppage-thermal {
+    width: 100mm;
+    height: 50mm;
+    page-break-after: always;
+    overflow: hidden;
+  }
+  .ppage-thermal:last-child { page-break-after: auto }
+  .ppage-thermal .scard100 {
+    width: 100mm!important;
+    height: 50mm!important;
+    box-shadow: none!important;
+    border: 0.4pt solid #334155!important;
+    border-radius: 0!important;
+    padding: 2.5mm 3mm!important;
+    overflow: hidden!important;
+  }
+  .ppage-thermal .sc-hdr{padding-bottom:1.5mm!important;margin-bottom:1.5mm!important;border-bottom-width:1.5pt!important}
+  .ppage-thermal .sc-co{font-size:7pt!important}
+  .ppage-thermal .sc-badge{font-size:6pt!important;padding:1px 4px!important}
+  .ppage-thermal .sc-qrcol{width:28mm!important;padding:1.5mm 1.5mm 1mm!important;border-radius:2px!important}
+  .ppage-thermal .sc-qrbox canvas{max-width:24mm!important;max-height:24mm!important}
+  .ppage-thermal .sc-qrbox svg{max-width:100%!important;height:11mm!important}
+  .ppage-thermal .sc-qrlbl{font-size:4.5pt!important;margin-top:1.5px!important}
+  .ppage-thermal .sc-codetype{font-size:5.5pt!important}
+  .ppage-thermal .sc-name{font-size:7.5pt!important;margin-bottom:1.5mm!important;padding-bottom:1.5mm!important}
+  .ppage-thermal .sc-k{font-size:5.5pt!important}
+  .ppage-thermal .sc-v{font-size:7pt!important}
+  .ppage-thermal .sc-v.big{font-size:10pt!important}
+  .ppage-thermal .sc-v .sc-unit{font-size:5.5pt!important}
+  .ppage-thermal .sc-ft{font-size:5pt!important;margin-top:1.5mm!important;padding-top:1.5mm!important}
+  .ppage-thermal .sc-body{gap:3.5mm!important}
+  .ppage-thermal .sc-grid{gap:1.5px 5px!important}
 }
 </style>
 </head>
@@ -462,7 +504,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
 <!-- ═══ HEADER ═══ -->
 <div class="hdr">
   <div class="hdr-logo">Universal <span>Label System</span></div>
-  <div class="hdr-ver">v6.1</div>
+  <div class="hdr-ver">v6.2</div>
   <div class="hdr-ds" onclick="goSettings()" title="ตั้งค่าแหล่งข้อมูล">
     <div class="dot" id="hdr-dot"></div>
     <span id="hdr-ds-lbl">ไม่ได้เชื่อมต่อ</span>
@@ -500,9 +542,42 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       <button class="btn-cedit" onclick="cancelEdit()">✕ ยกเลิก</button>
     </div>
 
-    <!-- ★ NEW: Label Size Selector ★ -->
+    <!-- ★ PRINT MODE SELECTOR (NEW v6.2) ★ -->
+    <div class="pmode-wrap">
+      <div class="pmode-title">🖨️ รูปแบบการพิมพ์ <span>NEW v6.2</span></div>
+      <div class="pmode-toggle">
+        <div class="pmode-btn active-a4" id="pm-a4" onclick="setPrintMode('a4')">
+          <span class="pmode-badge a4">A4</span>
+          <div class="pmode-ico">📄</div>
+          <div class="pmode-lbl">กระดาษ A4</div>
+          <div class="pmode-sub">หลาย Label / หน้า<br>เหมาะสำหรับ Laser/Inkjet</div>
+        </div>
+        <div class="pmode-btn" id="pm-thermal" onclick="setPrintMode('thermal')">
+          <span class="pmode-badge th">Thermal</span>
+          <div class="pmode-ico">🔖</div>
+          <div class="pmode-lbl">Thermal Roll</div>
+          <div class="pmode-sub">1 Label / ดวง<br>เหมาะสำหรับเครื่อง Label Printer</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ★ Thermal settings (shown only in thermal mode) ★ -->
+    <div class="dpi-hint" id="dpi-hint">
+      <strong>⚙️ ตั้งค่า Thermal Printer</strong><br>
+      เลือก DPI ของเครื่องพิมพ์ เพื่อให้ขนาด 100×50mm แม่นยำ:<br>
+      <div class="dpi-row" id="dpi-row">
+        <div class="dpi-chip sel" data-dpi="203" onclick="selDpi(this)">203 DPI<br><span style="font-size:8px;font-weight:400">ทั่วไป</span></div>
+        <div class="dpi-chip" data-dpi="300" onclick="selDpi(this)">300 DPI<br><span style="font-size:8px;font-weight:400">คมชัด</span></div>
+        <div class="dpi-chip" data-dpi="600" onclick="selDpi(this)">600 DPI<br><span style="font-size:8px;font-weight:400">สูงสุด</span></div>
+      </div>
+      <div style="margin-top:6px;font-size:10px;color:#9a3412;background:#fff;border-radius:5px;padding:5px 8px;border:1px solid #fed7aa">
+        💡 ตั้งค่า Print Dialog: <strong>Paper size = 100mm × 50mm</strong> · Scale = 100% · Margin = None
+      </div>
+    </div>
+
+    <!-- Label size toggle -->
     <div class="fg">
-      <label>ขนาด Label / รูปแบบการพิมพ์</label>
+      <label>ขนาด Label / รูปแบบ</label>
       <div class="lsize-toggle">
         <input type="radio" name="lsize" id="ls-mini" value="mini" checked onchange="onLsizeChange()">
         <label for="ls-mini">
@@ -512,7 +587,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
         <input type="radio" name="lsize" id="ls-stk" value="stk" onchange="onLsizeChange()">
         <label for="ls-stk">
           <span class="ls-title">📦 Sticker 100×50</span>
-          <span class="ls-sub">100×50mm · 10 ดวง/A4</span>
+          <span class="ls-sub" id="ls-stk-sub">100×50mm · 10 ดวง/A4</span>
         </label>
       </div>
     </div>
@@ -649,7 +724,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
         <div class="qhdr-l">
           📋 รายการรอพิมพ์
           <span class="qstat cnt" id="q-cnt">0 ดวง</span>
-          <span class="qstat pg"  id="q-pg">0 หน้า A4</span>
+          <span class="qstat pg"  id="q-pg">0 หน้า</span>
         </div>
         <div class="qhdr-r">
           <button class="btn-qact btn-pall"   onclick="doPrint()">🖨️ พิมพ์ทั้งหมด</button>
@@ -676,7 +751,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       </div>
       <div class="pvbody" id="pvbody">
 
-        <!-- ── MINI TEMPLATE (hidden when sticker mode) ── -->
+        <!-- ── MINI TEMPLATE ── -->
         <div id="tpl-mini">
           <div class="lcard" id="lcard-tpl">
             <div class="lhd">
@@ -706,7 +781,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
               <div class="lbclbl" id="p-bclbl">—</div>
             </div>
             <div class="lft">
-              <span>Universal WMS v6.1</span>
+              <span>Universal WMS v6.2</span>
               <span id="p-codetype" style="font-weight:700;color:var(--blue)">QR CODE</span>
             </div>
           </div>
@@ -720,7 +795,6 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
               <span class="sc-badge" id="s-badge">QC · RM</span>
             </div>
             <div class="sc-body">
-              <!-- QR / Barcode column -->
               <div class="sc-qrcol">
                 <div class="sc-qrbox">
                   <svg id="s-bc" style="display:none;max-width:100%;height:28px"></svg>
@@ -729,51 +803,23 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
                 <div class="sc-qrlbl" id="s-bclbl">—</div>
                 <div class="sc-codetype" id="s-codetype">QR CODE</div>
               </div>
-              <!-- Info column -->
               <div class="sc-infocol">
                 <div class="sc-name" id="s-name">—</div>
                 <div class="sc-grid">
-                  <div class="sc-f">
-                    <div class="sc-k">Part No.</div>
-                    <div class="sc-v" id="s-part">—</div>
-                  </div>
-                  <div class="sc-f">
-                    <div class="sc-k">Lot No.</div>
-                    <div class="sc-v" id="s-lot">—</div>
-                  </div>
-                  <div class="sc-f">
-                    <div class="sc-k">Qty</div>
-                    <div class="sc-v big" id="s-qty">0 <span class="sc-unit" id="s-unit">Kgs</span></div>
-                  </div>
-                  <div class="sc-f">
-                    <div class="sc-k">วันที่</div>
-                    <div class="sc-v" id="s-date">—</div>
-                  </div>
-                  <div class="sc-f" id="sw-roll">
-                    <div class="sc-k">Roll</div>
-                    <div class="sc-v" id="s-roll">—</div>
-                  </div>
-                  <div class="sc-f" id="sw-pack" style="display:none">
-                    <div class="sc-k">Pack</div>
-                    <div class="sc-v" id="s-pack">—</div>
-                  </div>
-                  <div class="sc-f">
-                    <div class="sc-k">Supplier</div>
-                    <div class="sc-v" id="s-sup">—</div>
-                  </div>
-                  <div class="sc-f">
-                    <div class="sc-k">PO No.</div>
-                    <div class="sc-v" id="s-po">—</div>
-                  </div>
-                  <div class="sc-f" id="sw-mc" style="display:none">
-                    <div class="sc-k">M/C</div>
-                    <div class="sc-v" id="s-mc">—</div>
-                  </div>
+                  <div class="sc-f"><div class="sc-k">Part No.</div><div class="sc-v" id="s-part">—</div></div>
+                  <div class="sc-f"><div class="sc-k">Lot No.</div><div class="sc-v" id="s-lot">—</div></div>
+                  <div class="sc-f"><div class="sc-k">Qty</div><div class="sc-v big" id="s-qty">0 <span class="sc-unit" id="s-unit">Kgs</span></div></div>
+                  <div class="sc-f"><div class="sc-k">วันที่</div><div class="sc-v" id="s-date">—</div></div>
+                  <div class="sc-f" id="sw-roll"><div class="sc-k">Roll</div><div class="sc-v" id="s-roll">—</div></div>
+                  <div class="sc-f" id="sw-pack" style="display:none"><div class="sc-k">Pack</div><div class="sc-v" id="s-pack">—</div></div>
+                  <div class="sc-f"><div class="sc-k">Supplier</div><div class="sc-v" id="s-sup">—</div></div>
+                  <div class="sc-f"><div class="sc-k">PO No.</div><div class="sc-v" id="s-po">—</div></div>
+                  <div class="sc-f" id="sw-mc" style="display:none"><div class="sc-k">M/C</div><div class="sc-v" id="s-mc">—</div></div>
                 </div>
               </div>
             </div>
             <div class="sc-ft">
-              <span>Universal WMS v6.1</span>
+              <span>Universal WMS v6.2</span>
               <span style="color:var(--blue);font-weight:700" id="s-ft-code">QR CODE</span>
             </div>
           </div>
@@ -831,19 +877,35 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
   <div class="dcard">
     <h2>📋 Print Queue — วิธีใช้งาน</h2>
     <p>
-      1. เลือก <strong>ขนาด Label</strong> ก่อน: Mini หรือ Sticker 100×50mm<br>
-      2. กรอกข้อมูล Label ทางซ้าย<br>
-      3. กด <strong style="color:var(--green)">➕ เพิ่มลงรายการพิมพ์</strong> — สามารถเพิ่มได้เรื่อยๆ<br>
-      4. แต่ละรายการ <strong>แก้ไข ✏️</strong> หรือ <strong>ลบ 🗑️</strong> ได้<br>
-      5. กด <strong style="color:var(--blue)">🖨️ พิมพ์ทั้งหมด</strong> ได้เลย
+      1. เลือก <strong>รูปแบบการพิมพ์</strong>: กระดาษ A4 หรือ Thermal Roll<br>
+      2. เลือก <strong>ขนาด Label</strong>: Mini หรือ Sticker 100×50mm<br>
+      3. กรอกข้อมูล Label ทางซ้าย<br>
+      4. กด <strong style="color:var(--green)">➕ เพิ่มลงรายการพิมพ์</strong> — สามารถเพิ่มได้เรื่อยๆ<br>
+      5. กด <strong style="color:var(--blue)">🖨️ พิมพ์ทั้งหมด</strong>
     </p>
   </div>
   <div class="dcard">
-    <h2>📦 ขนาด Label ที่รองรับ</h2>
+    <h2>🖨️ รูปแบบการพิมพ์ที่รองรับ (v6.2)</h2>
     <p style="margin-bottom:0">
-      <strong>Mini Label</strong> — ~64×52mm, 3 คอลัมน์ × 5 แถว = <strong>15 ดวง/A4</strong><br>
-      <strong>Sticker 100×50mm</strong> — 100×50mm จริง, 2 คอลัมน์ × 5 แถว = <strong>10 ดวง/A4</strong><br>
-      Layout: QR Code ซ้าย + ข้อมูลสินค้าขวา · เหมาะสำหรับแปะสินค้า
+      <strong>📄 กระดาษ A4 (Laser/Inkjet)</strong><br>
+      — Mini Label: ~64×52mm, 3×5 = <strong>15 ดวง/A4</strong><br>
+      — Sticker 100×50mm: 2×5 = <strong>10 ดวง/A4</strong><br><br>
+      <strong>🔖 Thermal Roll Printer (เช่น Gprinter AY-AT240, Xprinter)</strong><br>
+      — ขนาดสติ๊กเกอร์: <strong>100×50mm ต่อดวง</strong><br>
+      — Layout: QR Code ซ้าย + ข้อมูลขวา<br>
+      — 1 Label = 1 หน้าพิมพ์ (ตั้งค่า Paper Size = 100×50mm)<br>
+      — รองรับ 203/300/600 DPI
+    </p>
+  </div>
+  <div class="dcard">
+    <h2>⚙️ การตั้งค่า Thermal Printer</h2>
+    <p style="margin-bottom:0">
+      1. เปิด Print Dialog → เลือก Printer = Thermal Label Printer ของคุณ<br>
+      2. ตั้ง <strong>Paper Size = 100 × 50 mm</strong> (หรือ 4" × 2")<br>
+      3. ตั้ง <strong>Scale = 100%</strong> (ห้าม Fit to Page)<br>
+      4. ตั้ง <strong>Margins = None / Minimum</strong><br>
+      5. ปิด Headers &amp; Footers<br><br>
+      หากพิมพ์เล็ก/ใหญ่เกินไป ให้ลองเปลี่ยน DPI ในหน้าสร้าง Label
     </p>
   </div>
   <div class="dcard">
@@ -853,13 +915,6 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       Unit <span style="color:var(--red)">|</span> Roll <span style="color:var(--red)">|</span> Ref <span style="color:var(--red)">|</span> PO
     </div>
     <p style="margin-top:10px;margin-bottom:0">ใช้ได้ทั้ง Barcode (CODE128) และ QR Code · Scanner 1D/2D สแกนได้ทั้งสองรูปแบบ</p>
-  </div>
-  <div class="dcard">
-    <h2>🖨️ การตั้งค่าพิมพ์</h2>
-    <p style="margin-bottom:0">
-      ตั้งค่า Print Dialog: <em>Scale = 100%</em> และ <em>Margins = None/Minimum</em><br>
-      <strong>Sticker 100×50mm</strong>: กระดาษ A4 → ได้ 10 ดวง/หน้า (2×5)
-    </p>
   </div>
 </div>
 
@@ -872,53 +927,116 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
 'use strict';
 
 /* ── Storage keys ── */
-const KEY_URL   = 'wms_url_v6';
-const KEY_CACHE = 'wms_cache_v6';
-const KEY_LOCAL = 'wms_local_v6';
-const KEY_CO    = 'wms_co_v6';
+const KEY_URL      = 'wms_url_v6';
+const KEY_CACHE    = 'wms_cache_v6';
+const KEY_LOCAL    = 'wms_local_v6';
+const KEY_CO       = 'wms_co_v6';
+const KEY_PMODE    = 'wms_pmode_v62';   /* NEW: print mode */
+const KEY_DPI      = 'wms_dpi_v62';    /* NEW: thermal DPI */
 
 /* Per-page counts by label size */
 const PER_PAGE_MINI = 15;
-const PER_PAGE_STK  = 10;  /* 2 cols × 5 rows on A4 */
+const PER_PAGE_STK  = 10;
 
 const TODAY = new Date().toLocaleDateString('en-GB');
 
 /* ── State ── */
-let GS   = [];
-let LOC  = [];
-let AC   = [];
-let ACI  = -1;
+let GS    = [];
+let LOC   = [];
+let AC    = [];
+let ACI   = -1;
 let QUEUE = [];
 let EDIT_QID = null;
+let PRINT_MODE = 'a4';      /* 'a4' | 'thermal' */
+let THERMAL_DPI = 203;
 
 /* ═══════════════ INIT ═══════════════ */
 window.addEventListener('DOMContentLoaded', async () => {
-  document.getElementById('p-date').textContent  = TODAY;
-  document.getElementById('s-date').textContent  = TODAY;
+  document.getElementById('p-date').textContent = TODAY;
+  document.getElementById('s-date').textContent = TODAY;
   try { LOC = JSON.parse(localStorage.getItem(KEY_LOCAL) || '[]'); } catch { LOC = []; }
   try { GS  = JSON.parse(localStorage.getItem(KEY_CACHE) || '[]'); } catch { GS  = []; }
   const co = localStorage.getItem(KEY_CO);
   if (co) document.getElementById('f-co').value = co;
   document.getElementById('gs-url').value = localStorage.getItem(KEY_URL) || '';
+
+  /* Restore print mode */
+  PRINT_MODE  = localStorage.getItem(KEY_PMODE) || 'a4';
+  THERMAL_DPI = parseInt(localStorage.getItem(KEY_DPI) || '203');
+  applyPrintModeUI(false);
+
   updateDsChip(); updateStats(); applyTypeUI(false); preview();
   const url = localStorage.getItem(KEY_URL);
   if (url) await loadGS(false);
 });
 
+/* ═══════════════════════════════════════════
+   ★ PRINT MODE (NEW v6.2)
+═══════════════════════════════════════════ */
+function setPrintMode(mode) {
+  PRINT_MODE = mode;
+  localStorage.setItem(KEY_PMODE, mode);
+  applyPrintModeUI(true);
+}
+
+function applyPrintModeUI(doPreview) {
+  const isThermal = PRINT_MODE === 'thermal';
+
+  /* Button active state */
+  document.getElementById('pm-a4').className       = 'pmode-btn' + (isThermal ? '' : ' active-a4');
+  document.getElementById('pm-thermal').className  = 'pmode-btn' + (isThermal ? ' active-thermal' : '');
+
+  /* Show thermal hint */
+  document.getElementById('dpi-hint').classList.toggle('on', isThermal);
+
+  /* In thermal mode: force sticker label size (100×50mm is the only sensible format) */
+  if (isThermal) {
+    document.getElementById('ls-stk').checked = true;
+    document.getElementById('c-qr').checked   = true; /* QR scans better on thermal */
+    document.getElementById('ls-stk-sub').textContent = '100×50mm · 1 ดวง/รอบพิมพ์';
+  } else {
+    document.getElementById('ls-stk-sub').textContent = '100×50mm · 10 ดวง/A4';
+  }
+
+  /* Restore DPI chip selection */
+  document.querySelectorAll('.dpi-chip').forEach(c => {
+    c.classList.toggle('sel', parseInt(c.dataset.dpi) === THERMAL_DPI);
+  });
+
+  if (doPreview) { onLsizeChange(); }
+}
+
+function selDpi(el) {
+  THERMAL_DPI = parseInt(el.dataset.dpi);
+  localStorage.setItem(KEY_DPI, THERMAL_DPI);
+  document.querySelectorAll('.dpi-chip').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  showToast(`✅ ตั้ง DPI = ${THERMAL_DPI}`);
+}
+
 /* ═══════════════ LABEL SIZE ═══════════════ */
 function labelSize() { return document.getElementById('ls-stk').checked ? 'stk' : 'mini'; }
-function perPage()   { return labelSize() === 'stk' ? PER_PAGE_STK : PER_PAGE_MINI; }
+function perPage() {
+  if (PRINT_MODE === 'thermal') return 1; /* thermal = 1 per "page" */
+  return labelSize() === 'stk' ? PER_PAGE_STK : PER_PAGE_MINI;
+}
 
 function onLsizeChange() {
   const isStk = labelSize() === 'stk';
+  const isThermal = PRINT_MODE === 'thermal';
   document.getElementById('tpl-mini').style.display = isStk ? 'none' : '';
   document.getElementById('tpl-stk').style.display  = isStk ? '' : 'none';
-  /* Sticker mode: default to QR */
   if (isStk) document.getElementById('c-qr').checked = true;
-  /* Update preview title */
-  document.getElementById('pv-title').textContent = isStk
-    ? '👁️ ตัวอย่าง Sticker 100×50mm (10 ดวง / A4)'
-    : '👁️ ตัวอย่าง Label (Mini · 15 ดวง / A4)';
+
+  let pvLabel;
+  if (isThermal) {
+    pvLabel = '👁️ ตัวอย่าง Thermal 100×50mm (1 ดวง / รอบพิมพ์)';
+  } else if (isStk) {
+    pvLabel = '👁️ ตัวอย่าง Sticker 100×50mm (10 ดวง / A4)';
+  } else {
+    pvLabel = '👁️ ตัวอย่าง Label (Mini · 15 ดวง / A4)';
+  }
+  document.getElementById('pv-title').textContent = pvLabel;
   preview();
   renderQueue();
 }
@@ -1115,32 +1233,24 @@ function saveLocalProduct() {
   showToast(`✅ เพิ่ม "${name}" เรียบร้อย`);
 }
 
-/* ═══════════════ TYPE UI (RM / FG) ═══════════════ */
+/* ═══════════════ TYPE UI ═══════════════ */
 function onTypeChange() { applyTypeUI(true); }
 function applyTypeUI(doPreview = true) {
   const isFG = document.getElementById('f-type').value === 'FG';
-
-  /* Mini template visibility */
   document.getElementById('wrap-roll').style.display = isFG ? 'none' : '';
   document.getElementById('wrap-pack').style.display = isFG ? '' : 'none';
   document.getElementById('pw-roll').style.display   = isFG ? 'none' : '';
   document.getElementById('pw-pack').style.display   = isFG ? '' : 'none';
   document.getElementById('fg-mc').style.display     = isFG ? 'block' : 'none';
   document.getElementById('pw-mc').style.display     = isFG ? '' : 'none';
-
-  /* Sticker template visibility */
   document.getElementById('sw-roll').style.display   = isFG ? 'none' : '';
   document.getElementById('sw-pack').style.display   = isFG ? '' : 'none';
   document.getElementById('sw-mc').style.display     = isFG ? '' : 'none';
-
-  /* Badges */
   const badgeText = `QC · ${isFG ? 'FG' : 'RM'}`;
-  const badgeClass = 'lbadge' + (isFG ? ' fg' : '');
   document.getElementById('p-badge').textContent = badgeText;
-  document.getElementById('p-badge').className   = badgeClass;
+  document.getElementById('p-badge').className   = 'lbadge' + (isFG ? ' fg' : '');
   document.getElementById('s-badge').textContent = badgeText;
   document.getElementById('s-badge').className   = 'sc-badge' + (isFG ? ' fg' : '');
-
   document.getElementById('split-opt').textContent = isFG ? '✂️ แยกตามแพ็ค (หลายดวง)' : '✂️ แยกตามม้วน (หลายดวง)';
   if (doPreview) preview();
 }
@@ -1183,44 +1293,38 @@ function mkStr(part, lot, qty, unit, rolls, ref, po) {
 
 /* ═══════════════ LIVE PREVIEW ═══════════════ */
 function preview() {
-  const isFG = document.getElementById('f-type').value === 'FG';
+  const isFG  = document.getElementById('f-type').value === 'FG';
   const isStk = labelSize() === 'stk';
-  const co   = fv('f-co'), part = fv('f-part'), lot = fv('f-lot');
-  const qty  = fv('f-qty'), unit = fv('f-unit');
+  const co    = fv('f-co'), part = fv('f-part'), lot = fv('f-lot');
+  const qty   = fv('f-qty'), unit = fv('f-unit');
   const rolls = fv('f-rolls') || '1', packs = fv('f-packs') || '1';
-  const name = document.getElementById('f-name').value;
-  const sup  = fv('f-sup'), mc = fv('f-mc'), ref = fv('f-ref'), po = fv('f-po');
-
+  const name  = document.getElementById('f-name').value;
+  const sup   = fv('f-sup'), mc = fv('f-mc'), ref = fv('f-ref'), po = fv('f-po');
   if (co) localStorage.setItem(KEY_CO, co);
-
   const str = mkStr(part, lot, qty, unit, isFG ? packs : rolls, ref, po);
 
-  /* ── Mini template ── */
-  tx('p-co',   co || 'Company');
-  tx('p-name', name || '—'); tx('p-part', part || '—'); tx('p-lot', lot || '—');
-  tx('p-qty',  qty  || '0'); tx('p-unit', unit);
+  /* Mini template */
+  tx('p-co',   co || 'Company'); tx('p-name', name || '—'); tx('p-part', part || '—');
+  tx('p-lot',  lot || '—'); tx('p-qty', qty || '0'); tx('p-unit', unit);
   tx('p-roll', rolls); tx('p-pack', packs);
-  tx('p-sup',  sup  || '—'); tx('p-mc',  mc  || '—');
-  tx('p-ref',  ref  || '—'); tx('p-po',  po  || '—');
+  tx('p-sup',  sup || '—'); tx('p-mc', mc || '—');
+  tx('p-ref',  ref || '—'); tx('p-po', po || '—');
   tx('p-bclbl', str || '—');
   document.getElementById('p-codetype').textContent = codeType() === 'qr' ? 'QR CODE' : 'BARCODE';
   if (!isStk) applyCode(document.getElementById('p-bc'), document.getElementById('p-qr'), str, false);
 
-  /* ── Sticker template ── */
-  tx('s-co',   co || 'Company');
-  tx('s-name', name || '—'); tx('s-part', part || '—'); tx('s-lot', lot || '—');
-  const sQtyEl = document.getElementById('s-qty');
-  sQtyEl.innerHTML = `${qty || '0'} <span class="sc-unit">${unit}</span>`;
+  /* Sticker template */
+  tx('s-co',   co || 'Company'); tx('s-name', name || '—'); tx('s-part', part || '—');
+  tx('s-lot',  lot || '—');
+  document.getElementById('s-qty').innerHTML = `${qty || '0'} <span class="sc-unit">${unit}</span>`;
   tx('s-roll', rolls); tx('s-pack', packs);
-  tx('s-sup',  sup  || '—'); tx('s-mc',  mc  || '—');
-  tx('s-po',   po   || '—');
+  tx('s-sup',  sup || '—'); tx('s-mc', mc || '—'); tx('s-po', po || '—');
   tx('s-bclbl', str || '—');
   const ctLabel = codeType() === 'qr' ? 'QR CODE' : 'BARCODE';
   document.getElementById('s-codetype').textContent = ctLabel;
   document.getElementById('s-ft-code').textContent  = ctLabel;
   if (isStk) applyCode(document.getElementById('s-bc'), document.getElementById('s-qr'), str, false, 76);
 
-  /* Data string display */
   document.getElementById('ds-str').innerHTML = str
     ? str.replace(/\|/g, '<span style="color:var(--red)">|</span>')
     : '—';
@@ -1232,6 +1336,7 @@ function uid() { return '_' + Math.random().toString(36).slice(2, 10) + Date.now
 function collectLabels() {
   const isFG   = document.getElementById('f-type').value === 'FG';
   const lsize  = labelSize();
+  const pmode  = PRINT_MODE;
   const mode   = fv('f-mode');
   const co     = fv('f-co') || 'Company';
   const type   = fv('f-type');
@@ -1253,12 +1358,12 @@ function collectLabels() {
       const lot   = isFG ? `${baseLot}-P${i}` : `${baseLot}-R${i}`;
       const disp  = isFG ? `แพ็ค ${i}/${splitN}` : `ม้วน ${i}/${splitN}`;
       const bcStr = mkStr(part, lot, qtyPer, unit, 1, ref, po);
-      labels.push({ _id: uid(), _qid: qid, lsize, co, type, code, part, lot, qty: qtyPer, unit, rolls: disp, pack: disp, sup, ref, po, mc, name, bcStr, date: TODAY });
+      labels.push({ _id: uid(), _qid: qid, lsize, pmode, co, type, code, part, lot, qty: qtyPer, unit, rolls: disp, pack: disp, sup, ref, po, mc, name, bcStr, date: TODAY });
     }
   } else {
     const bcStr = mkStr(part, baseLot, totQty, unit, isFG ? packsN : rollsN, ref, po);
     const disp  = isFG ? String(packsN) : String(rollsN);
-    labels.push({ _id: uid(), _qid: qid, lsize, co, type, code, part, lot: baseLot, qty: String(totQty), unit, rolls: disp, pack: disp, sup, ref, po, mc, name, bcStr, date: TODAY });
+    labels.push({ _id: uid(), _qid: qid, lsize, pmode, co, type, code, part, lot: baseLot, qty: String(totQty), unit, rolls: disp, pack: disp, sup, ref, po, mc, name, bcStr, date: TODAY });
   }
   return labels;
 }
@@ -1279,9 +1384,7 @@ function addToQueue() {
     labels.forEach(l => QUEUE.push(l));
     showToast(`✅ เพิ่ม ${labels.length} ดวง · รวม ${QUEUE.length} ดวงในคิว`);
   }
-
-  renderQueue();
-  resetFormPartial();
+  renderQueue(); resetFormPartial();
 }
 
 function editItem(qid) {
@@ -1289,7 +1392,6 @@ function editItem(qid) {
   if (!items.length) return;
   const lbl = items[0];
   EDIT_QID = qid;
-
   document.getElementById('f-co').value   = lbl.co;
   document.getElementById('f-type').value = lbl.type;
   document.getElementById('f-part').value = lbl.part;
@@ -1308,11 +1410,10 @@ function editItem(qid) {
   else { document.getElementById('f-rolls').value = isMulti ? cnt : (parseInt(lbl.rolls) || 1); }
   document.getElementById('f-mode').value = isMulti ? 'split' : 'single';
   document.getElementById(lbl.code === 'qr' ? 'c-qr' : 'c-bc').checked = true;
-  /* Restore label size */
   document.getElementById(lbl.lsize === 'stk' ? 'ls-stk' : 'ls-mini').checked = true;
-  onLsizeChange();
-  applyTypeUI(false);
-
+  /* Restore print mode from label */
+  if (lbl.pmode) { PRINT_MODE = lbl.pmode; applyPrintModeUI(false); }
+  onLsizeChange(); applyTypeUI(false);
   const idx = QUEUE.findIndex(l => l._qid === qid) + 1;
   document.getElementById('edit-num').textContent = idx;
   document.getElementById('editbar').classList.add('on');
@@ -1320,7 +1421,6 @@ function editItem(qid) {
   document.getElementById('addq-ico').textContent = '💾';
   document.getElementById('addq-lbl').textContent = 'บันทึกการแก้ไข';
   document.getElementById('btn-addq').style.background = 'var(--amber)';
-
   preview();
   document.querySelector('.fpanel').scrollIntoView({ behavior: 'smooth' });
   renderQueue();
@@ -1339,28 +1439,29 @@ function exitEditMode() {
 function deleteItem(qid) {
   QUEUE = QUEUE.filter(l => l._qid !== qid);
   if (EDIT_QID === qid) exitEditMode();
-  renderQueue();
-  showToast('🗑️ ลบรายการแล้ว');
+  renderQueue(); showToast('🗑️ ลบรายการแล้ว');
 }
 
 function clearAll() {
   if (!QUEUE.length) return;
   if (!confirm(`ล้างรายการทั้งหมด ${QUEUE.length} ดวง?`)) return;
-  QUEUE = []; exitEditMode(); renderQueue();
-  showToast('🗑️ ล้างทั้งหมดแล้ว');
+  QUEUE = []; exitEditMode(); renderQueue(); showToast('🗑️ ล้างทั้งหมดแล้ว');
 }
 
 /* ═══════════════ RENDER QUEUE ═══════════════ */
 function renderQueue() {
   const body  = document.getElementById('q-body');
   const total = QUEUE.length;
-  /* Mixed sizes: count pages separately */
-  const miniQ = QUEUE.filter(l => l.lsize !== 'stk');
-  const stkQ  = QUEUE.filter(l => l.lsize === 'stk');
-  const pages = Math.ceil(miniQ.length / PER_PAGE_MINI) + Math.ceil(stkQ.length / PER_PAGE_STK) || 0;
+  const miniQ    = QUEUE.filter(l => l.lsize !== 'stk');
+  const stkA4Q   = QUEUE.filter(l => l.lsize === 'stk' && l.pmode !== 'thermal');
+  const thermalQ = QUEUE.filter(l => l.pmode === 'thermal');
+  const pages =
+    Math.ceil(miniQ.length / PER_PAGE_MINI) +
+    Math.ceil(stkA4Q.length / PER_PAGE_STK) +
+    thermalQ.length; /* 1 page each for thermal */
 
   document.getElementById('q-cnt').textContent = `${total} ดวง`;
-  document.getElementById('q-pg').textContent  = `${pages} หน้า A4`;
+  document.getElementById('q-pg').textContent  = `${pages} หน้า`;
   updateTabBadge(total);
 
   if (!total) {
@@ -1369,30 +1470,31 @@ function renderQueue() {
     return;
   }
 
-  /* Progress — use current label size's per-page */
   const pp = perPage();
   const slotFilled = total % pp || pp;
   document.getElementById('q-prog').style.display = '';
   document.getElementById('q-bar').style.width = (slotFilled / pp * 100) + '%';
-  document.getElementById('q-prog-txt').textContent = `${slotFilled} / ${pp}  (หน้า ${pages})`;
+  document.getElementById('q-prog-txt').textContent = PRINT_MODE === 'thermal'
+    ? `${total} ดวง = ${total} หน้าพิมพ์`
+    : `${slotFilled} / ${pp}  (หน้า ${pages})`;
 
   let html = '';
   let curPage = 0;
   const seenQid = new Set();
 
   QUEUE.forEach((lbl, i) => {
-    const pp2  = lbl.lsize === 'stk' ? PER_PAGE_STK : PER_PAGE_MINI;
+    const isThermalLbl = lbl.pmode === 'thermal';
+    const pp2 = isThermalLbl ? 1 : (lbl.lsize === 'stk' ? PER_PAGE_STK : PER_PAGE_MINI);
     const page = Math.floor(i / pp2) + 1;
     if (page !== curPage) {
       curPage = page;
-      const cnt = Math.min(pp2, total - (page - 1) * pp2);
-      const sizeLabel = lbl.lsize === 'stk' ? '📦 100×50mm' : '🏷️ Mini';
+      const cnt = isThermalLbl ? 1 : Math.min(pp2, total - (page - 1) * pp2);
+      const sizeLabel = isThermalLbl ? '🔖 Thermal 100×50' : (lbl.lsize === 'stk' ? '📦 A4 100×50mm' : '🏷️ Mini A4');
       html += `<div class="pg-hdr"><span>📄 หน้า ${page} ${sizeLabel}</span><span>${cnt} ดวง</span></div>`;
     }
     const isEdit  = lbl._qid === EDIT_QID;
     const isFirst = !seenQid.has(lbl._qid);
     if (isFirst) seenQid.add(lbl._qid);
-
     html += `<div class="qrow${isEdit ? ' editing' : ''}">
       <div class="qrow-num">${i + 1}</div>
       <div class="qrow-info">
@@ -1402,7 +1504,7 @@ function renderQueue() {
           <span>Lot: ${esc(lbl.lot || '—')}</span>·
           <span>${esc(lbl.qty)} ${esc(lbl.unit)}</span>
           <span class="qtag ${lbl.type.toLowerCase()}">${lbl.type}</span>
-          <span class="qtag stk" style="${lbl.lsize === 'stk' ? '' : 'display:none'}"">100×50</span>
+          ${lbl.pmode === 'thermal' ? '<span class="qtag thermal">🔖 Thermal</span>' : (lbl.lsize === 'stk' ? '<span class="qtag stk">A4·100×50</span>' : '')}
           <span style="font-size:9px;color:${lbl.code === 'qr' ? 'var(--purple)' : 'var(--blue)'}">${lbl.code === 'qr' ? '⊞QR' : '▌BC'}</span>
         </div>
       </div>
@@ -1439,25 +1541,65 @@ function resetFormPartial() {
   preview();
 }
 
-/* ═══════════════ PRINT ═══════════════ */
+/* ═══════════════════════════════════════════
+   ★ PRINT (v6.2) — separates A4 and Thermal
+═══════════════════════════════════════════ */
 async function doPrint() {
   if (!QUEUE.length) { showToast('⚠️ ยังไม่มีรายการ'); return; }
   const pa = document.getElementById('pa');
   pa.innerHTML = '';
   const qrTodo = [];
 
-  /* Separate queues by label size */
-  const miniItems = QUEUE.filter(l => l.lsize !== 'stk');
-  const stkItems  = QUEUE.filter(l => l.lsize === 'stk');
+  const miniItems    = QUEUE.filter(l => l.lsize !== 'stk' && l.pmode !== 'thermal');
+  const stkA4Items   = QUEUE.filter(l => l.lsize === 'stk' && l.pmode !== 'thermal');
+  const thermalItems = QUEUE.filter(l => l.pmode === 'thermal');
 
-  /* ── Render Mini pages ── */
-  const miniPages = Math.ceil(miniItems.length / PER_PAGE_MINI);
-  for (let p = 0; p < miniPages; p++) {
-    const pdiv = document.createElement('div');
+  /* ── Build Mini A4 pages ── */
+  buildMiniPages(pa, miniItems, qrTodo);
+
+  /* ── Build Sticker A4 pages ── */
+  buildStkA4Pages(pa, stkA4Items, qrTodo);
+
+  /* ── Build Thermal pages (1 label = 1 page) ── */
+  buildThermalPages(pa, thermalItems, qrTodo);
+
+  /* Render all QR codes */
+  for (const { el, text, size } of qrTodo) renderQR(el, text, size);
+
+  /* Inject @page override for mixed/thermal jobs */
+  injectPageStyle();
+
+  setTimeout(() => window.print(), 400);
+}
+
+/* ── HELPER: inject dynamic @page style ── */
+function injectPageStyle() {
+  /* Remove previous */
+  const old = document.getElementById('_dyn_page_style');
+  if (old) old.remove();
+  /* If any thermal labels in queue, we need 100×50mm page for those.
+     Modern browsers handle mixed @page via named pages, but broad support
+     uses the dominant page size. Since thermal is typically printed alone,
+     we set to 100×50 when all are thermal, else A4. */
+  const thermalCount = QUEUE.filter(l => l.pmode === 'thermal').length;
+  const a4Count      = QUEUE.filter(l => l.pmode !== 'thermal').length;
+  let pageSize = 'A4 portrait';
+  if (thermalCount > 0 && a4Count === 0) {
+    pageSize = '100mm 50mm';
+  }
+  const st = document.createElement('style');
+  st.id = '_dyn_page_style';
+  st.textContent = `@media print { @page { size: ${pageSize}; margin: ${pageSize === 'A4 portrait' ? '5mm' : '0mm'}; } }`;
+  document.head.appendChild(st);
+}
+
+function buildMiniPages(pa, items, qrTodo) {
+  const pages = Math.ceil(items.length / PER_PAGE_MINI);
+  for (let p = 0; p < pages; p++) {
+    const pdiv  = document.createElement('div');
     pdiv.className = 'ppage-mini';
-    const slice = miniItems.slice(p * PER_PAGE_MINI, (p + 1) * PER_PAGE_MINI);
-    for (let j = 0; j < slice.length; j++) {
-      const lbl   = slice[j];
+    const slice = items.slice(p * PER_PAGE_MINI, (p + 1) * PER_PAGE_MINI);
+    slice.forEach((lbl, j) => {
       const clone = document.getElementById('lcard-tpl').cloneNode(true);
       clone.id = `pm-${p}-${j}`;
       const isFG = lbl.type === 'FG';
@@ -1492,76 +1634,79 @@ async function doPrint() {
         try { JsBarcode(svgEl, lbl.bcStr || 'ERROR', { format: 'CODE128', lineColor: '#000', width: 1.2, height: 22, displayValue: false, margin: 3 }); } catch {}
       }
       pdiv.appendChild(clone);
-    }
+    });
     pa.appendChild(pdiv);
   }
+}
 
-  /* ── Render Sticker 100×50mm pages ── */
-  const stkPages = Math.ceil(stkItems.length / PER_PAGE_STK);
-  for (let p = 0; p < stkPages; p++) {
-    const pdiv = document.createElement('div');
+function buildStkA4Pages(pa, items, qrTodo) {
+  const pages = Math.ceil(items.length / PER_PAGE_STK);
+  for (let p = 0; p < pages; p++) {
+    const pdiv  = document.createElement('div');
     pdiv.className = 'ppage-stk';
-    const slice = stkItems.slice(p * PER_PAGE_STK, (p + 1) * PER_PAGE_STK);
-
-    for (let j = 0; j < slice.length; j++) {
-      const lbl   = slice[j];
-      const clone = document.getElementById('scard-tpl').cloneNode(true);
-      clone.id = `ps-${p}-${j}`;
-      const isFG = lbl.type === 'FG';
-
-      /* Fill sticker fields */
-      clone.querySelector('#s-co').textContent    = lbl.co;
-      clone.querySelector('#s-badge').textContent = `QC · ${lbl.type}`;
-      clone.querySelector('#s-badge').className   = 'sc-badge' + (isFG ? ' fg' : '');
-      clone.querySelector('#s-name').textContent  = lbl.name  || '—';
-      clone.querySelector('#s-part').textContent  = lbl.part  || '—';
-      clone.querySelector('#s-lot').textContent   = lbl.lot   || '—';
-      /* Qty with unit */
-      const qtyDiv = clone.querySelector('#s-qty');
-      qtyDiv.innerHTML = `${lbl.qty} <span class="sc-unit">${lbl.unit}</span>`;
-      clone.querySelector('#s-date').textContent  = lbl.date  || TODAY;
-      clone.querySelector('#s-roll').textContent  = lbl.rolls || '—';
-      clone.querySelector('#s-pack').textContent  = lbl.pack  || '—';
-      clone.querySelector('#s-sup').textContent   = lbl.sup   || '—';
-      clone.querySelector('#s-po').textContent    = lbl.po    || '—';
-      clone.querySelector('#s-mc').textContent    = lbl.mc    || '—';
-      clone.querySelector('#s-bclbl').textContent = lbl.bcStr || '—';
-      const ctLabel = lbl.code === 'qr' ? 'QR CODE' : 'BARCODE';
-      clone.querySelector('#s-codetype').textContent = ctLabel;
-      clone.querySelector('#s-ft-code').textContent  = ctLabel;
-
-      /* Row visibility */
-      clone.querySelector('#sw-roll').style.display = isFG ? 'none' : '';
-      clone.querySelector('#sw-pack').style.display = isFG ? '' : 'none';
-      clone.querySelector('#sw-mc').style.display   = isFG ? '' : 'none';
-
-      /* Code */
-      const svgEl = clone.querySelector('#s-bc');
-      const qrEl  = clone.querySelector('#s-qr');
-      svgEl.id = `ssv-${p}-${j}`; qrEl.id = `sqr-${p}-${j}`;
-      if (lbl.code === 'qr') {
-        svgEl.style.display = 'none'; qrEl.style.display = 'flex';
-        qrTodo.push({ el: qrEl, text: lbl.bcStr || 'ERROR', size: 84 });
-      } else {
-        svgEl.style.display = 'block'; qrEl.style.display = 'none';
-        try { JsBarcode(svgEl, lbl.bcStr || 'ERROR', { format: 'CODE128', lineColor: '#000', width: 1.4, height: 28, displayValue: false, margin: 3 }); } catch {}
-      }
-
+    const slice = items.slice(p * PER_PAGE_STK, (p + 1) * PER_PAGE_STK);
+    slice.forEach((lbl, j) => {
+      const clone = fillStickerClone(lbl, `as-${p}-${j}`, qrTodo, 84);
       pdiv.appendChild(clone);
-    }
+    });
     pa.appendChild(pdiv);
   }
+}
 
-  /* Render all QR codes */
-  for (const { el, text, size } of qrTodo) renderQR(el, text, size);
+function buildThermalPages(pa, items, qrTodo) {
+  /* Each label = its own div.ppage-thermal, exactly 100×50mm */
+  items.forEach((lbl, i) => {
+    const pdiv = document.createElement('div');
+    pdiv.className = 'ppage-thermal';
+    const clone = fillStickerClone(lbl, `th-${i}`, qrTodo, 90);
+    pdiv.appendChild(clone);
+    pa.appendChild(pdiv);
+  });
+}
 
-  setTimeout(() => window.print(), 380);
+/* Shared helper: fill a scard100 clone */
+function fillStickerClone(lbl, idPrefix, qrTodo, qrSize) {
+  const clone = document.getElementById('scard-tpl').cloneNode(true);
+  clone.id    = `sc-${idPrefix}`;
+  const isFG  = lbl.type === 'FG';
+  clone.querySelector('#s-co').textContent    = lbl.co;
+  clone.querySelector('#s-badge').textContent = `QC · ${lbl.type}`;
+  clone.querySelector('#s-badge').className   = 'sc-badge' + (isFG ? ' fg' : '');
+  clone.querySelector('#s-name').textContent  = lbl.name  || '—';
+  clone.querySelector('#s-part').textContent  = lbl.part  || '—';
+  clone.querySelector('#s-lot').textContent   = lbl.lot   || '—';
+  const qtyDiv = clone.querySelector('#s-qty');
+  qtyDiv.innerHTML = `${lbl.qty} <span class="sc-unit">${lbl.unit}</span>`;
+  clone.querySelector('#s-date').textContent  = lbl.date  || TODAY;
+  clone.querySelector('#s-roll').textContent  = lbl.rolls || '—';
+  clone.querySelector('#s-pack').textContent  = lbl.pack  || '—';
+  clone.querySelector('#s-sup').textContent   = lbl.sup   || '—';
+  clone.querySelector('#s-po').textContent    = lbl.po    || '—';
+  clone.querySelector('#s-mc').textContent    = lbl.mc    || '—';
+  clone.querySelector('#s-bclbl').textContent = lbl.bcStr || '—';
+  const ctLabel = lbl.code === 'qr' ? 'QR CODE' : 'BARCODE';
+  clone.querySelector('#s-codetype').textContent = ctLabel;
+  clone.querySelector('#s-ft-code').textContent  = ctLabel;
+  clone.querySelector('#sw-roll').style.display = isFG ? 'none' : '';
+  clone.querySelector('#sw-pack').style.display = isFG ? '' : 'none';
+  clone.querySelector('#sw-mc').style.display   = isFG ? '' : 'none';
+  const svgEl = clone.querySelector('#s-bc');
+  const qrEl  = clone.querySelector('#s-qr');
+  svgEl.id = `sv-${idPrefix}`; qrEl.id = `qr-${idPrefix}`;
+  if (lbl.code === 'qr') {
+    svgEl.style.display = 'none'; qrEl.style.display = 'flex';
+    qrTodo.push({ el: qrEl, text: lbl.bcStr || 'ERROR', size: qrSize });
+  } else {
+    svgEl.style.display = 'block'; qrEl.style.display = 'none';
+    try { JsBarcode(svgEl, lbl.bcStr || 'ERROR', { format: 'CODE128', lineColor: '#000', width: 1.4, height: 28, displayValue: false, margin: 3 }); } catch {}
+  }
+  return clone;
 }
 
 /* ═══════════════ SETTINGS HELPERS ═══════════════ */
 function setBanner(state, msg) {
-  const el  = document.getElementById('banner');
-  const sp  = document.getElementById('spin-el');
+  const el = document.getElementById('banner');
+  const sp = document.getElementById('spin-el');
   const btx = document.getElementById('banner-txt');
   if (!state) { el.className = 'banner'; return; }
   el.className = `banner on ${state}`;
