@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Universal Label System — WMS V6.2</title>
+<title>Universal Label System — WMS V6.0 Plus</title>
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
@@ -504,7 +504,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
 <!-- ═══ HEADER ═══ -->
 <div class="hdr">
   <div class="hdr-logo">Universal <span>Label System</span></div>
-  <div class="hdr-ver">v6.2</div>
+  <div class="hdr-ver">v6.3</div>
   <div class="hdr-ds" onclick="goSettings()" title="ตั้งค่าแหล่งข้อมูล">
     <div class="dot" id="hdr-dot"></div>
     <span id="hdr-ds-lbl">ไม่ได้เชื่อมต่อ</span>
@@ -669,7 +669,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
         <input type="number" id="f-packs" value="1" min="1" oninput="preview()">
       </div>
       <div class="fg">
-        <label>Supplier</label>
+        <label id="f-sup-lbl">Supplier</label>
         <input type="text" id="f-sup" placeholder="ชื่อ Supplier" oninput="preview()">
       </div>
     </div>
@@ -680,10 +680,13 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
         <label>Ref No.</label>
         <input type="text" id="f-ref" placeholder="REF-001" oninput="preview()">
       </div>
-      <div class="fg">
+      <div class="fg" id="wrap-po">
         <label>PO No.</label>
         <input type="text" id="f-po" placeholder="PO-1234" oninput="preview()">
       </div>
+    </div>
+    <div id="po-hidden-note" style="display:none;font-size:10px;color:var(--muted);margin:-6px 0 10px;line-height:1.6">
+      ℹ️ PO No. จะไม่แสดงบน Label (FG) แต่ยังฝังอยู่ใน QR/Barcode สำหรับสแกนในระบบ
     </div>
 
     <!-- M/C (FG only) -->
@@ -769,9 +772,9 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
               <div class="lf"><div class="lk">วันที่</div><div class="lv" id="p-date">—</div></div>
               <div class="lf" id="pw-roll"><div class="lk">Roll</div><div class="lv" id="p-roll">1</div></div>
               <div class="lf" id="pw-pack" style="display:none"><div class="lk">Pack</div><div class="lv" id="p-pack">—</div></div>
-              <div class="lf"><div class="lk">Supplier</div><div class="lv" id="p-sup">—</div></div>
+              <div class="lf"><div class="lk" id="p-sup-lbl">Supplier</div><div class="lv" id="p-sup">—</div></div>
               <div class="lf"><div class="lk">Ref No.</div><div class="lv" id="p-ref">—</div></div>
-              <div class="lf"><div class="lk">PO No.</div><div class="lv" id="p-po">—</div></div>
+              <div class="lf" id="pw-po"><div class="lk">PO No.</div><div class="lv" id="p-po">—</div></div>
               <div class="lf" id="pw-mc" style="display:none"><div class="lk">M/C</div><div class="lv" id="p-mc">—</div></div>
             </div>
             <div class="ldiv"></div>
@@ -781,7 +784,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
               <div class="lbclbl" id="p-bclbl">—</div>
             </div>
             <div class="lft">
-              <span>Universal WMS v6.2</span>
+              <span>Universal WMS v6.3</span>
               <span id="p-codetype" style="font-weight:700;color:var(--blue)">QR CODE</span>
             </div>
           </div>
@@ -812,14 +815,14 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
                   <div class="sc-f"><div class="sc-k">วันที่</div><div class="sc-v" id="s-date">—</div></div>
                   <div class="sc-f" id="sw-roll"><div class="sc-k">Roll</div><div class="sc-v" id="s-roll">—</div></div>
                   <div class="sc-f" id="sw-pack" style="display:none"><div class="sc-k">Pack</div><div class="sc-v" id="s-pack">—</div></div>
-                  <div class="sc-f"><div class="sc-k">Supplier</div><div class="sc-v" id="s-sup">—</div></div>
-                  <div class="sc-f"><div class="sc-k">PO No.</div><div class="sc-v" id="s-po">—</div></div>
+                  <div class="sc-f"><div class="sc-k" id="s-sup-lbl">Supplier</div><div class="sc-v" id="s-sup">—</div></div>
+                  <div class="sc-f" id="sw-po"><div class="sc-k">PO No.</div><div class="sc-v" id="s-po">—</div></div>
                   <div class="sc-f" id="sw-mc" style="display:none"><div class="sc-k">M/C</div><div class="sc-v" id="s-mc">—</div></div>
                 </div>
               </div>
             </div>
             <div class="sc-ft">
-              <span>Universal WMS v6.2</span>
+              <span>Universal WMS v6.3</span>
               <span style="color:var(--blue);font-weight:700" id="s-ft-code">QR CODE</span>
             </div>
           </div>
@@ -885,7 +888,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
     </p>
   </div>
   <div class="dcard">
-    <h2>🖨️ รูปแบบการพิมพ์ที่รองรับ (v6.2)</h2>
+    <h2>🖨️ รูปแบบการพิมพ์ที่รองรับ (v6.3)</h2>
     <p style="margin-bottom:0">
       <strong>📄 กระดาษ A4 (Laser/Inkjet)</strong><br>
       — Mini Label: ~64×52mm, 3×5 = <strong>15 ดวง/A4</strong><br>
@@ -906,6 +909,16 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       4. ตั้ง <strong>Margins = None / Minimum</strong><br>
       5. ปิด Headers &amp; Footers<br><br>
       หากพิมพ์เล็ก/ใหญ่เกินไป ให้ลองเปลี่ยน DPI ในหน้าสร้าง Label
+    </p>
+  </div>
+  <div class="dcard">
+    <h2>📦 Label FG (สินค้าสำเร็จรูป) — สำหรับลูกค้า</h2>
+    <p style="margin-bottom:0">
+      Label ประเภท <strong>FG</strong> ถูกปรับให้เหมาะกับการส่งออกไปขาย/ส่งลูกค้า:<br>
+      — ฟิลด์ <strong>Supplier</strong> เปลี่ยนเป็น <strong>Customer</strong> โดยอัตโนมัติ<br>
+      — <strong>PO No.</strong> และ <strong>Pack X/Y</strong> จะไม่แสดงบนหน้า Label (ป้องกันความสับสน)<br>
+      — ข้อมูลทั้งสองยัง <strong>ฝังอยู่ใน QR/Barcode</strong> เหมือนเดิม สำหรับสแกนเข้าระบบ WMS<br><br>
+      Label ประเภท <strong>RM (วัตถุดิบ)</strong> ยังคงใช้ Supplier / PO No. / Roll แสดงผลตามปกติ ไม่มีการเปลี่ยนแปลง
     </p>
   </div>
   <div class="dcard">
@@ -1240,12 +1253,27 @@ function applyTypeUI(doPreview = true) {
   document.getElementById('wrap-roll').style.display = isFG ? 'none' : '';
   document.getElementById('wrap-pack').style.display = isFG ? '' : 'none';
   document.getElementById('pw-roll').style.display   = isFG ? 'none' : '';
-  document.getElementById('pw-pack').style.display   = isFG ? '' : 'none';
+  /* FG: hide the visible Pack row (แพ็ค X/Y) on the label face — still encoded in QR/Barcode */
+  document.getElementById('pw-pack').style.display   = 'none';
   document.getElementById('fg-mc').style.display     = isFG ? 'block' : 'none';
   document.getElementById('pw-mc').style.display     = isFG ? '' : 'none';
   document.getElementById('sw-roll').style.display   = isFG ? 'none' : '';
-  document.getElementById('sw-pack').style.display   = isFG ? '' : 'none';
+  document.getElementById('sw-pack').style.display   = 'none';
   document.getElementById('sw-mc').style.display     = isFG ? '' : 'none';
+
+  /* FG: Supplier -> Customer relabel */
+  const supLabel = isFG ? 'Customer' : 'Supplier';
+  document.getElementById('f-sup-lbl').textContent  = supLabel;
+  document.getElementById('f-sup').placeholder      = isFG ? 'ชื่อลูกค้า (Customer)' : 'ชื่อ Supplier';
+  document.getElementById('p-sup-lbl').textContent  = supLabel;
+  document.getElementById('s-sup-lbl').textContent  = supLabel;
+
+  /* FG: hide PO No. row on the label face — still encoded in QR/Barcode */
+  document.getElementById('wrap-po').style.display  = isFG ? 'none' : '';
+  document.getElementById('pw-po').style.display     = isFG ? 'none' : '';
+  document.getElementById('sw-po').style.display     = isFG ? 'none' : '';
+  document.getElementById('po-hidden-note').style.display = isFG ? 'block' : 'none';
+
   const badgeText = `QC · ${isFG ? 'FG' : 'RM'}`;
   document.getElementById('p-badge').textContent = badgeText;
   document.getElementById('p-badge').className   = 'lbadge' + (isFG ? ' fg' : '');
@@ -1254,6 +1282,7 @@ function applyTypeUI(doPreview = true) {
   document.getElementById('split-opt').textContent = isFG ? '✂️ แยกตามแพ็ค (หลายดวง)' : '✂️ แยกตามม้วน (หลายดวง)';
   if (doPreview) preview();
 }
+
 
 /* ═══════════════ BARCODE / QR ═══════════════ */
 function codeType() { return document.getElementById('c-qr').checked ? 'qr' : 'bc'; }
@@ -1611,6 +1640,7 @@ function buildMiniPages(pa, items, qrTodo) {
       clone.querySelector('#p-unit').textContent  = lbl.unit;
       clone.querySelector('#p-roll').textContent  = lbl.rolls || '—';
       clone.querySelector('#p-pack').textContent  = lbl.pack  || '—';
+      clone.querySelector('#p-sup-lbl').textContent = isFG ? 'Customer' : 'Supplier';
       clone.querySelector('#p-sup').textContent   = lbl.sup   || '—';
       clone.querySelector('#p-ref').textContent   = lbl.ref   || '—';
       clone.querySelector('#p-po').textContent    = lbl.po    || '—';
@@ -1621,7 +1651,9 @@ function buildMiniPages(pa, items, qrTodo) {
       clone.querySelector('#p-badge').textContent = `QC · ${lbl.type}`;
       clone.querySelector('#p-badge').className   = 'lbadge' + (isFG ? ' fg' : '');
       clone.querySelector('#pw-roll').style.display = isFG ? 'none' : '';
-      clone.querySelector('#pw-pack').style.display = isFG ? '' : 'none';
+      /* FG: hide visible Pack and PO rows — info remains encoded in QR/Barcode */
+      clone.querySelector('#pw-pack').style.display = 'none';
+      clone.querySelector('#pw-po').style.display    = isFG ? 'none' : '';
       clone.querySelector('#pw-mc').style.display   = isFG ? '' : 'none';
       const svgEl = clone.querySelector('#p-bc');
       const qrEl  = clone.querySelector('#p-qr');
@@ -1680,6 +1712,7 @@ function fillStickerClone(lbl, idPrefix, qrTodo, qrSize) {
   clone.querySelector('#s-date').textContent  = lbl.date  || TODAY;
   clone.querySelector('#s-roll').textContent  = lbl.rolls || '—';
   clone.querySelector('#s-pack').textContent  = lbl.pack  || '—';
+  clone.querySelector('#s-sup-lbl').textContent = isFG ? 'Customer' : 'Supplier';
   clone.querySelector('#s-sup').textContent   = lbl.sup   || '—';
   clone.querySelector('#s-po').textContent    = lbl.po    || '—';
   clone.querySelector('#s-mc').textContent    = lbl.mc    || '—';
@@ -1688,7 +1721,9 @@ function fillStickerClone(lbl, idPrefix, qrTodo, qrSize) {
   clone.querySelector('#s-codetype').textContent = ctLabel;
   clone.querySelector('#s-ft-code').textContent  = ctLabel;
   clone.querySelector('#sw-roll').style.display = isFG ? 'none' : '';
-  clone.querySelector('#sw-pack').style.display = isFG ? '' : 'none';
+  /* FG: hide visible Pack and PO rows — info remains encoded in QR/Barcode */
+  clone.querySelector('#sw-pack').style.display = 'none';
+  clone.querySelector('#sw-po').style.display    = isFG ? 'none' : '';
   clone.querySelector('#sw-mc').style.display   = isFG ? '' : 'none';
   const svgEl = clone.querySelector('#s-bc');
   const qrEl  = clone.querySelector('#s-qr');
