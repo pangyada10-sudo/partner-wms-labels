@@ -871,6 +871,22 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       ไฟล์ → แชร์ → เผยแพร่ไปยังเว็บ → เลือก Sheet → <em>Comma-separated values (.csv)</em> → เผยแพร่ → คัดลอก URL
     </div>
   </div>
+
+  <!-- ✅ NEW v6.5: Upload CSV file directly — fallback เมื่อ CORS Proxy เข้าไม่ถึง -->
+  <div class="scard" style="border:1.5px solid #fde68a;background:linear-gradient(135deg,#fffbeb,#fff)">
+    <h2>📂 อัปโหลดไฟล์ CSV โดยตรง <span style="background:var(--amber);color:#fff;font-size:9px;padding:2px 7px;border-radius:20px;margin-left:6px;vertical-align:middle">แนะนำถ้าโหลดจาก URL ไม่ได้</span></h2>
+    <p>
+      หากกด <strong>"โหลดข้อมูล"</strong> ด้านบนแล้วไม่สำเร็จ (CORS Proxy เข้าไม่ถึง) —
+      ให้ <strong>ดาวน์โหลด URL ด้านบนในเบราว์เซอร์</strong> (จะได้ไฟล์ .csv ลงเครื่อง) แล้วอัปโหลดไฟล์นั้นที่นี่แทน<br>
+      วิธีนี้ <strong>ไม่ต้องพึ่ง Proxy</strong> เลย เชื่อถือได้ 100%
+    </p>
+    <input type="file" id="csv-file-input" accept=".csv,text/csv" style="display:none" onchange="handleCSVFileUpload(event)">
+    <button class="btn-s" style="background:var(--amber)" onclick="document.getElementById('csv-file-input').click()">
+      📂 เลือกไฟล์ CSV จากเครื่อง
+    </button>
+    <div id="csv-file-status" style="font-size:11px;font-weight:600;margin-top:9px;color:var(--muted)"></div>
+  </div>
+
   <div class="scard">
     <h2>📊 สถานะข้อมูล</h2>
     <div id="gs-stats" style="font-size:13px;color:var(--muted)">กำลังตรวจสอบ…</div>
@@ -1086,6 +1102,7 @@ const PROXIES = [
   u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
   u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
   u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
+  u => `https://thingproxy.freeboard.io/fetch/${u}`,   /* ✅ NEW: 4th proxy fallback */
 ];
 
 async function fetchCSV(rawUrl) {
@@ -1100,7 +1117,8 @@ async function fetchCSV(rawUrl) {
       if (t && t.length > 10) return t;
     } catch {}
   }
-  throw new Error('ดึงข้อมูลไม่ได้ (ลอง 3 Proxy แล้ว) — ตรวจสอบ URL หรือการ Publish');
+  /* ✅ UPDATED: แจ้งทางเลือก Upload File เมื่อ Proxy ทุกตัวเข้าไม่ถึง */
+  throw new Error('ดึงข้อมูลผ่าน Proxy ไม่ได้ (ลอง 4 Proxy แล้ว) — ลองใช้ "อัปโหลดไฟล์ CSV" ด้านล่างแทน');
 }
 
 function saveAndLoadGS() {
@@ -1155,6 +1173,52 @@ function splitLine(line) {
   const r = []; let cur = ''; let q = false;
   for (const c of line) { if (c === '"') { q = !q; } else if (c === ',' && !q) { r.push(cur); cur = ''; } else { cur += c; } }
   r.push(cur); return r;
+}
+
+/* ✅ NEW v6.5: Upload CSV file directly — bypass CORS Proxy entirely
+   ใช้เมื่อ Proxy เข้าไม่ถึง (403 / down / rate-limited) — อ่านไฟล์ในเครื่องตรงๆ ผ่าน FileReader */
+function handleCSVFileUpload(event) {
+  const file = event.target.files[0];
+  const statusEl = document.getElementById('csv-file-status');
+  if (!file) return;
+
+  if (!file.name.toLowerCase().endsWith('.csv') && file.type !== 'text/csv') {
+    statusEl.textContent = '❌ กรุณาเลือกไฟล์ .csv เท่านั้น';
+    statusEl.style.color = 'var(--red)';
+    return;
+  }
+
+  statusEl.textContent = '⏳ กำลังอ่านไฟล์…';
+  statusEl.style.color = 'var(--muted)';
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const csv  = e.target.result;
+      const rows = parseCSV(csv);
+      if (!rows.length) throw new Error('ไม่พบข้อมูลในไฟล์ — ตรวจสอบ Format (Column A→E)');
+      GS = rows;
+      localStorage.setItem(KEY_CACHE, JSON.stringify(GS));
+      /* ล้าง URL เดิมไว้เผื่อสับสน แต่ไม่บังคับ — เก็บไว้เผื่อกด "โหลดใหม่" ทีหลัง */
+      statusEl.innerHTML = `✅ โหลดจากไฟล์สำเร็จ <strong>${GS.length} รายการ</strong> — บันทึกเรียบร้อย`;
+      statusEl.style.color = 'var(--green)';
+      setDot('ok', `${GS.length} รายการ (ไฟล์)`);
+      setGsStatus(`✅ โหลดจากไฟล์สำเร็จ ${GS.length} รายการ`, 'ok');
+      updateStats();
+      showToast(`✅ โหลดข้อมูล ${GS.length} รายการจากไฟล์เรียบร้อย`);
+    } catch (err) {
+      statusEl.textContent = `❌ ${err.message}`;
+      statusEl.style.color = 'var(--red)';
+    }
+  };
+  reader.onerror = () => {
+    statusEl.textContent = '❌ อ่านไฟล์ไม่สำเร็จ — ลองใหม่อีกครั้ง';
+    statusEl.style.color = 'var(--red)';
+  };
+  reader.readAsText(file, 'UTF-8');
+
+  /* reset input เพื่อให้เลือกไฟล์เดิมซ้ำได้ */
+  event.target.value = '';
 }
 
 /* ═══════════════ PRODUCT LOOKUP ═══════════════ */
