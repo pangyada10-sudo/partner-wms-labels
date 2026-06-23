@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Universal Label System — WMS V6.0 Plus</title>
+<title>Universal Label System — WMS V6.4</title>
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
@@ -68,7 +68,7 @@ body{font-family:'Kanit',sans-serif;background:var(--bg);color:var(--text);min-h
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 
 /* ═══════════════════════════════════════════
-   ★ PRINT MODE SELECTOR (NEW v6.2)
+   ★ PRINT MODE SELECTOR
 ═══════════════════════════════════════════ */
 .pmode-wrap{
   background:linear-gradient(135deg,#f0f9ff,#e0f2fe);
@@ -165,6 +165,7 @@ body{font-family:'Kanit',sans-serif;background:var(--bg);color:var(--text);min-h
 .aci:hover,.aci.sel{background:#eff6ff}
 .aci-p{font-size:10.5px;font-weight:700;color:var(--blue);font-family:'JetBrains Mono',monospace}
 .aci-n{font-size:12px;font-weight:600;color:var(--navy);margin-top:1px}
+.aci-sup{font-size:10px;color:var(--muted);margin-top:1px}
 .aci-tags{display:flex;gap:3px;margin-top:2px}
 .atag{font-size:9px;font-weight:700;padding:1px 5px;border-radius:20px}
 .atag.rm{background:#dbeafe;color:#1d4ed8}
@@ -173,6 +174,7 @@ body{font-family:'Kanit',sans-serif;background:var(--bg);color:var(--text);min-h
 .acnone{padding:10px 12px;color:var(--muted);font-size:12px;text-align:center}
 mark.hl{background:#fef9c3;border-radius:2px;padding:0}
 .name-ok{border-color:var(--green)!important;background:#f0fdf4!important}
+.sup-ok{border-color:var(--green)!important;background:#f0fdf4!important}
 .afbadge{display:none;font-size:9px;color:var(--green);font-weight:700;margin-left:6px}
 
 /* data-string box */
@@ -482,10 +484,14 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
     </div>
     <div class="mfg"><label>ชื่อสินค้า *</label><input id="m-name" placeholder="ชื่อสินค้า"></div>
     <div class="mfg"><label>ประเภท</label>
-      <select id="m-type">
+      <select id="m-type" onchange="onModalTypeChange()">
         <option value="RM">📥 Raw Material (RM)</option>
         <option value="FG">📦 Finished Goods (FG)</option>
       </select>
+    </div>
+    <!-- ✅ NEW: Supplier/Customer field in Add Product modal -->
+    <div class="mfg"><label id="m-sup-lbl">Supplier</label>
+      <input id="m-sup" placeholder="ชื่อ Supplier">
     </div>
     <div class="mfg"><label>หน่วย</label>
       <select id="m-unit">
@@ -504,7 +510,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
 <!-- ═══ HEADER ═══ -->
 <div class="hdr">
   <div class="hdr-logo">Universal <span>Label System</span></div>
-  <div class="hdr-ver">v6.3</div>
+  <div class="hdr-ver">v6.4</div>
   <div class="hdr-ds" onclick="goSettings()" title="ตั้งค่าแหล่งข้อมูล">
     <div class="dot" id="hdr-dot"></div>
     <span id="hdr-ds-lbl">ไม่ได้เชื่อมต่อ</span>
@@ -542,9 +548,9 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       <button class="btn-cedit" onclick="cancelEdit()">✕ ยกเลิก</button>
     </div>
 
-    <!-- ★ PRINT MODE SELECTOR (NEW v6.2) ★ -->
+    <!-- ★ PRINT MODE SELECTOR ★ -->
     <div class="pmode-wrap">
-      <div class="pmode-title">🖨️ รูปแบบการพิมพ์ <span>NEW v6.2</span></div>
+      <div class="pmode-title">🖨️ รูปแบบการพิมพ์ <span>v6.2</span></div>
       <div class="pmode-toggle">
         <div class="pmode-btn active-a4" id="pm-a4" onclick="setPrintMode('a4')">
           <span class="pmode-badge a4">A4</span>
@@ -561,7 +567,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       </div>
     </div>
 
-    <!-- ★ Thermal settings (shown only in thermal mode) ★ -->
+    <!-- ★ Thermal settings ★ -->
     <div class="dpi-hint" id="dpi-hint">
       <strong>⚙️ ตั้งค่า Thermal Printer</strong><br>
       เลือก DPI ของเครื่องพิมพ์ เพื่อให้ขนาด 100×50mm แม่นยำ:<br>
@@ -658,7 +664,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       </div>
     </div>
 
-    <!-- Roll / Pack + Supplier -->
+    <!-- Roll / Pack + Supplier/Customer -->
     <div class="frow">
       <div class="fg" id="wrap-roll">
         <label>จำนวน Roll / Batch</label>
@@ -668,9 +674,10 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
         <label>จำนวนแพ็ค</label>
         <input type="number" id="f-packs" value="1" min="1" oninput="preview()">
       </div>
+      <!-- ✅ Supplier/Customer: auto-fill จาก Master Data column E แต่ยังแก้ไขได้ -->
       <div class="fg">
-        <label id="f-sup-lbl">Supplier</label>
-        <input type="text" id="f-sup" placeholder="ชื่อ Supplier" oninput="preview()">
+        <label id="f-sup-lbl">Supplier <span class="afbadge" id="afbadge-sup">✓ DB</span></label>
+        <input type="text" id="f-sup" placeholder="ชื่อ Supplier" oninput="onSupInput()">
       </div>
     </div>
 
@@ -784,7 +791,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
               <div class="lbclbl" id="p-bclbl">—</div>
             </div>
             <div class="lft">
-              <span>Universal WMS v6.3</span>
+              <span>Universal WMS v6.4</span>
               <span id="p-codetype" style="font-weight:700;color:var(--blue)">QR CODE</span>
             </div>
           </div>
@@ -822,7 +829,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
               </div>
             </div>
             <div class="sc-ft">
-              <span>Universal WMS v6.3</span>
+              <span>Universal WMS v6.4</span>
               <span style="color:var(--blue);font-weight:700" id="s-ft-code">QR CODE</span>
             </div>
           </div>
@@ -856,8 +863,8 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
     <div id="gs-status" style="font-size:11px;font-weight:600;margin-top:7px;color:var(--muted)">— ยังไม่ได้ตั้งค่า</div>
     <div class="fmtbox">
       <div style="font-weight:700;margin-bottom:5px">📋 รูปแบบ Google Sheets (Column A→E)</div>
-      <div><span class="c">A</span>: Part No. &nbsp;<span class="c">B</span>: Product Name &nbsp;<span class="c">C</span>: RM หรือ FG &nbsp;<span class="c">D</span>: Unit &nbsp;<span class="c">E</span>: Note</div>
-      <div style="margin-top:5px;color:var(--muted);font-size:10px">แถว 1 = Header (ข้ามอัตโนมัติ) · ตัวอย่าง: AAP050C400, A-PET CLEAR 0.50mm*400mm, RM, Kgs</div>
+      <div><span class="c">A</span>: Part No. &nbsp;<span class="c">B</span>: Product Name &nbsp;<span class="c">C</span>: RM หรือ FG &nbsp;<span class="c">D</span>: Unit &nbsp;<span class="c">E</span>: Supplier/Customer</div>
+      <div style="margin-top:5px;color:var(--muted);font-size:10px">แถว 1 = Header (ข้ามอัตโนมัติ) · ตัวอย่าง: ABT-P-0001, ERNI 084315, FG, Pcs, Erni</div>
     </div>
     <div style="margin-top:14px;padding:11px 13px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:7px;font-size:12px;color:#0369a1;line-height:2">
       <strong>วิธี Publish Google Sheets เป็น CSV</strong><br>
@@ -888,7 +895,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
     </p>
   </div>
   <div class="dcard">
-    <h2>🖨️ รูปแบบการพิมพ์ที่รองรับ (v6.3)</h2>
+    <h2>🖨️ รูปแบบการพิมพ์ที่รองรับ (v6.4)</h2>
     <p style="margin-bottom:0">
       <strong>📄 กระดาษ A4 (Laser/Inkjet)</strong><br>
       — Mini Label: ~64×52mm, 3×5 = <strong>15 ดวง/A4</strong><br>
@@ -922,6 +929,17 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
     </p>
   </div>
   <div class="dcard">
+    <h2>🏢 Auto-fill Supplier / Customer (NEW v6.4)</h2>
+    <p style="margin-bottom:0">
+      เมื่อพิมพ์หรือเลือก <strong>Part No.</strong> ที่มีอยู่ใน Master Data ระบบจะดึง
+      <strong>ชื่อ Supplier</strong> (สำหรับ RM) หรือ <strong>ชื่อ Customer</strong> (สำหรับ FG)
+      จาก Master Data <strong>Column E</strong> มาเติมในฟิลด์ Supplier/Customer ให้อัตโนมัติ<br><br>
+      — ฟิลด์นี้ยัง<strong>แก้ไขได้</strong> เผื่อกรณีข้อมูลผิดหรือต้องการระบุ Supplier/Customer อื่น<br>
+      — เมื่อพิมพ์ Part No. ใหม่ที่ไม่ตรงกับ Master Data ฟิลด์จะไม่ถูกเขียนทับข้อมูลที่กรอกไว้เอง<br>
+      — สามารถระบุ Supplier/Customer ตอนเพิ่มสินค้าใหม่ (Local) ผ่านปุ่ม ➕ ได้เช่นกัน
+    </p>
+  </div>
+  <div class="dcard">
     <h2>📊 Data String มาตรฐาน WMS</h2>
     <div class="ptnbox" style="text-align:center;font-size:13px">
       Part <span style="color:var(--red)">|</span> Lot <span style="color:var(--red)">|</span> Qty <span style="color:var(--red)">|</span>
@@ -944,8 +962,8 @@ const KEY_URL      = 'wms_url_v6';
 const KEY_CACHE    = 'wms_cache_v6';
 const KEY_LOCAL    = 'wms_local_v6';
 const KEY_CO       = 'wms_co_v6';
-const KEY_PMODE    = 'wms_pmode_v62';   /* NEW: print mode */
-const KEY_DPI      = 'wms_dpi_v62';    /* NEW: thermal DPI */
+const KEY_PMODE    = 'wms_pmode_v62';
+const KEY_DPI      = 'wms_dpi_v62';
 
 /* Per-page counts by label size */
 const PER_PAGE_MINI = 15;
@@ -960,8 +978,9 @@ let AC    = [];
 let ACI   = -1;
 let QUEUE = [];
 let EDIT_QID = null;
-let PRINT_MODE = 'a4';      /* 'a4' | 'thermal' */
+let PRINT_MODE = 'a4';
 let THERMAL_DPI = 203;
+let SUP_TOUCHED = false;   /* ✅ NEW: track if user manually edited Supplier/Customer field */
 
 /* ═══════════════ INIT ═══════════════ */
 window.addEventListener('DOMContentLoaded', async () => {
@@ -984,7 +1003,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 /* ═══════════════════════════════════════════
-   ★ PRINT MODE (NEW v6.2)
+   ★ PRINT MODE
 ═══════════════════════════════════════════ */
 function setPrintMode(mode) {
   PRINT_MODE = mode;
@@ -995,23 +1014,19 @@ function setPrintMode(mode) {
 function applyPrintModeUI(doPreview) {
   const isThermal = PRINT_MODE === 'thermal';
 
-  /* Button active state */
   document.getElementById('pm-a4').className       = 'pmode-btn' + (isThermal ? '' : ' active-a4');
   document.getElementById('pm-thermal').className  = 'pmode-btn' + (isThermal ? ' active-thermal' : '');
 
-  /* Show thermal hint */
   document.getElementById('dpi-hint').classList.toggle('on', isThermal);
 
-  /* In thermal mode: force sticker label size (100×50mm is the only sensible format) */
   if (isThermal) {
     document.getElementById('ls-stk').checked = true;
-    document.getElementById('c-qr').checked   = true; /* QR scans better on thermal */
+    document.getElementById('c-qr').checked   = true;
     document.getElementById('ls-stk-sub').textContent = '100×50mm · 1 ดวง/รอบพิมพ์';
   } else {
     document.getElementById('ls-stk-sub').textContent = '100×50mm · 10 ดวง/A4';
   }
 
-  /* Restore DPI chip selection */
   document.querySelectorAll('.dpi-chip').forEach(c => {
     c.classList.toggle('sel', parseInt(c.dataset.dpi) === THERMAL_DPI);
   });
@@ -1030,7 +1045,7 @@ function selDpi(el) {
 /* ═══════════════ LABEL SIZE ═══════════════ */
 function labelSize() { return document.getElementById('ls-stk').checked ? 'stk' : 'mini'; }
 function perPage() {
-  if (PRINT_MODE === 'thermal') return 1; /* thermal = 1 per "page" */
+  if (PRINT_MODE === 'thermal') return 1;
   return labelSize() === 'stk' ? PER_PAGE_STK : PER_PAGE_MINI;
 }
 
@@ -1121,6 +1136,7 @@ async function loadGS(fb = true) {
   }
 }
 
+/* ✅ UPDATED: parseCSV — เพิ่มอ่าน Column E = Supplier/Customer */
 function parseCSV(csv) {
   const rows = [];
   const lines = csv.split('\n').map(l => l.trim()).filter(Boolean);
@@ -1129,7 +1145,8 @@ function parseCSV(csv) {
     const part = cl(c[0]), name = cl(c[1]);
     const type = cl(c[2]).toUpperCase() === 'FG' ? 'FG' : 'RM';
     const unit = cl(c[3]) || 'Kgs';
-    if (part && name) rows.push({ part, name, type, unit, src: 'gs' });
+    const sup  = cl(c[4]) || '';   /* ✅ Column E = Supplier (RM) / Customer (FG) */
+    if (part && name) rows.push({ part, name, type, unit, sup, src: 'gs' });
   }
   return rows;
 }
@@ -1161,6 +1178,7 @@ function onPartInput() {
   renderDrop(q); preview();
 }
 
+/* ✅ UPDATED: renderDrop — แสดง Supplier/Customer ใน dropdown ด้วย */
 function renderDrop(q) {
   const dd = document.getElementById('acdrop');
   if (!q.trim()) { dd.className = 'acdrop'; dd.innerHTML = ''; return; }
@@ -1172,6 +1190,7 @@ function renderDrop(q) {
     <div class="aci" onmousedown="selProd(${i})">
       <div class="aci-p">${hl(p.part, q)}</div>
       <div class="aci-n">${hl(p.name, q)}</div>
+      ${p.sup ? `<div class="aci-sup">🏢 ${esc(p.sup)}</div>` : ''}
       <div class="aci-tags">
         <span class="atag ${p.type.toLowerCase()}">${p.type}</span>
         ${p.src === 'local' ? '<span class="atag loc">Local</span>' : ''}
@@ -1203,6 +1222,10 @@ function selProd(i) {
   document.getElementById('f-part').value = p.part;
   autoFill(p); closeDrop(); preview();
 }
+
+/* ✅ UPDATED: autoFill — เติม Supplier/Customer จาก Master Data (column E)
+   โดยจะเขียนทับเฉพาะตอนที่ผู้ใช้ยังไม่ได้แก้ฟิลด์นี้เอง (SUP_TOUCHED = false)
+   เพื่อไม่ให้ทับข้อมูลที่ผู้ใช้แก้ไขเองระหว่างทำงาน */
 function autoFill(p) {
   const n = document.getElementById('f-name');
   n.value = p.name; n.classList.add('name-ok');
@@ -1210,12 +1233,45 @@ function autoFill(p) {
   document.getElementById('f-type').value = p.type; applyTypeUI(false);
   const us = document.getElementById('f-unit');
   if ([...us.options].map(o => o.value).includes(p.unit)) us.value = p.unit;
+
+  /* ✅ Auto-fill Supplier/Customer จาก Master Data */
+  const supEl   = document.getElementById('f-sup');
+  const supBadge = document.getElementById('afbadge-sup');
+  if (!SUP_TOUCHED) {
+    supEl.value = p.sup || '';
+    if (p.sup) {
+      supEl.classList.add('sup-ok');
+      supBadge.style.display = 'inline';
+    } else {
+      supEl.classList.remove('sup-ok');
+      supBadge.style.display = 'none';
+    }
+  }
 }
 function clearFill() {
   const n = document.getElementById('f-name');
   n.value = ''; n.classList.remove('name-ok');
   document.getElementById('afbadge').style.display = 'none';
+  /* ✅ เคลียร์ Supplier/Customer ด้วย ถ้าผู้ใช้ยังไม่ได้แก้เอง */
+  if (!SUP_TOUCHED) {
+    const supEl = document.getElementById('f-sup');
+    supEl.value = '';
+    supEl.classList.remove('sup-ok');
+    document.getElementById('afbadge-sup').style.display = 'none';
+  }
 }
+
+/* ✅ NEW: เรียกเมื่อผู้ใช้พิมพ์แก้ไขฟิลด์ Supplier/Customer เอง
+   เพื่อ track ว่าฟิลด์นี้ถูกแก้ไขโดยมือแล้ว ไม่ให้ autoFill เขียนทับอีก
+   จนกว่าจะเปลี่ยน Part No. ใหม่ (resetSupTouched ใน onPartInput ก่อนหน้าไม่ reset
+   — reset เฉพาะตอนเปลี่ยนเป็น Part ใหม่ที่ต่างจากเดิม ผ่าน resetFormPartial) */
+function onSupInput() {
+  SUP_TOUCHED = true;
+  document.getElementById('f-sup').classList.remove('sup-ok');
+  document.getElementById('afbadge-sup').style.display = 'none';
+  preview();
+}
+
 function closeDrop() { document.getElementById('acdrop').className = 'acdrop'; ACI = -1; }
 document.addEventListener('click', e => { if (!e.target.closest('.acwrap')) closeDrop(); });
 
@@ -1223,25 +1279,38 @@ document.addEventListener('click', e => { if (!e.target.closest('.acwrap')) clos
 function openModal() {
   document.getElementById('m-part').value = document.getElementById('f-part').value.trim();
   document.getElementById('m-name').value = '';
+  document.getElementById('m-sup').value  = document.getElementById('f-sup').value || '';
   document.getElementById('merr').style.display = 'none';
+  onModalTypeChange();
   document.getElementById('modal').classList.add('on');
   setTimeout(() => document.getElementById('m-name').focus(), 80);
 }
 function closeModal() { document.getElementById('modal').classList.remove('on'); }
+
+/* ✅ NEW: relabel Supplier/Customer ใน Modal ตามประเภทที่เลือก */
+function onModalTypeChange() {
+  const isFG = document.getElementById('m-type').value === 'FG';
+  document.getElementById('m-sup-lbl').textContent = isFG ? 'Customer' : 'Supplier';
+  document.getElementById('m-sup').placeholder = isFG ? 'ชื่อลูกค้า (Customer)' : 'ชื่อ Supplier';
+}
+
+/* ✅ UPDATED: saveLocalProduct — บันทึก Supplier/Customer ลง Local product ด้วย */
 function saveLocalProduct() {
   const part = (document.getElementById('m-part').value || '').trim().toUpperCase();
   const name = (document.getElementById('m-name').value || '').trim();
   const type = document.getElementById('m-type').value;
   const unit = document.getElementById('m-unit').value;
+  const sup  = (document.getElementById('m-sup').value || '').trim();
   const err  = document.getElementById('merr');
   if (!part) { err.textContent = 'กรุณาใส่ Part No.'; err.style.display = 'block'; return; }
   if (!name) { err.textContent = 'กรุณาใส่ชื่อสินค้า'; err.style.display = 'block'; return; }
   LOC = LOC.filter(p => p.part.toUpperCase() !== part);
-  LOC.unshift({ part, name, type, unit, src: 'local' });
+  LOC.unshift({ part, name, type, unit, sup, src: 'local' });
   localStorage.setItem(KEY_LOCAL, JSON.stringify(LOC));
   closeModal();
   document.getElementById('f-part').value = part;
-  autoFill({ part, name, type, unit, src: 'local' });
+  SUP_TOUCHED = false;  /* reset เพื่อให้ autoFill เติม supplier ใหม่ที่กรอกไว้ */
+  autoFill({ part, name, type, unit, sup, src: 'local' });
   preview(); updateStats();
   showToast(`✅ เพิ่ม "${name}" เรียบร้อย`);
 }
@@ -1253,7 +1322,6 @@ function applyTypeUI(doPreview = true) {
   document.getElementById('wrap-roll').style.display = isFG ? 'none' : '';
   document.getElementById('wrap-pack').style.display = isFG ? '' : 'none';
   document.getElementById('pw-roll').style.display   = isFG ? 'none' : '';
-  /* FG: hide the visible Pack row (แพ็ค X/Y) on the label face — still encoded in QR/Barcode */
   document.getElementById('pw-pack').style.display   = 'none';
   document.getElementById('fg-mc').style.display     = isFG ? 'block' : 'none';
   document.getElementById('pw-mc').style.display     = isFG ? '' : 'none';
@@ -1263,7 +1331,8 @@ function applyTypeUI(doPreview = true) {
 
   /* FG: Supplier -> Customer relabel */
   const supLabel = isFG ? 'Customer' : 'Supplier';
-  document.getElementById('f-sup-lbl').textContent  = supLabel;
+  const supLabelHtml = `${supLabel} <span class="afbadge" id="afbadge-sup" style="display:${document.getElementById('afbadge-sup') && document.getElementById('afbadge-sup').style.display === 'inline' ? 'inline' : 'none'}">✓ DB</span>`;
+  document.getElementById('f-sup-lbl').innerHTML    = supLabelHtml;
   document.getElementById('f-sup').placeholder      = isFG ? 'ชื่อลูกค้า (Customer)' : 'ชื่อ Supplier';
   document.getElementById('p-sup-lbl').textContent  = supLabel;
   document.getElementById('s-sup-lbl').textContent  = supLabel;
@@ -1382,9 +1451,13 @@ function collectLabels() {
   const labels = [];
 
   if (mode === 'split' && splitN > 1) {
-    const qtyPer = (totQty / splitN).toFixed(3);
+    /* ✅ จำนวนต่อม้วน/แพ็ค ไม่มีทศนิยม — ใช้ Math.round และกระจายเศษให้ม้วนแรกๆ */
+    const baseQty  = Math.floor(totQty / splitN);
+    const remainder = Math.round(totQty - (baseQty * splitN));
     for (let i = 1; i <= splitN; i++) {
-      const lot   = isFG ? `${baseLot}-P${i}` : `${baseLot}-R${i}`;
+      const qtyPer = String(baseQty + (i <= remainder ? 1 : 0));
+      /* ✅ Lot ไม่ต่อ -P/-R suffix — ใช้ Lot เดิมตรงๆ, ลำดับม้วน/แพ็คแยกเก็บใน rolls/pack field */
+      const lot   = baseLot;
       const disp  = isFG ? `แพ็ค ${i}/${splitN}` : `ม้วน ${i}/${splitN}`;
       const bcStr = mkStr(part, lot, qtyPer, unit, 1, ref, po);
       labels.push({ _id: uid(), _qid: qid, lsize, pmode, co, type, code, part, lot, qty: qtyPer, unit, rolls: disp, pack: disp, sup, ref, po, mc, name, bcStr, date: TODAY });
@@ -1424,13 +1497,14 @@ function editItem(qid) {
   document.getElementById('f-co').value   = lbl.co;
   document.getElementById('f-type').value = lbl.type;
   document.getElementById('f-part').value = lbl.part;
-  document.getElementById('f-lot').value  = lbl.lot.replace(/-[RP]\d+$/, '');
+  document.getElementById('f-lot').value  = lbl.lot;  /* ✅ Lot ไม่มี suffix แล้ว ไม่ต้อง strip */
   document.getElementById('f-name').value = lbl.name || '';
   if (lbl.name) { document.getElementById('f-name').classList.add('name-ok'); document.getElementById('afbadge').style.display = 'inline'; }
   const cnt = items.length;
-  document.getElementById('f-qty').value   = (parseFloat(lbl.qty) * cnt).toFixed(cnt > 1 ? 3 : 0);
+  document.getElementById('f-qty').value   = String(Math.round(parseFloat(lbl.qty) * cnt));  /* ✅ ไม่มีทศนิยม */
   document.getElementById('f-unit').value  = lbl.unit;
   document.getElementById('f-sup').value   = lbl.sup || '';
+  SUP_TOUCHED = true; /* ✅ ตอน edit ให้ถือว่าผู้ใช้ระบุ supplier เองแล้ว ไม่ auto-overwrite */
   document.getElementById('f-ref').value   = lbl.ref || '';
   document.getElementById('f-po').value    = lbl.po  || '';
   document.getElementById('f-mc').value    = lbl.mc  || '';
@@ -1440,7 +1514,6 @@ function editItem(qid) {
   document.getElementById('f-mode').value = isMulti ? 'split' : 'single';
   document.getElementById(lbl.code === 'qr' ? 'c-qr' : 'c-bc').checked = true;
   document.getElementById(lbl.lsize === 'stk' ? 'ls-stk' : 'ls-mini').checked = true;
-  /* Restore print mode from label */
   if (lbl.pmode) { PRINT_MODE = lbl.pmode; applyPrintModeUI(false); }
   onLsizeChange(); applyTypeUI(false);
   const idx = QUEUE.findIndex(l => l._qid === qid) + 1;
@@ -1487,7 +1560,7 @@ function renderQueue() {
   const pages =
     Math.ceil(miniQ.length / PER_PAGE_MINI) +
     Math.ceil(stkA4Q.length / PER_PAGE_STK) +
-    thermalQ.length; /* 1 page each for thermal */
+    thermalQ.length;
 
   document.getElementById('q-cnt').textContent = `${total} ดวง`;
   document.getElementById('q-pg').textContent  = `${pages} หน้า`;
@@ -1564,6 +1637,9 @@ function resetFormPartial() {
   document.getElementById('f-rolls').value = '1';
   document.getElementById('f-packs').value = '1';
   document.getElementById('f-sup').value   = '';
+  document.getElementById('f-sup').classList.remove('sup-ok');
+  document.getElementById('afbadge-sup').style.display = 'none';
+  SUP_TOUCHED = false; /* ✅ reset เพื่อให้ Part No. ถัดไป auto-fill supplier ใหม่ได้ */
   document.getElementById('f-ref').value   = '';
   document.getElementById('f-po').value    = '';
   document.getElementById('f-mc').value    = '';
@@ -1571,7 +1647,7 @@ function resetFormPartial() {
 }
 
 /* ═══════════════════════════════════════════
-   ★ PRINT (v6.2) — separates A4 and Thermal
+   ★ PRINT — separates A4 and Thermal
 ═══════════════════════════════════════════ */
 async function doPrint() {
   if (!QUEUE.length) { showToast('⚠️ ยังไม่มีรายการ'); return; }
@@ -1583,33 +1659,20 @@ async function doPrint() {
   const stkA4Items   = QUEUE.filter(l => l.lsize === 'stk' && l.pmode !== 'thermal');
   const thermalItems = QUEUE.filter(l => l.pmode === 'thermal');
 
-  /* ── Build Mini A4 pages ── */
   buildMiniPages(pa, miniItems, qrTodo);
-
-  /* ── Build Sticker A4 pages ── */
   buildStkA4Pages(pa, stkA4Items, qrTodo);
-
-  /* ── Build Thermal pages (1 label = 1 page) ── */
   buildThermalPages(pa, thermalItems, qrTodo);
 
-  /* Render all QR codes */
   for (const { el, text, size } of qrTodo) renderQR(el, text, size);
 
-  /* Inject @page override for mixed/thermal jobs */
   injectPageStyle();
 
   setTimeout(() => window.print(), 400);
 }
 
-/* ── HELPER: inject dynamic @page style ── */
 function injectPageStyle() {
-  /* Remove previous */
   const old = document.getElementById('_dyn_page_style');
   if (old) old.remove();
-  /* If any thermal labels in queue, we need 100×50mm page for those.
-     Modern browsers handle mixed @page via named pages, but broad support
-     uses the dominant page size. Since thermal is typically printed alone,
-     we set to 100×50 when all are thermal, else A4. */
   const thermalCount = QUEUE.filter(l => l.pmode === 'thermal').length;
   const a4Count      = QUEUE.filter(l => l.pmode !== 'thermal').length;
   let pageSize = 'A4 portrait';
@@ -1651,7 +1714,6 @@ function buildMiniPages(pa, items, qrTodo) {
       clone.querySelector('#p-badge').textContent = `QC · ${lbl.type}`;
       clone.querySelector('#p-badge').className   = 'lbadge' + (isFG ? ' fg' : '');
       clone.querySelector('#pw-roll').style.display = isFG ? 'none' : '';
-      /* FG: hide visible Pack and PO rows — info remains encoded in QR/Barcode */
       clone.querySelector('#pw-pack').style.display = 'none';
       clone.querySelector('#pw-po').style.display    = isFG ? 'none' : '';
       clone.querySelector('#pw-mc').style.display   = isFG ? '' : 'none';
@@ -1686,7 +1748,6 @@ function buildStkA4Pages(pa, items, qrTodo) {
 }
 
 function buildThermalPages(pa, items, qrTodo) {
-  /* Each label = its own div.ppage-thermal, exactly 100×50mm */
   items.forEach((lbl, i) => {
     const pdiv = document.createElement('div');
     pdiv.className = 'ppage-thermal';
@@ -1721,7 +1782,6 @@ function fillStickerClone(lbl, idPrefix, qrTodo, qrSize) {
   clone.querySelector('#s-codetype').textContent = ctLabel;
   clone.querySelector('#s-ft-code').textContent  = ctLabel;
   clone.querySelector('#sw-roll').style.display = isFG ? 'none' : '';
-  /* FG: hide visible Pack and PO rows — info remains encoded in QR/Barcode */
   clone.querySelector('#sw-pack').style.display = 'none';
   clone.querySelector('#sw-po').style.display    = isFG ? 'none' : '';
   clone.querySelector('#sw-mc').style.display   = isFG ? '' : 'none';
