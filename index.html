@@ -1113,39 +1113,39 @@ function selDpi(el) {
 }
 
 /* ═══════════════════════════════════════════
-   ★ FONT SCALE — v6.5
-   applyScaleToLabel() ทำงานทั้งบนหน้าจอ (preview template)
-   และบนแต่ละ clone ระหว่างสร้างหน้าพิมพ์
+   ★ FONT SCALE — v6.5 (hybrid)
+   forPrint=false (หน้าจอ) → zoom ทั้งใบ: text+QR+padding scale พร้อมกัน
+   forPrint=true  (พิมพ์)  → font-size ทีละ element: card ยังอยู่ใน 100×50mm
 ═══════════════════════════════════════════ */
-function applyScaleToLabel(el, scale) {
-  /* helper: set fontSize on all matched children */
+function applyScaleToLabel(el, scale, forPrint = false) {
+
+  if (!forPrint) {
+    /* ── Screen preview: CSS zoom ──
+       zoom กระทบ layout จริง (ต่างจาก transform:scale)
+       ใบทั้งใบขยายสัดส่วนเดิม ไม่มี overflow เด็ดขาด */
+    el.querySelectorAll('*').forEach(c => c.style.fontSize = ''); /* ล้าง inline font-size เก่า */
+    el.style.zoom = scale;
+    return;
+  }
+
+  /* ── Print clone: scale individual font sizes ──
+     card คง 100×50mm ตามที่กำหนดใน print CSS
+     ถ้า scale > 1.0 และเนื้อหาล้น → overflow:hidden clip อัตโนมัติ */
+  el.style.zoom = '';
   const S = (sel, base) => el.querySelectorAll(sel).forEach(c => {
     c.style.fontSize = (base * scale).toFixed(1) + 'px';
   });
   if (el.classList.contains('scard100')) {
-    /* ── Sticker 100×50mm ── */
-    S('.sc-co',           8.5);
-    S('.sc-badge',        7);
-    S('.sc-name',         10);
-    S('.sc-k',            6.5);
-    S('.sc-v:not(.big)',  9);
-    S('.sc-v.big',        12);
-    S('.sc-unit',         7);
-    S('.sc-qrlbl',        5.5);
-    S('.sc-codetype',     6.5);
-    S('.sc-ft',           5.5);
-    S('.sc-ft span',      5.5);
+    S('.sc-co',          8.5);  S('.sc-badge',   7);
+    S('.sc-name',        10);   S('.sc-k',        6.5);
+    S('.sc-v:not(.big)', 9);    S('.sc-v.big',    12);
+    S('.sc-unit',        7);    S('.sc-qrlbl',    5.5);
+    S('.sc-codetype',    6.5);  S('.sc-ft',       5.5);
+    S('.sc-ft span',     5.5);
   } else {
-    /* ── Mini Label ── */
-    S('.lco',    8);
-    S('.lbadge', 7);
-    S('.lk',     7);
-    S('.lv',     10);
-    S('.lqbig',  18);
-    S('.lqunit', 9);
-    S('.lbclbl', 6.5);
-    S('.lft',    6.5);
-    S('.lft span', 6.5);
+    S('.lco',    8);   S('.lbadge', 7);   S('.lk',     7);
+    S('.lv',     10);  S('.lqbig',  18);  S('.lqunit', 9);
+    S('.lbclbl', 6.5); S('.lft',    6.5); S('.lft span', 6.5);
   }
 }
 
@@ -1900,7 +1900,7 @@ function buildMiniPages(pa, items, qrTodo) {
         svgEl.style.display = 'block'; qrEl.style.display = 'none';
         try { JsBarcode(svgEl, lbl.bcStr || 'ERROR', { format: 'CODE128', lineColor: '#000', width: 1.2, height: 22, displayValue: false, margin: 3 }); } catch {}
       }
-      applyScaleToLabel(clone, FONT_SCALE);   /* ✅ font scale */
+      applyScaleToLabel(clone, FONT_SCALE, true);   /* ✅ print: font-size */
       pdiv.appendChild(clone);
     });
     pa.appendChild(pdiv);
@@ -1969,7 +1969,7 @@ function fillStickerClone(lbl, idPrefix, qrTodo, qrSize) {
     svgEl.style.display = 'block'; qrEl.style.display = 'none';
     try { JsBarcode(svgEl, lbl.bcStr || 'ERROR', { format: 'CODE128', lineColor: '#000', width: 1.4, height: 28, displayValue: false, margin: 3 }); } catch {}
   }
-  applyScaleToLabel(clone, FONT_SCALE);   /* ✅ font scale */
+  applyScaleToLabel(clone, FONT_SCALE, true);   /* ✅ print: font-size */
   return clone;
 }
 
