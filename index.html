@@ -201,6 +201,23 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
 .btn-addq:hover{filter:brightness(1.08);transform:translateY(-1px)}
 .btn-addq:active{transform:translateY(0)}
 
+/* ── Font Scale Control ── */
+.fs-wrap{background:#f8fafc;border:1.5px solid var(--border);border-radius:8px;padding:9px 11px;margin-bottom:10px}
+.fs-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.fs-lbl{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.fs-pct{font-size:13px;font-weight:700;color:var(--navy);font-family:'JetBrains Mono',monospace;background:#e2e8f0;padding:1px 7px;border-radius:20px}
+.fs-row{display:flex;align-items:center;gap:7px}
+.fs-btn{width:28px;height:28px;border:1.5px solid var(--border);border-radius:6px;background:#fff;font-size:17px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--navy);flex-shrink:0;line-height:1;padding:0;transition:.15s}
+.fs-btn:hover{border-color:var(--blue);color:var(--blue);background:#eff6ff}
+.fs-btn:active{transform:scale(.9)}
+.fs-slider{flex:1;-webkit-appearance:none;height:4px;border-radius:20px;background:linear-gradient(to right,var(--blue) var(--pct,30%),var(--border) var(--pct,30%));outline:none;cursor:pointer}
+.fs-slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--blue);cursor:pointer;border:2.5px solid #fff;box-shadow:0 1px 5px rgba(59,130,246,.45);transition:.1s}
+.fs-slider::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--blue);cursor:pointer;border:2px solid #fff}
+.fs-presets{display:flex;gap:4px;margin-top:8px}
+.fs-pre{flex:1;padding:5px 2px;border:1.5px solid var(--border);border-radius:5px;background:#fff;font-family:'Kanit';font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;transition:.15s;text-align:center;line-height:1}
+.fs-pre:hover{border-color:var(--blue);color:var(--blue);background:#eff6ff}
+.fs-pre.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+
 /* ═══════════════════════════════════════════
    RIGHT: TWO-PANEL STACK
 ═══════════════════════════════════════════ */
@@ -594,6 +611,26 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
           <span class="ls-title">📦 Sticker 100×50</span>
           <span class="ls-sub" id="ls-stk-sub">100×50mm · 10 ดวง/A4</span>
         </label>
+      </div>
+    </div>
+
+    <!-- ★ Font Scale Control ★ -->
+    <div class="fs-wrap">
+      <div class="fs-header">
+        <span class="fs-lbl">🔡 ขนาดตัวอักษร Label</span>
+        <span class="fs-pct" id="fs-pct">100%</span>
+      </div>
+      <div class="fs-row">
+        <button class="fs-btn" onclick="changeFontScale(-0.05)" title="เล็กลง">−</button>
+        <input type="range" class="fs-slider" id="fs-slider" min="0.7" max="1.4" step="0.05" value="1" oninput="setFontScale(this.value)">
+        <button class="fs-btn" onclick="changeFontScale(0.05)" title="ใหญ่ขึ้น">+</button>
+      </div>
+      <div class="fs-presets">
+        <button class="fs-pre" data-fs="0.75" onclick="setFontScale(0.75)">XS<br><span style="font-size:8px;font-weight:400;opacity:.7">75%</span></button>
+        <button class="fs-pre" data-fs="0.85" onclick="setFontScale(0.85)">S<br><span style="font-size:8px;font-weight:400;opacity:.7">85%</span></button>
+        <button class="fs-pre active" data-fs="1.0" onclick="setFontScale(1.0)">M<br><span style="font-size:8px;font-weight:400;opacity:.7">100%</span></button>
+        <button class="fs-pre" data-fs="1.15" onclick="setFontScale(1.15)">L<br><span style="font-size:8px;font-weight:400;opacity:.7">115%</span></button>
+        <button class="fs-pre" data-fs="1.3" onclick="setFontScale(1.3)">XL<br><span style="font-size:8px;font-weight:400;opacity:.7">130%</span></button>
       </div>
     </div>
 
@@ -991,6 +1028,7 @@ const KEY_LOCAL    = 'wms_local_v6';
 const KEY_CO       = 'wms_co_v6';
 const KEY_PMODE    = 'wms_pmode_v62';
 const KEY_DPI      = 'wms_dpi_v62';
+const KEY_FS       = 'wms_fs_v65';   /* ✅ NEW v6.5: font scale */
 
 /* Per-page counts by label size */
 const PER_PAGE_MINI = 15;
@@ -1008,6 +1046,7 @@ let EDIT_QID = null;
 let PRINT_MODE = 'a4';
 let THERMAL_DPI = 203;
 let SUP_TOUCHED = false;
+let FONT_SCALE  = 1.0;   /* ✅ NEW v6.5: label font scale (0.7–1.4) */
 
 /* ═══════════════ INIT ═══════════════ */
 window.addEventListener('DOMContentLoaded', async () => {
@@ -1023,6 +1062,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   PRINT_MODE  = localStorage.getItem(KEY_PMODE) || 'a4';
   THERMAL_DPI = parseInt(localStorage.getItem(KEY_DPI) || '203');
   applyPrintModeUI(false);
+
+  /* ✅ Restore font scale */
+  FONT_SCALE = parseFloat(localStorage.getItem(KEY_FS) || '1.0');
+  setFontScale(FONT_SCALE);
 
   updateDsChip(); updateStats(); applyTypeUI(false); preview();
   const url = localStorage.getItem(KEY_URL);
@@ -1067,6 +1110,77 @@ function selDpi(el) {
   document.querySelectorAll('.dpi-chip').forEach(c => c.classList.remove('sel'));
   el.classList.add('sel');
   showToast(`✅ ตั้ง DPI = ${THERMAL_DPI}`);
+}
+
+/* ═══════════════════════════════════════════
+   ★ FONT SCALE — v6.5
+   applyScaleToLabel() ทำงานทั้งบนหน้าจอ (preview template)
+   และบนแต่ละ clone ระหว่างสร้างหน้าพิมพ์
+═══════════════════════════════════════════ */
+function applyScaleToLabel(el, scale) {
+  /* helper: set fontSize on all matched children */
+  const S = (sel, base) => el.querySelectorAll(sel).forEach(c => {
+    c.style.fontSize = (base * scale).toFixed(1) + 'px';
+  });
+  if (el.classList.contains('scard100')) {
+    /* ── Sticker 100×50mm ── */
+    S('.sc-co',           8.5);
+    S('.sc-badge',        7);
+    S('.sc-name',         10);
+    S('.sc-k',            6.5);
+    S('.sc-v:not(.big)',  9);
+    S('.sc-v.big',        12);
+    S('.sc-unit',         7);
+    S('.sc-qrlbl',        5.5);
+    S('.sc-codetype',     6.5);
+    S('.sc-ft',           5.5);
+    S('.sc-ft span',      5.5);
+  } else {
+    /* ── Mini Label ── */
+    S('.lco',    8);
+    S('.lbadge', 7);
+    S('.lk',     7);
+    S('.lv',     10);
+    S('.lqbig',  18);
+    S('.lqunit', 9);
+    S('.lbclbl', 6.5);
+    S('.lft',    6.5);
+    S('.lft span', 6.5);
+  }
+}
+
+function setFontScale(val) {
+  FONT_SCALE = Math.max(0.7, Math.min(1.4, parseFloat(val)));
+  localStorage.setItem(KEY_FS, FONT_SCALE);
+
+  /* sync slider + percentage display */
+  const slider = document.getElementById('fs-slider');
+  const pctEl  = document.getElementById('fs-pct');
+  if (slider) {
+    slider.value = FONT_SCALE;
+    /* update slider track fill via CSS custom property */
+    const pct = ((FONT_SCALE - 0.7) / (1.4 - 0.7) * 100).toFixed(1);
+    slider.style.setProperty('--pct', pct + '%');
+  }
+  if (pctEl) pctEl.textContent = Math.round(FONT_SCALE * 100) + '%';
+
+  /* apply to both preview templates immediately */
+  const mini = document.getElementById('lcard-tpl');
+  const stk  = document.getElementById('scard-tpl');
+  if (mini) applyScaleToLabel(mini, FONT_SCALE);
+  if (stk)  applyScaleToLabel(stk,  FONT_SCALE);
+
+  /* highlight nearest preset button */
+  const presets = [0.75, 0.85, 1.0, 1.15, 1.3];
+  const nearest = presets.reduce((a, b) =>
+    Math.abs(b - FONT_SCALE) < Math.abs(a - FONT_SCALE) ? b : a);
+  document.querySelectorAll('.fs-pre').forEach(b => {
+    b.classList.toggle('active', Math.abs(parseFloat(b.dataset.fs) - nearest) < 0.001);
+  });
+}
+
+function changeFontScale(delta) {
+  setFontScale(FONT_SCALE + delta);
 }
 
 /* ═══════════════ LABEL SIZE ═══════════════ */
@@ -1786,6 +1900,7 @@ function buildMiniPages(pa, items, qrTodo) {
         svgEl.style.display = 'block'; qrEl.style.display = 'none';
         try { JsBarcode(svgEl, lbl.bcStr || 'ERROR', { format: 'CODE128', lineColor: '#000', width: 1.2, height: 22, displayValue: false, margin: 3 }); } catch {}
       }
+      applyScaleToLabel(clone, FONT_SCALE);   /* ✅ font scale */
       pdiv.appendChild(clone);
     });
     pa.appendChild(pdiv);
@@ -1854,6 +1969,7 @@ function fillStickerClone(lbl, idPrefix, qrTodo, qrSize) {
     svgEl.style.display = 'block'; qrEl.style.display = 'none';
     try { JsBarcode(svgEl, lbl.bcStr || 'ERROR', { format: 'CODE128', lineColor: '#000', width: 1.4, height: 28, displayValue: false, margin: 3 }); } catch {}
   }
+  applyScaleToLabel(clone, FONT_SCALE);   /* ✅ font scale */
   return clone;
 }
 
