@@ -1823,11 +1823,41 @@ async function doPrint() {
   buildStkA4Pages(pa, stkA4Items, qrTodo);
   buildThermalPages(pa, thermalItems, qrTodo);
 
+  /* ✅ Fix: QRCode() library render Canvas ภายใน แบบ async
+     แทนที่จะ setTimeout คงที่ 400ms (ไม่พอเมื่อมี QR ≥10 ดวง)
+     ใช้วิธี:
+     1. render QR ทุกดวงก่อน → เก็บ canvas element
+     2. รอจนทุก canvas มี width > 0 จริงๆ (requestAnimationFrame loop)
+     3. รอ extra 80ms เผื่อ paint รอบสุดท้าย แล้วค่อย print */
   for (const { el, text, size } of qrTodo) renderQR(el, text, size);
 
   injectPageStyle();
 
-  setTimeout(() => window.print(), 400);
+  // รวม canvas ทั้งหมดที่ต้องรอ
+  const allCanvas = Array.from(pa.querySelectorAll('canvas'));
+
+  await waitForCanvases(allCanvas);
+
+  window.print();
+}
+
+/* รอจนทุก canvas มี content (width > 0 และ getImageData ไม่ว่าง)
+   timeout สูงสุด 5 วินาที เผื่อ QR จำนวนมาก */
+function waitForCanvases(canvasList, maxWaitMs = 5000) {
+  if (!canvasList.length) return Promise.resolve();
+  return new Promise(resolve => {
+    const deadline = Date.now() + maxWaitMs;
+    function check() {
+      const allReady = canvasList.every(c => c.width > 0 && c.height > 0);
+      if (allReady || Date.now() > deadline) {
+        // extra 80ms เผื่อ paint สุดท้าย
+        setTimeout(resolve, 80);
+      } else {
+        requestAnimationFrame(check);
+      }
+    }
+    requestAnimationFrame(check);
+  });
 }
 
 function injectPageStyle() {
