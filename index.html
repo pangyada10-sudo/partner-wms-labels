@@ -375,7 +375,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
 #toast{position:fixed;bottom:22px;right:22px;background:var(--navy);color:#fff;padding:10px 16px;border-radius:9px;font-family:'Kanit';font-size:13px;font-weight:600;z-index:99999;box-shadow:0 8px 28px rgba(0,0,0,.3);transition:opacity .3s;opacity:0;pointer-events:none}
 
 /* ═══════════════════════════════════════════
-   PRINT — A4 (Sheet mode)
+   PRINT — A4 
 ═══════════════════════════════════════════ */
 #pa{display:none}
 
@@ -396,7 +396,8 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
   }
   .ppage-mini:last-child { page-break-after: auto }
   .ppage-mini .lcard {
-    width:100%!important; max-width:none!important;
+    width:100%!important;
+    max-width:none!important;
     box-shadow:none!important; border:0.5pt solid #444!important;
     border-radius:2px!important; padding:2mm 2.5mm!important;
     break-inside:avoid; page-break-inside:avoid;
@@ -451,7 +452,6 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
      THERMAL ROLL PRINTER MODE
      Each label = exactly 100mm × 50mm
      1 label per page — no grid, no A4
-     @page overridden dynamically in JS
   ═══════════════════════════════════════════ */
   .ppage-thermal {
     width: 100mm;
@@ -490,7 +490,6 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
 </head>
 <body>
 
-<!-- ═══ MODAL: Add local product ═══ -->
 <div class="moverlay" id="modal">
   <div class="mbox">
     <div class="mt">➕ เพิ่มสินค้า (Local)</div>
@@ -509,6 +508,9 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
     <div class="mfg"><label id="m-sup-lbl">Supplier</label>
       <input id="m-sup" placeholder="ชื่อ Supplier">
     </div>
+    <div class="mfg"><label>รหัสลูกค้า (Cust)</label>
+      <input id="m-cust" placeholder="รหัสลูกค้า">
+    </div>
     <div class="mfg"><label>หน่วย</label>
       <select id="m-unit">
         <option value="Kgs">Kgs</option><option value="Pcs">Pcs</option>
@@ -523,7 +525,6 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
   </div>
 </div>
 
-<!-- ═══ HEADER ═══ -->
 <div class="hdr">
   <div class="hdr-logo">Universal <span>Label System</span></div>
   <div class="hdr-ver">v6.5</div>
@@ -533,38 +534,30 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
   </div>
 </div>
 
-<!-- ═══ TABS ═══ -->
 <div class="tabs">
   <button class="tab on" data-page="gen" onclick="switchPage('gen',this)">🏷️ สร้าง Label</button>
   <button class="tab" data-page="set"   onclick="switchPage('set',this)">⚙️ ตั้งค่าระบบ</button>
   <button class="tab" data-page="doc"   onclick="switchPage('doc',this)">📖 คู่มือ</button>
 </div>
 
-<!-- ═══════════════════════════════════════════
-     PAGE: GENERATOR
-═══════════════════════════════════════════ -->
 <div id="gen-page" class="page on">
 
-  <!-- LEFT FORM -->
   <div class="fpanel">
     <div class="ptitle">
       🛠️ กรอกข้อมูล Label
       <span class="etag" id="etag" style="display:none">แก้ไข</span>
     </div>
 
-    <!-- Loading banner -->
     <div class="banner" id="banner">
       <div class="spin-el" id="spin-el"></div>
       <span id="banner-txt"></span>
     </div>
 
-    <!-- Edit-mode bar -->
     <div class="editbar" id="editbar">
       <span>✏️ แก้ไข Label #<span id="edit-num">0</span></span>
       <button class="btn-cedit" onclick="cancelEdit()">✕ ยกเลิก</button>
     </div>
 
-    <!-- ★ PRINT MODE SELECTOR ★ -->
     <div class="pmode-wrap">
       <div class="pmode-title">🖨️ รูปแบบการพิมพ์ <span>v6.5</span></div>
       <div class="pmode-toggle">
@@ -583,7 +576,6 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       </div>
     </div>
 
-    <!-- ★ Thermal settings ★ -->
     <div class="dpi-hint" id="dpi-hint">
       <strong>⚙️ ตั้งค่า Thermal Printer</strong><br>
       เลือก DPI ของเครื่องพิมพ์ เพื่อให้ขนาด 100×50mm แม่นยำ:<br>
@@ -597,7 +589,6 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       </div>
     </div>
 
-    <!-- Label size toggle -->
     <div class="fg">
       <label>ขนาด Label / รูปแบบ</label>
       <div class="lsize-toggle">
@@ -614,7 +605,6 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       </div>
     </div>
 
-    <!-- ★ Font Scale Control ★ -->
     <div class="fs-wrap">
       <div class="fs-header">
         <span class="fs-lbl">🔡 ขนาดตัวอักษร Label</span>
@@ -634,13 +624,11 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       </div>
     </div>
 
-    <!-- Company -->
     <div class="fg">
       <label>ชื่อองค์กร / บริษัท</label>
       <input type="text" id="f-co" value="Partner Company Co., Ltd." oninput="preview()">
     </div>
 
-    <!-- Type -->
     <div class="fg">
       <label>ประเภท Label</label>
       <select id="f-type" onchange="onTypeChange()">
@@ -649,7 +637,6 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       </select>
     </div>
 
-    <!-- Code type -->
     <div class="fg">
       <label>รูปแบบ Code</label>
       <div class="stog">
@@ -660,7 +647,6 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       </div>
     </div>
 
-    <!-- Part No. + Lot -->
     <div class="frow">
       <div class="fg" style="position:relative">
         <label>Part / Product No.</label>
@@ -678,13 +664,11 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       </div>
     </div>
 
-    <!-- Name (readonly, auto-filled) -->
     <div class="fg">
       <label>ชื่อสินค้า / วัสดุ <span class="afbadge" id="afbadge">✓ DB</span></label>
       <input type="text" id="f-name" placeholder="จะขึ้นอัตโนมัติเมื่อเลือก Part No." readonly style="cursor:default">
     </div>
 
-    <!-- Qty + Unit -->
     <div class="frow">
       <div class="fg">
         <label>Qty รวม</label>
@@ -700,7 +684,6 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       </div>
     </div>
 
-    <!-- Roll / Pack + Supplier/Customer -->
     <div class="frow">
       <div class="fg" id="wrap-roll">
         <label>จำนวน Roll / Batch</label>
@@ -716,30 +699,32 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       </div>
     </div>
 
-    <!-- Ref + PO -->
     <div class="frow">
+      <div class="fg">
+        <label>รหัสลูกค้า (Cust) <span class="afbadge" id="afbadge-cust">✓ DB</span></label>
+        <input type="text" id="f-cust" placeholder="รหัสลูกค้า" oninput="onCustInput()">
+      </div>
       <div class="fg">
         <label>Ref No.</label>
         <input type="text" id="f-ref" placeholder="REF-001" oninput="preview()">
       </div>
+    </div>
+    
+    <div class="frow">
       <div class="fg" id="wrap-po">
         <label>PO No.</label>
         <input type="text" id="f-po" placeholder="PO-1234" oninput="preview()">
       </div>
-    </div>
-    <div id="po-hidden-note" style="display:none;font-size:10px;color:var(--muted);margin:-6px 0 10px;line-height:1.6">
-      ℹ️ PO No. จะไม่แสดงบน Label (FG) แต่ยังฝังอยู่ใน QR/Barcode สำหรับสแกนในระบบ
-    </div>
-
-    <!-- M/C (FG only) -->
-    <div id="fg-mc" style="display:none;background:#f1f5f9;padding:8px;border-radius:7px;margin-bottom:10px;border:1px solid #e2e8f0">
-      <div class="fg" style="margin-bottom:0">
+      <div class="fg" id="fg-mc" style="display:none;">
         <label>M/C (เครื่องจักร)</label>
         <input type="text" id="f-mc" placeholder="M/C No." oninput="preview()">
       </div>
     </div>
+    
+    <div id="po-hidden-note" style="display:none;font-size:10px;color:var(--muted);margin:-6px 0 10px;line-height:1.6">
+      ℹ️ PO No. จะไม่แสดงบน Label (FG) แต่ยังฝังอยู่ใน QR/Barcode สำหรับสแกนในระบบ
+    </div>
 
-    <!-- Split mode -->
     <div class="fg">
       <label>รูปแบบที่จะเพิ่ม</label>
       <select id="f-mode">
@@ -748,22 +733,16 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       </select>
     </div>
 
-    <!-- Data string preview -->
     <div class="dsbox">
       <div class="dsbox-lbl">Data String (WMS Standard)</div>
       <div id="ds-str">—</div>
     </div>
 
-    <!-- ADD TO QUEUE -->
     <button class="btn-addq" id="btn-addq" onclick="addToQueue()" style="background:var(--green)">
       <span id="addq-ico">➕</span><span id="addq-lbl">เพิ่มลงรายการพิมพ์</span>
     </button>
-  </div><!-- end fpanel -->
+  </div><div class="rpanel">
 
-  <!-- RIGHT: Queue + Preview -->
-  <div class="rpanel">
-
-    <!-- QUEUE -->
     <div class="qpanel">
       <div class="qhdr">
         <div class="qhdr-l">
@@ -788,7 +767,6 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       </div>
     </div>
 
-    <!-- PREVIEW -->
     <div class="pvwrap">
       <div class="pvhdr">
         <div class="pvhdr-t" id="pv-title">👁️ ตัวอย่าง Label (Mini · 15 ดวง / A4)</div>
@@ -796,7 +774,6 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       </div>
       <div class="pvbody" id="pvbody">
 
-        <!-- ── MINI TEMPLATE ── -->
         <div id="tpl-mini">
           <div class="lcard" id="lcard-tpl">
             <div class="lhd">
@@ -815,6 +792,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
               <div class="lf" id="pw-roll"><div class="lk">Roll</div><div class="lv" id="p-roll">1</div></div>
               <div class="lf" id="pw-pack" style="display:none"><div class="lk">Pack</div><div class="lv" id="p-pack">—</div></div>
               <div class="lf"><div class="lk" id="p-sup-lbl">Supplier</div><div class="lv" id="p-sup">—</div></div>
+              <div class="lf"><div class="lk">Cust</div><div class="lv" id="p-cust" style="color:var(--navy)">—</div></div>
               <div class="lf"><div class="lk">Ref No.</div><div class="lv" id="p-ref">—</div></div>
               <div class="lf" id="pw-po"><div class="lk">PO No.</div><div class="lv" id="p-po">—</div></div>
               <div class="lf" id="pw-mc" style="display:none"><div class="lk">M/C</div><div class="lv" id="p-mc">—</div></div>
@@ -832,7 +810,6 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
           </div>
         </div>
 
-        <!-- ── STICKER 100×50mm TEMPLATE ── -->
         <div id="tpl-stk" style="display:none">
           <div class="scard100" id="scard-tpl">
             <div class="sc-hdr">
@@ -858,6 +835,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
                   <div class="sc-f" id="sw-roll"><div class="sc-k">Roll</div><div class="sc-v" id="s-roll">—</div></div>
                   <div class="sc-f" id="sw-pack" style="display:none"><div class="sc-k">Pack</div><div class="sc-v" id="s-pack">—</div></div>
                   <div class="sc-f"><div class="sc-k" id="s-sup-lbl">Supplier</div><div class="sc-v" id="s-sup">—</div></div>
+                  <div class="sc-f"><div class="sc-k">Cust</div><div class="sc-v" id="s-cust" style="color:var(--navy)">—</div></div>
                   <div class="sc-f" id="sw-po"><div class="sc-k">PO No.</div><div class="sc-v" id="s-po">—</div></div>
                   <div class="sc-f" id="sw-mc" style="display:none"><div class="sc-k">M/C</div><div class="sc-v" id="s-mc">—</div></div>
                 </div>
@@ -873,17 +851,9 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       </div>
     </div>
 
-  </div><!-- end rpanel -->
+  </div><div id="pa"></div>
 
-  <!-- Print area (invisible until print) -->
-  <div id="pa"></div>
-
-</div><!-- end gen-page -->
-
-<!-- ═══════════════════════════════════════════
-     PAGE: SETTINGS
-═══════════════════════════════════════════ -->
-<div id="set-page" class="setpage">
+</div><div id="set-page" class="setpage">
   <div class="scard">
     <h2>🔗 แหล่งข้อมูลสินค้า (Google Sheets)</h2>
     <p>วางลิงก์ <strong>Published CSV</strong> — ข้อมูลจะถูกโหลดและ Cache ไว้<br>Partner ค้นหาได้แต่ <strong>ไม่เห็นรายการทั้งหมด</strong></p>
@@ -897,9 +867,9 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
     </div>
     <div id="gs-status" style="font-size:11px;font-weight:600;margin-top:7px;color:var(--muted)">— ยังไม่ได้ตั้งค่า</div>
     <div class="fmtbox">
-      <div style="font-weight:700;margin-bottom:5px">📋 รูปแบบ Google Sheets (Column A→E)</div>
-      <div><span class="c">A</span>: Part No. &nbsp;<span class="c">B</span>: Product Name &nbsp;<span class="c">C</span>: RM หรือ FG &nbsp;<span class="c">D</span>: Unit &nbsp;<span class="c">E</span>: Supplier/Customer</div>
-      <div style="margin-top:5px;color:var(--muted);font-size:10px">แถว 1 = Header (ข้ามอัตโนมัติ) · ตัวอย่าง: ABT-P-0001, ERNI 084315, FG, Pcs, Erni</div>
+      <div style="font-weight:700;margin-bottom:5px">📋 รูปแบบ Google Sheets (Column A→F)</div>
+      <div><span class="c">A</span>: Part No. &nbsp;<span class="c">B</span>: Product Name &nbsp;<span class="c">C</span>: RM หรือ FG &nbsp;<span class="c">D</span>: Unit &nbsp;<span class="c">E</span>: Supplier/Customer &nbsp;<span class="c">F</span>: รหัสลูกค้า (Cust)</div>
+      <div style="margin-top:5px;color:var(--muted);font-size:10px">แถว 1 = Header (ข้ามอัตโนมัติ)</div>
     </div>
     <div style="margin-top:14px;padding:11px 13px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:7px;font-size:12px;color:#0369a1;line-height:2">
       <strong>วิธี Publish Google Sheets เป็น CSV</strong><br>
@@ -930,9 +900,6 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
-     PAGE: DOCS
-═══════════════════════════════════════════ -->
 <div id="doc-page" class="docpage">
   <div class="dcard">
     <h2>📋 Print Queue — วิธีใช้งาน</h2>
@@ -1015,12 +982,8 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
 
 <div id="toast"></div>
 
-<!-- ═══════════════════════════════════════════
-     JAVASCRIPT
-═══════════════════════════════════════════ -->
 <script>
 'use strict';
-
 /* ── Storage keys ── */
 const KEY_URL      = 'wms_url_v6';
 const KEY_CACHE    = 'wms_cache_v6';
@@ -1028,14 +991,13 @@ const KEY_LOCAL    = 'wms_local_v6';
 const KEY_CO       = 'wms_co_v6';
 const KEY_PMODE    = 'wms_pmode_v62';
 const KEY_DPI      = 'wms_dpi_v62';
-const KEY_FS       = 'wms_fs_v65';   /* ✅ NEW v6.5: font scale */
+const KEY_FS       = 'wms_fs_v65';
 
 /* Per-page counts by label size */
 const PER_PAGE_MINI = 15;
 const PER_PAGE_STK  = 10;
 
 const TODAY = new Date().toLocaleDateString('en-GB');
-
 /* ── State ── */
 let GS    = [];
 let LOC   = [];
@@ -1046,7 +1008,8 @@ let EDIT_QID = null;
 let PRINT_MODE = 'a4';
 let THERMAL_DPI = 203;
 let SUP_TOUCHED = false;
-let FONT_SCALE  = 1.0;   /* ✅ NEW v6.5: label font scale (0.7–1.4) */
+let CUST_TOUCHED = false;
+let FONT_SCALE  = 1.0;   
 
 /* ═══════════════ INIT ═══════════════ */
 window.addEventListener('DOMContentLoaded', async () => {
@@ -1063,7 +1026,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   THERMAL_DPI = parseInt(localStorage.getItem(KEY_DPI) || '203');
   applyPrintModeUI(false);
 
-  /* ✅ Restore font scale */
+  /* Restore font scale */
   FONT_SCALE = parseFloat(localStorage.getItem(KEY_FS) || '1.0');
   setFontScale(FONT_SCALE);
 
@@ -1083,12 +1046,10 @@ function setPrintMode(mode) {
 
 function applyPrintModeUI(doPreview) {
   const isThermal = PRINT_MODE === 'thermal';
-
   document.getElementById('pm-a4').className       = 'pmode-btn' + (isThermal ? '' : ' active-a4');
   document.getElementById('pm-thermal').className  = 'pmode-btn' + (isThermal ? ' active-thermal' : '');
 
   document.getElementById('dpi-hint').classList.toggle('on', isThermal);
-
   if (isThermal) {
     document.getElementById('ls-stk').checked = true;
     document.getElementById('c-qr').checked   = true;
@@ -1113,21 +1074,24 @@ function selDpi(el) {
 }
 
 /* ═══════════════════════════════════════════
-   ★ FONT SCALE — v6.5
-   ปรับ font-size ทีละ element เท่านั้น
-   กรอบ / QR / padding คงเดิมทั้งบนจอและพิมพ์จริง
+   ★ FONT SCALE 
 ═══════════════════════════════════════════ */
 function applyScaleToLabel(el, scale) {
-  el.style.zoom = '';   /* ล้าง zoom เก่า (ถ้ามี) */
+  el.style.zoom = '';
   const S = (sel, base) => el.querySelectorAll(sel).forEach(c => {
     c.style.fontSize = (base * scale).toFixed(1) + 'px';
   });
   if (el.classList.contains('scard100')) {
-    S('.sc-co',          8.5);  S('.sc-badge',   7);
-    S('.sc-name',        10);   S('.sc-k',        6.5);
-    S('.sc-v:not(.big)', 9);    S('.sc-v.big',    12);
-    S('.sc-unit',        7);    S('.sc-qrlbl',    5.5);
-    S('.sc-codetype',    6.5);  S('.sc-ft',       5.5);
+    S('.sc-co',          8.5);
+    S('.sc-badge',       7);
+    S('.sc-name',        10);
+    S('.sc-k',           6.5);
+    S('.sc-v:not(.big)', 9);    
+    S('.sc-v.big',       12);
+    S('.sc-unit',        7);    
+    S('.sc-qrlbl',       5.5);
+    S('.sc-codetype',    6.5);
+    S('.sc-ft',          5.5);
     S('.sc-ft span',     5.5);
   } else {
     S('.lco',    8);   S('.lbadge', 7);   S('.lk',     7);
@@ -1139,28 +1103,20 @@ function applyScaleToLabel(el, scale) {
 function setFontScale(val) {
   FONT_SCALE = Math.max(0.7, Math.min(1.4, parseFloat(val)));
   localStorage.setItem(KEY_FS, FONT_SCALE);
-
-  /* sync slider + percentage display */
   const slider = document.getElementById('fs-slider');
   const pctEl  = document.getElementById('fs-pct');
   if (slider) {
     slider.value = FONT_SCALE;
-    /* update slider track fill via CSS custom property */
     const pct = ((FONT_SCALE - 0.7) / (1.4 - 0.7) * 100).toFixed(1);
     slider.style.setProperty('--pct', pct + '%');
   }
   if (pctEl) pctEl.textContent = Math.round(FONT_SCALE * 100) + '%';
-
-  /* apply to both preview templates immediately */
   const mini = document.getElementById('lcard-tpl');
   const stk  = document.getElementById('scard-tpl');
   if (mini) applyScaleToLabel(mini, FONT_SCALE);
   if (stk)  applyScaleToLabel(stk,  FONT_SCALE);
-
-  /* highlight nearest preset button */
   const presets = [0.75, 0.85, 1.0, 1.15, 1.3];
-  const nearest = presets.reduce((a, b) =>
-    Math.abs(b - FONT_SCALE) < Math.abs(a - FONT_SCALE) ? b : a);
+  const nearest = presets.reduce((a, b) => Math.abs(b - FONT_SCALE) < Math.abs(a - FONT_SCALE) ? b : a);
   document.querySelectorAll('.fs-pre').forEach(b => {
     b.classList.toggle('active', Math.abs(parseFloat(b.dataset.fs) - nearest) < 0.001);
   });
@@ -1183,7 +1139,6 @@ function onLsizeChange() {
   document.getElementById('tpl-mini').style.display = isStk ? 'none' : '';
   document.getElementById('tpl-stk').style.display  = isStk ? '' : 'none';
   if (isStk) document.getElementById('c-qr').checked = true;
-
   let pvLabel;
   if (isThermal) {
     pvLabel = '👁️ ตัวอย่าง Thermal 100×50mm (1 ดวง / รอบพิมพ์)';
@@ -1216,7 +1171,6 @@ const PROXIES = [
   u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
   u => `https://thingproxy.freeboard.io/fetch/${u}`,
 ];
-
 async function fetchCSV(rawUrl) {
   let url = rawUrl.trim();
   if (url.includes('/pubhtml')) url = url.split('/pubhtml')[0] + '/pub?output=csv';
@@ -1274,13 +1228,15 @@ function parseCSV(csv) {
     const type = cl(c[2]).toUpperCase() === 'FG' ? 'FG' : 'RM';
     const unit = cl(c[3]) || 'Kgs';
     const sup  = cl(c[4]) || '';
-    if (part && name) rows.push({ part, name, type, unit, sup, src: 'gs' });
+    const cust = cl(c[5]) || ''; // รองรับคอลัมน์ F (Customer Code)
+    if (part && name) rows.push({ part, name, type, unit, sup, cust, src: 'gs' });
   }
   return rows;
 }
 function cl(s) { return (s || '').trim().replace(/^"+|"+$/g, '').trim(); }
 function splitLine(line) {
-  const r = []; let cur = ''; let q = false;
+  const r = []; let cur = '';
+  let q = false;
   for (const c of line) { if (c === '"') { q = !q; } else if (c === ',' && !q) { r.push(cur); cur = ''; } else { cur += c; } }
   r.push(cur); return r;
 }
@@ -1304,7 +1260,7 @@ function handleCSVFileUpload(event) {
     try {
       const csv  = e.target.result;
       const rows = parseCSV(csv);
-      if (!rows.length) throw new Error('ไม่พบข้อมูลในไฟล์ — ตรวจสอบ Format (Column A→E)');
+      if (!rows.length) throw new Error('ไม่พบข้อมูลในไฟล์ — ตรวจสอบ Format (Column A→F)');
       GS = rows;
       localStorage.setItem(KEY_CACHE, JSON.stringify(GS));
       statusEl.innerHTML = `✅ โหลดจากไฟล์สำเร็จ <strong>${GS.length} รายการ</strong> — บันทึกเรียบร้อย`;
@@ -1340,705 +1296,4 @@ function searchProd(q) {
 
 /* ═══════════════ AUTOCOMPLETE ═══════════════ */
 function onPartInput() {
-  const q = document.getElementById('f-part').value;
-  AC = searchProd(q); ACI = -1;
-  const ex = findProd(q);
-  if (ex) autoFill(ex); else clearFill();
-  renderDrop(q); preview();
-}
-
-function renderDrop(q) {
-  const dd = document.getElementById('acdrop');
-  if (!q.trim()) { dd.className = 'acdrop'; dd.innerHTML = ''; return; }
-  if (!AC.length) {
-    dd.innerHTML = `<div class="acnone">ไม่พบ "<b>${esc(q)}</b>" — กด <b style="color:var(--green)">+</b> เพื่อเพิ่มเอง</div>`;
-    dd.className = 'acdrop on'; return;
-  }
-  dd.innerHTML = AC.map((p, i) => `
-    <div class="aci" onmousedown="selProd(${i})">
-      <div class="aci-p">${hl(p.part, q)}</div>
-      <div class="aci-n">${hl(p.name, q)}</div>
-      ${p.sup ? `<div class="aci-sup">🏢 ${esc(p.sup)}</div>` : ''}
-      <div class="aci-tags">
-        <span class="atag ${p.type.toLowerCase()}">${p.type}</span>
-        ${p.src === 'local' ? '<span class="atag loc">Local</span>' : ''}
-      </div>
-    </div>`).join('');
-  dd.className = 'acdrop on';
-}
-
-function hl(t, q) {
-  const i = t.toLowerCase().indexOf(q.toLowerCase());
-  if (i < 0) return esc(t);
-  return esc(t.slice(0, i)) + `<mark class="hl">${esc(t.slice(i, i + q.length))}</mark>` + esc(t.slice(i + q.length));
-}
-
-function onPartKey(e) {
-  const items = document.getElementById('acdrop').querySelectorAll('.aci');
-  if (!items.length) return;
-  if (e.key === 'ArrowDown') { e.preventDefault(); ACI = Math.min(ACI + 1, items.length - 1); updAcFocus(items); }
-  else if (e.key === 'ArrowUp') { e.preventDefault(); ACI = Math.max(ACI - 1, 0); updAcFocus(items); }
-  else if (e.key === 'Enter' && ACI >= 0) { e.preventDefault(); selProd(ACI); }
-  else if (e.key === 'Escape') closeDrop();
-}
-function updAcFocus(items) {
-  items.forEach((el, i) => el.classList.toggle('sel', i === ACI));
-  if (ACI >= 0) items[ACI].scrollIntoView({ block: 'nearest' });
-}
-function selProd(i) {
-  const p = AC[i]; if (!p) return;
-  document.getElementById('f-part').value = p.part;
-  autoFill(p); closeDrop(); preview();
-}
-
-function autoFill(p) {
-  const n = document.getElementById('f-name');
-  n.value = p.name; n.classList.add('name-ok');
-  document.getElementById('afbadge').style.display = 'inline';
-  document.getElementById('f-type').value = p.type; applyTypeUI(false);
-  const us = document.getElementById('f-unit');
-  if ([...us.options].map(o => o.value).includes(p.unit)) us.value = p.unit;
-
-  const supEl   = document.getElementById('f-sup');
-  const supBadge = document.getElementById('afbadge-sup');
-  if (!SUP_TOUCHED) {
-    supEl.value = p.sup || '';
-    if (p.sup) {
-      supEl.classList.add('sup-ok');
-      supBadge.style.display = 'inline';
-    } else {
-      supEl.classList.remove('sup-ok');
-      supBadge.style.display = 'none';
-    }
-  }
-}
-function clearFill() {
-  const n = document.getElementById('f-name');
-  n.value = ''; n.classList.remove('name-ok');
-  document.getElementById('afbadge').style.display = 'none';
-  if (!SUP_TOUCHED) {
-    const supEl = document.getElementById('f-sup');
-    supEl.value = '';
-    supEl.classList.remove('sup-ok');
-    document.getElementById('afbadge-sup').style.display = 'none';
-  }
-}
-
-function onSupInput() {
-  SUP_TOUCHED = true;
-  document.getElementById('f-sup').classList.remove('sup-ok');
-  document.getElementById('afbadge-sup').style.display = 'none';
-  preview();
-}
-
-function closeDrop() { document.getElementById('acdrop').className = 'acdrop'; ACI = -1; }
-document.addEventListener('click', e => { if (!e.target.closest('.acwrap')) closeDrop(); });
-
-/* ═══════════════ MODAL ═══════════════ */
-function openModal() {
-  document.getElementById('m-part').value = document.getElementById('f-part').value.trim();
-  document.getElementById('m-name').value = '';
-  document.getElementById('m-sup').value  = document.getElementById('f-sup').value || '';
-  document.getElementById('merr').style.display = 'none';
-  onModalTypeChange();
-  document.getElementById('modal').classList.add('on');
-  setTimeout(() => document.getElementById('m-name').focus(), 80);
-}
-function closeModal() { document.getElementById('modal').classList.remove('on'); }
-
-function onModalTypeChange() {
-  const isFG = document.getElementById('m-type').value === 'FG';
-  document.getElementById('m-sup-lbl').textContent = isFG ? 'Customer' : 'Supplier';
-  document.getElementById('m-sup').placeholder = isFG ? 'ชื่อลูกค้า (Customer)' : 'ชื่อ Supplier';
-}
-
-function saveLocalProduct() {
-  const part = (document.getElementById('m-part').value || '').trim().toUpperCase();
-  const name = (document.getElementById('m-name').value || '').trim();
-  const type = document.getElementById('m-type').value;
-  const unit = document.getElementById('m-unit').value;
-  const sup  = (document.getElementById('m-sup').value || '').trim();
-  const err  = document.getElementById('merr');
-  if (!part) { err.textContent = 'กรุณาใส่ Part No.'; err.style.display = 'block'; return; }
-  if (!name) { err.textContent = 'กรุณาใส่ชื่อสินค้า'; err.style.display = 'block'; return; }
-  LOC = LOC.filter(p => p.part.toUpperCase() !== part);
-  LOC.unshift({ part, name, type, unit, sup, src: 'local' });
-  localStorage.setItem(KEY_LOCAL, JSON.stringify(LOC));
-  closeModal();
-  document.getElementById('f-part').value = part;
-  SUP_TOUCHED = false;
-  autoFill({ part, name, type, unit, sup, src: 'local' });
-  preview(); updateStats();
-  showToast(`✅ เพิ่ม "${name}" เรียบร้อย`);
-}
-
-/* ═══════════════ TYPE UI ═══════════════ */
-function onTypeChange() { applyTypeUI(true); }
-function applyTypeUI(doPreview = true) {
-  const isFG = document.getElementById('f-type').value === 'FG';
-  document.getElementById('wrap-roll').style.display = isFG ? 'none' : '';
-  document.getElementById('wrap-pack').style.display = isFG ? '' : 'none';
-  document.getElementById('pw-roll').style.display   = isFG ? 'none' : '';
-  document.getElementById('pw-pack').style.display   = 'none';
-  document.getElementById('fg-mc').style.display     = isFG ? 'block' : 'none';
-  document.getElementById('pw-mc').style.display     = isFG ? '' : 'none';
-  document.getElementById('sw-roll').style.display   = isFG ? 'none' : '';
-  document.getElementById('sw-pack').style.display   = 'none';
-  document.getElementById('sw-mc').style.display     = isFG ? '' : 'none';
-
-  const supLabel = isFG ? 'Customer' : 'Supplier';
-  const supBadgeDisplay = document.getElementById('afbadge-sup') && document.getElementById('afbadge-sup').style.display === 'inline' ? 'inline' : 'none';
-  const supLabelHtml = `${supLabel} <span class="afbadge" id="afbadge-sup" style="display:${supBadgeDisplay}">✓ DB</span>`;
-  document.getElementById('f-sup-lbl').innerHTML    = supLabelHtml;
-  document.getElementById('f-sup').placeholder      = isFG ? 'ชื่อลูกค้า (Customer)' : 'ชื่อ Supplier';
-  document.getElementById('p-sup-lbl').textContent  = supLabel;
-  document.getElementById('s-sup-lbl').textContent  = supLabel;
-
-  document.getElementById('wrap-po').style.display  = isFG ? 'none' : '';
-  document.getElementById('pw-po').style.display     = isFG ? 'none' : '';
-  document.getElementById('sw-po').style.display     = isFG ? 'none' : '';
-  document.getElementById('po-hidden-note').style.display = isFG ? 'block' : 'none';
-
-  const badgeText = `QC · ${isFG ? 'FG' : 'RM'}`;
-  document.getElementById('p-badge').textContent = badgeText;
-  document.getElementById('p-badge').className   = 'lbadge' + (isFG ? ' fg' : '');
-  document.getElementById('s-badge').textContent = badgeText;
-  document.getElementById('s-badge').className   = 'sc-badge' + (isFG ? ' fg' : '');
-  document.getElementById('split-opt').textContent = isFG ? '✂️ แยกตามแพ็ค (หลายดวง)' : '✂️ แยกตามม้วน (หลายดวง)';
-  if (doPreview) preview();
-}
-
-/* ═══════════════ BARCODE / QR ═══════════════ */
-function codeType() { return document.getElementById('c-qr').checked ? 'qr' : 'bc'; }
-
-function renderQR(container, text, size) {
-  container.innerHTML = '';
-  if (!text) return;
-  try {
-    new QRCode(container, {
-      text, width: size, height: size,
-      colorDark: '#0f172a', colorLight: '#ffffff',
-      correctLevel: QRCode.CorrectLevel.M
-    });
-  } catch (e) { console.warn('QR:', e); }
-}
-
-function applyCode(svgEl, qrEl, str, forPrint, qrSize) {
-  const isQR = codeType() === 'qr';
-  svgEl.style.display = isQR ? 'none' : 'block';
-  qrEl.style.display  = isQR ? 'flex'  : 'none';
-  if (isQR) {
-    renderQR(qrEl, str, qrSize || 80);
-  } else if (str) {
-    try {
-      JsBarcode(svgEl, str, {
-        format: 'CODE128', lineColor: forPrint ? '#000' : '#0f172a',
-        width: 1.2, height: forPrint ? 22 : 28, displayValue: false, margin: 3
-      });
-    } catch { svgEl.innerHTML = ''; }
-  } else { svgEl.innerHTML = ''; }
-}
-
-/* ═══════════════ BUILD DATA STRING ═══════════════ */
-function mkStr(part, lot, qty, unit, rolls, ref, po) {
-  return [part, lot, qty, unit, rolls, ref, po].map(v => String(v || '').trim()).join('|').replace(/\|+$/, '');
-}
-
-/* ═══════════════ LIVE PREVIEW ═══════════════ */
-function preview() {
-  const isFG  = document.getElementById('f-type').value === 'FG';
-  const isStk = labelSize() === 'stk';
-  const co    = fv('f-co'), part = fv('f-part'), lot = fv('f-lot');
-  const qty   = fv('f-qty'), unit = fv('f-unit');
-  const rolls = fv('f-rolls') || '1', packs = fv('f-packs') || '1';
-  const name  = document.getElementById('f-name').value;
-  const sup   = fv('f-sup'), mc = fv('f-mc'), ref = fv('f-ref'), po = fv('f-po');
-  if (co) localStorage.setItem(KEY_CO, co);
-  const str = mkStr(part, lot, qty, unit, isFG ? packs : rolls, ref, po);
-
-  /* Mini template */
-  tx('p-co',   co || 'Company'); tx('p-name', name || '—'); tx('p-part', part || '—');
-  tx('p-lot',  lot || '—'); tx('p-qty', qty || '0'); tx('p-unit', unit);
-  tx('p-roll', rolls); tx('p-pack', packs);
-  tx('p-sup',  sup || '—'); tx('p-mc', mc || '—');
-  tx('p-ref',  ref || '—'); tx('p-po', po || '—');
-  tx('p-bclbl', str || '—');
-  document.getElementById('p-codetype').textContent = codeType() === 'qr' ? 'QR CODE' : 'BARCODE';
-  if (!isStk) applyCode(document.getElementById('p-bc'), document.getElementById('p-qr'), str, false);
-
-  /* Sticker template */
-  tx('s-co',   co || 'Company'); tx('s-name', name || '—'); tx('s-part', part || '—');
-  tx('s-lot',  lot || '—');
-  document.getElementById('s-qty').innerHTML = `${qty || '0'} <span class="sc-unit">${unit}</span>`;
-  tx('s-roll', rolls); tx('s-pack', packs);
-  tx('s-sup',  sup || '—'); tx('s-mc', mc || '—'); tx('s-po', po || '—');
-  tx('s-bclbl', str || '—');
-  const ctLabel = codeType() === 'qr' ? 'QR CODE' : 'BARCODE';
-  document.getElementById('s-codetype').textContent = ctLabel;
-  document.getElementById('s-ft-code').textContent  = ctLabel;
-  if (isStk) applyCode(document.getElementById('s-bc'), document.getElementById('s-qr'), str, false, 76);
-
-  document.getElementById('ds-str').innerHTML = str
-    ? str.replace(/\|/g, '<span style="color:var(--red)">|</span>')
-    : '—';
-}
-
-/* ═══════════════ COLLECT FORM → label objects ═══════════════ */
-function uid() { return '_' + Math.random().toString(36).slice(2, 10) + Date.now(); }
-
-function collectLabels() {
-  const isFG   = document.getElementById('f-type').value === 'FG';
-  const lsize  = labelSize();
-  const pmode  = PRINT_MODE;
-  const mode   = fv('f-mode');
-  const co     = fv('f-co') || 'Company';
-  const type   = fv('f-type');
-  const code   = codeType();
-  const part   = fv('f-part'), baseLot = fv('f-lot');
-  const totQty = parseFloat(fv('f-qty')) || 0;
-  const unit   = fv('f-unit');
-  const rollsN = parseInt(fv('f-rolls')) || 1;
-  const packsN = parseInt(fv('f-packs')) || 1;
-  const splitN = isFG ? packsN : rollsN;
-  const sup    = fv('f-sup'), ref = fv('f-ref'), po = fv('f-po'), mc = fv('f-mc');
-  const name   = document.getElementById('f-name').value;
-  const qid    = uid();
-  const labels = [];
-
-  if (mode === 'split' && splitN > 1) {
-    const baseQty  = Math.floor(totQty / splitN);
-    const remainder = Math.round(totQty - (baseQty * splitN));
-    for (let i = 1; i <= splitN; i++) {
-      const qtyPer = String(baseQty + (i <= remainder ? 1 : 0));
-      /* lot แสดงบน Label = Lot สะอาด ไม่มี suffix */
-      const lot   = baseLot;
-      const disp  = isFG ? `แพ็ค ${i}/${splitN}` : `ม้วน ${i}/${splitN}`;
-      /* ✅ FIX v6.5: ฝัง suffix ลงใน bcLot เพื่อให้ QR/Barcode ไม่ซ้ำกันแม้ Qty หารลงตัว
-         bcLot ที่ฝังใน QR = "690619-P1", "690619-P2"… (FG) หรือ "690619-R1"… (RM)
-         lot ที่แสดงบน Label ยังเป็น "690619" สะอาดตามเดิม — ไม่มีอะไรเปลี่ยนบนหน้า Label
-         พารามิเตอร์ตำแหน่งที่ 5 (roll count) ใส่ i แทน 1 คงที่ เพื่อความถูกต้องเพิ่มเติม */
-      const suffix = isFG ? `P${i}` : `R${i}`;
-      const bcLot  = baseLot ? `${baseLot}-${suffix}` : suffix;
-      const bcStr  = mkStr(part, bcLot, qtyPer, unit, i, ref, po);
-      labels.push({ _id: uid(), _qid: qid, lsize, pmode, co, type, code, part, lot, qty: qtyPer, unit, rolls: disp, pack: disp, sup, ref, po, mc, name, bcStr, date: TODAY });
-    }
-  } else {
-    const bcStr = mkStr(part, baseLot, totQty, unit, isFG ? packsN : rollsN, ref, po);
-    const disp  = isFG ? String(packsN) : String(rollsN);
-    labels.push({ _id: uid(), _qid: qid, lsize, pmode, co, type, code, part, lot: baseLot, qty: String(totQty), unit, rolls: disp, pack: disp, sup, ref, po, mc, name, bcStr, date: TODAY });
-  }
-  return labels;
-}
-
-/* ═══════════════ QUEUE OPERATIONS ═══════════════ */
-function addToQueue() {
-  const labels = collectLabels();
-  if (!labels[0].part) { showToast('⚠️ กรุณาใส่ Part No.'); return; }
-
-  if (EDIT_QID !== null) {
-    const insertAt = QUEUE.findIndex(l => l._qid === EDIT_QID);
-    QUEUE = QUEUE.filter(l => l._qid !== EDIT_QID);
-    const newQid = uid();
-    labels.forEach((l, i) => { l._qid = newQid; QUEUE.splice(Math.min(insertAt + i, QUEUE.length), 0, l); });
-    showToast('✅ บันทึกการแก้ไขเรียบร้อย');
-    exitEditMode();
-  } else {
-    labels.forEach(l => QUEUE.push(l));
-    showToast(`✅ เพิ่ม ${labels.length} ดวง · รวม ${QUEUE.length} ดวงในคิว`);
-  }
-  renderQueue(); resetFormPartial();
-}
-
-function editItem(qid) {
-  const items = QUEUE.filter(l => l._qid === qid);
-  if (!items.length) return;
-  const lbl = items[0];
-  EDIT_QID = qid;
-  document.getElementById('f-co').value   = lbl.co;
-  document.getElementById('f-type').value = lbl.type;
-  document.getElementById('f-part').value = lbl.part;
-  document.getElementById('f-lot').value  = lbl.lot;
-  document.getElementById('f-name').value = lbl.name || '';
-  if (lbl.name) { document.getElementById('f-name').classList.add('name-ok'); document.getElementById('afbadge').style.display = 'inline'; }
-  const cnt = items.length;
-  document.getElementById('f-qty').value   = String(Math.round(parseFloat(lbl.qty) * cnt));
-  document.getElementById('f-unit').value  = lbl.unit;
-  document.getElementById('f-sup').value   = lbl.sup || '';
-  SUP_TOUCHED = true;
-  document.getElementById('f-ref').value   = lbl.ref || '';
-  document.getElementById('f-po').value    = lbl.po  || '';
-  document.getElementById('f-mc').value    = lbl.mc  || '';
-  const isMulti = cnt > 1;
-  if (lbl.type === 'FG') { document.getElementById('f-packs').value = isMulti ? cnt : (parseInt(lbl.pack) || 1); }
-  else { document.getElementById('f-rolls').value = isMulti ? cnt : (parseInt(lbl.rolls) || 1); }
-  document.getElementById('f-mode').value = isMulti ? 'split' : 'single';
-  document.getElementById(lbl.code === 'qr' ? 'c-qr' : 'c-bc').checked = true;
-  document.getElementById(lbl.lsize === 'stk' ? 'ls-stk' : 'ls-mini').checked = true;
-  if (lbl.pmode) { PRINT_MODE = lbl.pmode; applyPrintModeUI(false); }
-  onLsizeChange(); applyTypeUI(false);
-  const idx = QUEUE.findIndex(l => l._qid === qid) + 1;
-  document.getElementById('edit-num').textContent = idx;
-  document.getElementById('editbar').classList.add('on');
-  document.getElementById('etag').style.display = 'inline-flex';
-  document.getElementById('addq-ico').textContent = '💾';
-  document.getElementById('addq-lbl').textContent = 'บันทึกการแก้ไข';
-  document.getElementById('btn-addq').style.background = 'var(--amber)';
-  preview();
-  document.querySelector('.fpanel').scrollIntoView({ behavior: 'smooth' });
-  renderQueue();
-}
-
-function cancelEdit() { exitEditMode(); renderQueue(); }
-function exitEditMode() {
-  EDIT_QID = null;
-  document.getElementById('editbar').classList.remove('on');
-  document.getElementById('etag').style.display = 'none';
-  document.getElementById('addq-ico').textContent = '➕';
-  document.getElementById('addq-lbl').textContent = 'เพิ่มลงรายการพิมพ์';
-  document.getElementById('btn-addq').style.background = 'var(--green)';
-}
-
-function deleteItem(qid) {
-  QUEUE = QUEUE.filter(l => l._qid !== qid);
-  if (EDIT_QID === qid) exitEditMode();
-  renderQueue(); showToast('🗑️ ลบรายการแล้ว');
-}
-
-function clearAll() {
-  if (!QUEUE.length) return;
-  if (!confirm(`ล้างรายการทั้งหมด ${QUEUE.length} ดวง?`)) return;
-  QUEUE = []; exitEditMode(); renderQueue(); showToast('🗑️ ล้างทั้งหมดแล้ว');
-}
-
-/* ═══════════════ RENDER QUEUE ═══════════════ */
-function renderQueue() {
-  const body  = document.getElementById('q-body');
-  const total = QUEUE.length;
-  const miniQ    = QUEUE.filter(l => l.lsize !== 'stk');
-  const stkA4Q   = QUEUE.filter(l => l.lsize === 'stk' && l.pmode !== 'thermal');
-  const thermalQ = QUEUE.filter(l => l.pmode === 'thermal');
-  const pages =
-    Math.ceil(miniQ.length / PER_PAGE_MINI) +
-    Math.ceil(stkA4Q.length / PER_PAGE_STK) +
-    thermalQ.length;
-
-  document.getElementById('q-cnt').textContent = `${total} ดวง`;
-  document.getElementById('q-pg').textContent  = `${pages} หน้า`;
-  updateTabBadge(total);
-
-  if (!total) {
-    body.innerHTML = `<div class="qempty"><div class="qempty-icon">📭</div><p>ยังไม่มีรายการ<br>กรอกข้อมูลแล้วกด <strong style="color:var(--green)">เพิ่มลงรายการพิมพ์</strong></p></div>`;
-    document.getElementById('q-prog').style.display = 'none';
-    return;
-  }
-
-  const pp = perPage();
-  const slotFilled = total % pp || pp;
-  document.getElementById('q-prog').style.display = '';
-  document.getElementById('q-bar').style.width = (slotFilled / pp * 100) + '%';
-  document.getElementById('q-prog-txt').textContent = PRINT_MODE === 'thermal'
-    ? `${total} ดวง = ${total} หน้าพิมพ์`
-    : `${slotFilled} / ${pp}  (หน้า ${pages})`;
-
-  let html = '';
-  let curPage = 0;
-  const seenQid = new Set();
-
-  QUEUE.forEach((lbl, i) => {
-    const isThermalLbl = lbl.pmode === 'thermal';
-    const pp2 = isThermalLbl ? 1 : (lbl.lsize === 'stk' ? PER_PAGE_STK : PER_PAGE_MINI);
-    const page = Math.floor(i / pp2) + 1;
-    if (page !== curPage) {
-      curPage = page;
-      const cnt = isThermalLbl ? 1 : Math.min(pp2, total - (page - 1) * pp2);
-      const sizeLabel = isThermalLbl ? '🔖 Thermal 100×50' : (lbl.lsize === 'stk' ? '📦 A4 100×50mm' : '🏷️ Mini A4');
-      html += `<div class="pg-hdr"><span>📄 หน้า ${page} ${sizeLabel}</span><span>${cnt} ดวง</span></div>`;
-    }
-    const isEdit  = lbl._qid === EDIT_QID;
-    const isFirst = !seenQid.has(lbl._qid);
-    if (isFirst) seenQid.add(lbl._qid);
-    html += `<div class="qrow${isEdit ? ' editing' : ''}">
-      <div class="qrow-num">${i + 1}</div>
-      <div class="qrow-info">
-        <div class="qrow-name">${esc(lbl.name || lbl.part || '—')}</div>
-        <div class="qrow-meta">
-          <span>${esc(lbl.part || '—')}</span>·
-          <span>Lot: ${esc(lbl.lot || '—')}</span>·
-          <span>${esc(lbl.qty)} ${esc(lbl.unit)}</span>
-          <span class="qtag ${lbl.type.toLowerCase()}">${lbl.type}</span>
-          ${lbl.pmode === 'thermal' ? '<span class="qtag thermal">🔖 Thermal</span>' : (lbl.lsize === 'stk' ? '<span class="qtag stk">A4·100×50</span>' : '')}
-          <span style="font-size:9px;color:${lbl.code === 'qr' ? 'var(--purple)' : 'var(--blue)'}">${lbl.code === 'qr' ? '⊞QR' : '▌BC'}</span>
-        </div>
-      </div>
-      <div class="qrow-acts">
-        ${isFirst ? `<button class="btn-qa ed" onclick="editItem('${lbl._qid}')" title="แก้ไข">✏️</button>` : ''}
-        ${isFirst ? `<button class="btn-qa dl" onclick="deleteItem('${lbl._qid}')" title="ลบ">🗑️</button>` : ''}
-      </div>
-    </div>`;
-  });
-
-  body.innerHTML = html;
-}
-
-function updateTabBadge(n) {
-  const tab = document.querySelector('[data-page=gen]');
-  if (!tab) return;
-  let b = tab.querySelector('.qbadge');
-  if (n > 0) {
-    if (!b) { b = document.createElement('span'); b.className = 'qbadge'; tab.appendChild(b); }
-    b.textContent = n;
-  } else { if (b) b.remove(); }
-}
-
-/* ═══════════════ RESET FORM (partial) ═══════════════ */
-function resetFormPartial() {
-  document.getElementById('f-lot').value   = '';
-  document.getElementById('f-qty').value   = '500';
-  document.getElementById('f-rolls').value = '1';
-  document.getElementById('f-packs').value = '1';
-  document.getElementById('f-sup').value   = '';
-  document.getElementById('f-sup').classList.remove('sup-ok');
-  document.getElementById('afbadge-sup').style.display = 'none';
-  SUP_TOUCHED = false;
-  document.getElementById('f-ref').value   = '';
-  document.getElementById('f-po').value    = '';
-  document.getElementById('f-mc').value    = '';
-  preview();
-}
-
-/* ═══════════════════════════════════════════
-   ★ PRINT — separates A4 and Thermal
-═══════════════════════════════════════════ */
-async function doPrint() {
-  if (!QUEUE.length) { showToast('⚠️ ยังไม่มีรายการ'); return; }
-  const pa = document.getElementById('pa');
-  pa.innerHTML = '';
-  const qrTodo = [];
-
-  const miniItems    = QUEUE.filter(l => l.lsize !== 'stk' && l.pmode !== 'thermal');
-  const stkA4Items   = QUEUE.filter(l => l.lsize === 'stk' && l.pmode !== 'thermal');
-  const thermalItems = QUEUE.filter(l => l.pmode === 'thermal');
-
-  buildMiniPages(pa, miniItems, qrTodo);
-  buildStkA4Pages(pa, stkA4Items, qrTodo);
-  buildThermalPages(pa, thermalItems, qrTodo);
-
-  /* ✅ Fix: QRCode() library render Canvas ภายใน แบบ async
-     แทนที่จะ setTimeout คงที่ 400ms (ไม่พอเมื่อมี QR ≥10 ดวง)
-     ใช้วิธี:
-     1. render QR ทุกดวงก่อน → เก็บ canvas element
-     2. รอจนทุก canvas มี width > 0 จริงๆ (requestAnimationFrame loop)
-     3. รอ extra 80ms เผื่อ paint รอบสุดท้าย แล้วค่อย print */
-  for (const { el, text, size } of qrTodo) renderQR(el, text, size);
-
-  injectPageStyle();
-
-  // รวม canvas ทั้งหมดที่ต้องรอ
-  const allCanvas = Array.from(pa.querySelectorAll('canvas'));
-
-  await waitForCanvases(allCanvas);
-
-  window.print();
-}
-
-/* รอจนทุก canvas มี content (width > 0 และ getImageData ไม่ว่าง)
-   timeout สูงสุด 5 วินาที เผื่อ QR จำนวนมาก */
-function waitForCanvases(canvasList, maxWaitMs = 5000) {
-  if (!canvasList.length) return Promise.resolve();
-  return new Promise(resolve => {
-    const deadline = Date.now() + maxWaitMs;
-    function check() {
-      const allReady = canvasList.every(c => c.width > 0 && c.height > 0);
-      if (allReady || Date.now() > deadline) {
-        // extra 80ms เผื่อ paint สุดท้าย
-        setTimeout(resolve, 80);
-      } else {
-        requestAnimationFrame(check);
-      }
-    }
-    requestAnimationFrame(check);
-  });
-}
-
-function injectPageStyle() {
-  const old = document.getElementById('_dyn_page_style');
-  if (old) old.remove();
-  const thermalCount = QUEUE.filter(l => l.pmode === 'thermal').length;
-  const a4Count      = QUEUE.filter(l => l.pmode !== 'thermal').length;
-  let pageSize = 'A4 portrait';
-  if (thermalCount > 0 && a4Count === 0) {
-    pageSize = '100mm 50mm';
-  }
-  const st = document.createElement('style');
-  st.id = '_dyn_page_style';
-  st.textContent = `@media print { @page { size: ${pageSize}; margin: ${pageSize === 'A4 portrait' ? '5mm' : '0mm'}; } }`;
-  document.head.appendChild(st);
-}
-
-function buildMiniPages(pa, items, qrTodo) {
-  const pages = Math.ceil(items.length / PER_PAGE_MINI);
-  for (let p = 0; p < pages; p++) {
-    const pdiv  = document.createElement('div');
-    pdiv.className = 'ppage-mini';
-    const slice = items.slice(p * PER_PAGE_MINI, (p + 1) * PER_PAGE_MINI);
-    slice.forEach((lbl, j) => {
-      const clone = document.getElementById('lcard-tpl').cloneNode(true);
-      clone.id = `pm-${p}-${j}`;
-      const isFG = lbl.type === 'FG';
-      clone.querySelector('#p-co').textContent    = lbl.co;
-      clone.querySelector('#p-name').textContent  = lbl.name  || '—';
-      clone.querySelector('#p-part').textContent  = lbl.part  || '—';
-      clone.querySelector('#p-lot').textContent   = lbl.lot   || '—';
-      clone.querySelector('#p-qty').textContent   = lbl.qty;
-      clone.querySelector('#p-unit').textContent  = lbl.unit;
-      clone.querySelector('#p-roll').textContent  = lbl.rolls || '—';
-      clone.querySelector('#p-pack').textContent  = lbl.pack  || '—';
-      clone.querySelector('#p-sup-lbl').textContent = isFG ? 'Customer' : 'Supplier';
-      clone.querySelector('#p-sup').textContent   = lbl.sup   || '—';
-      clone.querySelector('#p-ref').textContent   = lbl.ref   || '—';
-      clone.querySelector('#p-po').textContent    = lbl.po    || '—';
-      clone.querySelector('#p-mc').textContent    = lbl.mc    || '—';
-      clone.querySelector('#p-date').textContent  = lbl.date  || TODAY;
-      clone.querySelector('#p-bclbl').textContent = lbl.bcStr || '—';
-      clone.querySelector('#p-codetype').textContent = lbl.code === 'qr' ? 'QR CODE' : 'BARCODE';
-      clone.querySelector('#p-badge').textContent = `QC · ${lbl.type}`;
-      clone.querySelector('#p-badge').className   = 'lbadge' + (isFG ? ' fg' : '');
-      clone.querySelector('#pw-roll').style.display = isFG ? 'none' : '';
-      clone.querySelector('#pw-pack').style.display = 'none';
-      clone.querySelector('#pw-po').style.display    = isFG ? 'none' : '';
-      clone.querySelector('#pw-mc').style.display   = isFG ? '' : 'none';
-      const svgEl = clone.querySelector('#p-bc');
-      const qrEl  = clone.querySelector('#p-qr');
-      svgEl.id = `pmv-${p}-${j}`; qrEl.id = `pmr-${p}-${j}`;
-      if (lbl.code === 'qr') {
-        svgEl.style.display = 'none'; qrEl.style.display = 'flex';
-        qrTodo.push({ el: qrEl, text: lbl.bcStr || 'ERROR', size: 50 });
-      } else {
-        svgEl.style.display = 'block'; qrEl.style.display = 'none';
-        try { JsBarcode(svgEl, lbl.bcStr || 'ERROR', { format: 'CODE128', lineColor: '#000', width: 1.2, height: 22, displayValue: false, margin: 3 }); } catch {}
-      }
-      applyScaleToLabel(clone, FONT_SCALE);   /* ✅ font-size only */
-      pdiv.appendChild(clone);
-    });
-    pa.appendChild(pdiv);
-  }
-}
-
-function buildStkA4Pages(pa, items, qrTodo) {
-  const pages = Math.ceil(items.length / PER_PAGE_STK);
-  for (let p = 0; p < pages; p++) {
-    const pdiv  = document.createElement('div');
-    pdiv.className = 'ppage-stk';
-    const slice = items.slice(p * PER_PAGE_STK, (p + 1) * PER_PAGE_STK);
-    slice.forEach((lbl, j) => {
-      const clone = fillStickerClone(lbl, `as-${p}-${j}`, qrTodo, 84);
-      pdiv.appendChild(clone);
-    });
-    pa.appendChild(pdiv);
-  }
-}
-
-function buildThermalPages(pa, items, qrTodo) {
-  items.forEach((lbl, i) => {
-    const pdiv = document.createElement('div');
-    pdiv.className = 'ppage-thermal';
-    const clone = fillStickerClone(lbl, `th-${i}`, qrTodo, 90);
-    pdiv.appendChild(clone);
-    pa.appendChild(pdiv);
-  });
-}
-
-/* Shared helper: fill a scard100 clone */
-function fillStickerClone(lbl, idPrefix, qrTodo, qrSize) {
-  const clone = document.getElementById('scard-tpl').cloneNode(true);
-  clone.id    = `sc-${idPrefix}`;
-  const isFG  = lbl.type === 'FG';
-  clone.querySelector('#s-co').textContent    = lbl.co;
-  clone.querySelector('#s-badge').textContent = `QC · ${lbl.type}`;
-  clone.querySelector('#s-badge').className   = 'sc-badge' + (isFG ? ' fg' : '');
-  clone.querySelector('#s-name').textContent  = lbl.name  || '—';
-  clone.querySelector('#s-part').textContent  = lbl.part  || '—';
-  clone.querySelector('#s-lot').textContent   = lbl.lot   || '—';
-  const qtyDiv = clone.querySelector('#s-qty');
-  qtyDiv.innerHTML = `${lbl.qty} <span class="sc-unit">${lbl.unit}</span>`;
-  clone.querySelector('#s-date').textContent  = lbl.date  || TODAY;
-  clone.querySelector('#s-roll').textContent  = lbl.rolls || '—';
-  clone.querySelector('#s-pack').textContent  = lbl.pack  || '—';
-  clone.querySelector('#s-sup-lbl').textContent = isFG ? 'Customer' : 'Supplier';
-  clone.querySelector('#s-sup').textContent   = lbl.sup   || '—';
-  clone.querySelector('#s-po').textContent    = lbl.po    || '—';
-  clone.querySelector('#s-mc').textContent    = lbl.mc    || '—';
-  clone.querySelector('#s-bclbl').textContent = lbl.bcStr || '—';
-  const ctLabel = lbl.code === 'qr' ? 'QR CODE' : 'BARCODE';
-  clone.querySelector('#s-codetype').textContent = ctLabel;
-  clone.querySelector('#s-ft-code').textContent  = ctLabel;
-  clone.querySelector('#sw-roll').style.display = isFG ? 'none' : '';
-  clone.querySelector('#sw-pack').style.display = 'none';
-  clone.querySelector('#sw-po').style.display    = isFG ? 'none' : '';
-  clone.querySelector('#sw-mc').style.display   = isFG ? '' : 'none';
-  const svgEl = clone.querySelector('#s-bc');
-  const qrEl  = clone.querySelector('#s-qr');
-  svgEl.id = `sv-${idPrefix}`; qrEl.id = `qr-${idPrefix}`;
-  if (lbl.code === 'qr') {
-    svgEl.style.display = 'none'; qrEl.style.display = 'flex';
-    qrTodo.push({ el: qrEl, text: lbl.bcStr || 'ERROR', size: qrSize });
-  } else {
-    svgEl.style.display = 'block'; qrEl.style.display = 'none';
-    try { JsBarcode(svgEl, lbl.bcStr || 'ERROR', { format: 'CODE128', lineColor: '#000', width: 1.4, height: 28, displayValue: false, margin: 3 }); } catch {}
-  }
-  applyScaleToLabel(clone, FONT_SCALE);   /* ✅ font-size only */
-  return clone;
-}
-
-/* ═══════════════ SETTINGS HELPERS ═══════════════ */
-function setBanner(state, msg) {
-  const el = document.getElementById('banner');
-  const sp = document.getElementById('spin-el');
-  const btx = document.getElementById('banner-txt');
-  if (!state) { el.className = 'banner'; return; }
-  el.className = `banner on ${state}`;
-  sp.style.display = state === 'loading' ? '' : 'none';
-  btx.textContent = msg;
-}
-function setDot(cls, lbl) {
-  document.getElementById('hdr-dot').className = 'dot ' + cls;
-  document.getElementById('hdr-ds-lbl').textContent = lbl;
-}
-function updateDsChip() {
-  if (!localStorage.getItem(KEY_URL)) { setDot('', 'ไม่ได้เชื่อมต่อ'); return; }
-  if (GS.length) setDot('ok', `${GS.length} รายการ`);
-  else setDot('err', 'ยังไม่ได้โหลด');
-}
-function setGsStatus(msg, state) {
-  const el = document.getElementById('gs-status');
-  el.textContent = msg;
-  el.style.color = state === 'ok' ? 'var(--green)' : state === 'err' ? 'var(--red)' : 'var(--muted)';
-}
-function updateStats() {
-  const el = document.getElementById('gs-stats');
-  if (!el) return;
-  el.innerHTML = `<div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:6px">
-    <div><b style="font-size:20px;color:var(--blue)">${GS.length}</b><br>Google Sheets</div>
-    <div><b style="font-size:20px;color:var(--green)">${LOC.length}</b><br>Local</div>
-    <div><b style="font-size:20px;color:var(--navy)">${GS.length + LOC.length}</b><br>รวมทั้งหมด</div>
-  </div>`;
-}
-function clearCache() {
-  if (!confirm('ล้าง Cache และข้อมูล Local ทั้งหมด?')) return;
-  localStorage.removeItem(KEY_CACHE); localStorage.removeItem(KEY_LOCAL);
-  GS = []; LOC = []; updateDsChip(); updateStats();
-  showToast('🗑️ ล้าง Cache แล้ว');
-}
-
-/* ═══════════════ UTILITIES ═══════════════ */
-function fv(id) { return (document.getElementById(id) || {}).value || ''; }
-function tx(id, v) { const el = document.getElementById(id); if (el) el.textContent = String(v || ''); }
-function esc(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.style.opacity = '1';
-  clearTimeout(t._t); t._t = setTimeout(() => { t.style.opacity = '0'; }, 2800);
-}
-</script>
-</body>
-</html>
+  const q = document.getElementById('
