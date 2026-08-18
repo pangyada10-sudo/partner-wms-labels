@@ -117,7 +117,7 @@ body{font-family:'Kanit',sans-serif;background:var(--bg);color:var(--text);min-h
 .pmode-badge.a4{background:#dbeafe;color:#1d4ed8}
 .pmode-badge.th{background:#ffedd5;color:#c2410c}
 
-/* Thermal DPI hint */
+/* Thermal DPI hint & Paper size opts */
 .dpi-hint{
   display:none;
   background:#fff7ed;border:1px solid #fed7aa;border-radius:7px;
@@ -134,6 +134,18 @@ body{font-family:'Kanit',sans-serif;background:var(--bg);color:var(--text);min-h
 }
 .dpi-chip:hover{background:#ffedd5}
 .dpi-chip.sel{background:#ea580c;color:#fff;border-color:#ea580c}
+
+/* Industrial options */
+.indus-opts {
+  display: none;
+  background: #f8fafc; border: 1.5px solid var(--border); border-radius: 7px;
+  padding: 8px 11px; margin-bottom: 10px;
+}
+.indus-opts.on { display: block; }
+.indus-opts label.main-lbl {
+  display: block; font-size: 9.5px; font-weight: 700; color: var(--muted);
+  margin-bottom: 6px; text-transform: uppercase;
+}
 
 /* Label size toggle */
 .lsize-toggle{display:flex;border:1.5px solid var(--border);border-radius:7px;overflow:hidden;margin-bottom:10px}
@@ -283,12 +295,12 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
 ═══════════════════════════════════════════ */
 .lcard{background:#fff;border:1px solid #334155;border-radius:4px;width:220px;padding:7px 9px;font-family:'Kanit';flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.08)}
 .lhd{display:flex;align-items:flex-start;justify-content:space-between;padding-bottom:5px;border-bottom:1.5px solid #1e293b;margin-bottom:7px}
-.lco{font-size:8px;font-weight:700;color:#0f172a;line-height:1.2;word-break:break-word;flex:1}
+.lco{font-size:8px;font-weight:700;color:#0f172a;line-height:1.2;flex:1}
 .lbadge{background:#0f172a;color:#fff;font-size:7px;font-weight:700;padding:2px 6px;border-radius:20px;white-space:nowrap;margin-left:4px;flex-shrink:0}
 .lbadge.fg{background:var(--green)}
 .lgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px 6px;margin-bottom:6px}
 .lk{font-size:7px;font-weight:700;color:var(--muted);text-transform:uppercase}
-.lv{font-size:10px;font-weight:700;color:#0f172a;line-height:1.2;word-break:break-all}
+.lv{font-size:10px;font-weight:700;color:#0f172a;line-height:1.2}
 .lf.full{grid-column:1/-1}
 .lf.full .lv{font-size:10px}
 .lqbox{display:flex;align-items:baseline;gap:2px}
@@ -305,14 +317,21 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
 /* ═══════════════════════════════════════════
    STICKER 100×50mm LABEL CARD
 ═══════════════════════════════════════════ */
+/* บังคับตัดคำ ป้องกันข้อความยาวทะลุกรอบ */
+.sc-v, .sc-co, .sc-name, .lv, .lco {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
 .scard100{
   background:#fff;border:1.5px solid #1e293b;border-radius:5px;
-  width:340px;min-height:170px;padding:8px 10px;font-family:'Kanit';
+  width:340px;min-height:170px;padding:10px 12px;font-family:'Kanit';
   flex-shrink:0;box-shadow:0 3px 12px rgba(0,0,0,.1);
   display:flex;flex-direction:column;position:relative;overflow:hidden;
 }
 .sc-hdr{display:flex;align-items:center;justify-content:space-between;padding-bottom:5px;border-bottom:2px solid #0f172a;margin-bottom:6px;flex-shrink:0}
-.sc-co{font-size:8.5px;font-weight:700;color:#0f172a;line-height:1.2;flex:1;word-break:break-word}
+.sc-co{font-size:8.5px;font-weight:700;color:#0f172a;line-height:1.2;flex:1;}
 .sc-badge{font-size:7px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap;margin-left:5px;flex-shrink:0;background:#0f172a;color:#fff}
 .sc-badge.fg{background:var(--green)}
 .sc-body{display:flex;gap:8px;flex:1;min-height:0;align-items:stretch}
@@ -323,10 +342,10 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
 .sc-qrlbl{font-size:5.5px;color:var(--muted);font-family:'JetBrains Mono',monospace;word-break:break-all;text-align:center;margin-top:2px;line-height:1.3}
 .sc-codetype{font-size:6.5px;font-weight:700;color:var(--blue);margin-top:1px}
 .sc-infocol{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0;justify-content:flex-start}
-.sc-name{font-size:10px;font-weight:700;color:#0f172a;line-height:1.25;word-break:break-word;margin-bottom:3px;border-bottom:1px dashed #cbd5e1;padding-bottom:3px}
+.sc-name{font-size:10px;font-weight:700;color:#0f172a;line-height:1.3;margin-bottom:3px;border-bottom:1px dashed #cbd5e1;padding-bottom:3px}
 .sc-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 6px}
 .sc-k{font-size:6.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;line-height:1}
-.sc-v{font-size:9px;font-weight:700;color:#0f172a;line-height:1.2;word-break:break-all}
+.sc-v{font-size:9px;font-weight:700;color:#0f172a;line-height:1.2}
 .sc-v.big{font-size:12px;font-weight:800;color:var(--navy)}
 .sc-v .sc-unit{font-size:7px;font-weight:600;color:var(--muted)}
 .sc-f.span2{grid-column:1/-1}
@@ -437,19 +456,17 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
 
   /* ═══════════════════════════════════════════
      THERMAL ROLL PRINTER MODE
-     Each label = exactly 100mm × 50mm
      1 label per page — no grid, no A4
   ═══════════════════════════════════════════ */
   .ppage-thermal {
     width: 100mm;
-    height: 50mm;
     page-break-after: always;
     overflow: hidden;
   }
   .ppage-thermal:last-child { page-break-after: auto }
   .ppage-thermal .scard100 {
     width: 100mm!important;
-    height: 50mm!important;
+    min-height: 50mm!important;
     box-shadow: none!important;
     border: 0.4pt solid #334155!important;
     border-radius: 0!important;
@@ -565,8 +582,15 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
         <div class="dpi-chip" data-dpi="300" onclick="selDpi(this)">300 DPI<br><span style="font-size:8px;font-weight:400">คมชัด</span></div>
         <div class="dpi-chip" data-dpi="600" onclick="selDpi(this)">600 DPI<br><span style="font-size:8px;font-weight:400">สูงสุด</span></div>
       </div>
-      <div style="margin-top:6px;font-size:10px;color:#9a3412;background:#fff;border-radius:5px;padding:5px 8px;border:1px solid #fed7aa">
-        💡 ตั้งค่า Print Dialog: <strong>Paper size = 100mm × 50mm</strong> · Scale = 100% · Margin = None
+    </div>
+
+    <div class="indus-opts" id="industrial-opts">
+      <label class="main-lbl">ขนาดกระดาษ (Industrial Printer)</label>
+      <div class="stog">
+        <input type="radio" name="paper_size" id="ps-100x50" value="100x50" checked onchange="updatePaperSize()">
+        <label for="ps-100x50">100 × 50 mm</label>
+        <input type="radio" name="paper_size" id="ps-100x75" value="100x75" onchange="updatePaperSize()">
+        <label for="ps-100x75">100 × 75 mm</label>
       </div>
     </div>
 
@@ -991,6 +1015,7 @@ let THERMAL_DPI = 203;
 let SUP_TOUCHED = false;
 let CUST_TOUCHED = false;
 let FONT_SCALE  = 1.0;   
+let CURRENT_PAPER_SIZE = '100x50'; // เพิ่มตัวแปรสำหรับจำขนาดกระดาษอุตสาหกรรม
 
 /* ═══════════════ INIT ═══════════════ */
 window.addEventListener('DOMContentLoaded', async () => {
@@ -1017,12 +1042,18 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 /* ═══════════════════════════════════════════
-   ★ PRINT MODE
+   ★ PRINT MODE & PAPER SIZE
 ═══════════════════════════════════════════ */
 function setPrintMode(mode) {
   PRINT_MODE = mode;
   localStorage.setItem(KEY_PMODE, mode);
   applyPrintModeUI(true);
+}
+
+function updatePaperSize() {
+  CURRENT_PAPER_SIZE = document.getElementById('ps-100x75').checked ? '100x75' : '100x50';
+  injectPageStyle();
+  preview();
 }
 
 function applyPrintModeUI(doPreview) {
@@ -1031,10 +1062,15 @@ function applyPrintModeUI(doPreview) {
   document.getElementById('pm-thermal').className  = 'pmode-btn' + (isThermal ? ' active-thermal' : '');
 
   document.getElementById('dpi-hint').classList.toggle('on', isThermal);
+  
+  // เปิด-ปิด เมนูเลือกกระดาษเครื่องพิมพ์อุตสาหกรรม
+  const indusOpts = document.getElementById('industrial-opts');
+  if(indusOpts) indusOpts.classList.toggle('on', isThermal);
+
   if (isThermal) {
     document.getElementById('ls-stk').checked = true;
     document.getElementById('c-qr').checked   = true;
-    document.getElementById('ls-stk-sub').textContent = '100×50mm · 1 ดวง/รอบพิมพ์';
+    document.getElementById('ls-stk-sub').textContent = '1 ดวง/รอบพิมพ์';
   } else {
     document.getElementById('ls-stk-sub').textContent = '100×50mm · 10 ดวง/A4';
   }
@@ -1055,13 +1091,21 @@ function selDpi(el) {
 }
 
 /* ═══════════════════════════════════════════
-   ★ FONT SCALE 
+   ★ FONT SCALE (ปรับ Fluid ไม่ให้ตกขอบ)
 ═══════════════════════════════════════════ */
 function applyScaleToLabel(el, scale) {
-  el.style.zoom = '';
+  el.style.zoom = ''; // เลิกใช้ zoom เพราะพัง layout ในบางหน้าจอ
   const S = (sel, base) => el.querySelectorAll(sel).forEach(c => {
-    c.style.fontSize = (base * scale).toFixed(1) + 'px';
+    let newSize = base * scale;
+    // ป้องกันปัญหาไซส์ทะลุกรอบ (Cap limit) เมื่อ scale เกิน 115%
+    if (scale > 1.15) {
+       newSize = base * 1.25; 
+    }
+    c.style.fontSize = newSize.toFixed(1) + 'px';
+    // ขยาย Line height ตามเพื่อไม่ให้บรรทัดทับกันตอนตัดคำ
+    c.style.lineHeight = (newSize * 1.35).toFixed(1) + 'px';
   });
+  
   if (el.classList.contains('scard100')) {
     S('.sc-co',          8.5);
     S('.sc-badge',       7);
@@ -1122,7 +1166,8 @@ function onLsizeChange() {
   if (isStk) document.getElementById('c-qr').checked = true;
   let pvLabel;
   if (isThermal) {
-    pvLabel = '👁️ ตัวอย่าง Thermal 100×50mm (1 ดวง / รอบพิมพ์)';
+    const sizeLbl = CURRENT_PAPER_SIZE === '100x75' ? '100×75mm' : '100×50mm';
+    pvLabel = `👁️ ตัวอย่าง Thermal ${sizeLbl} (1 ดวง / รอบพิมพ์)`;
   } else if (isStk) {
     pvLabel = '👁️ ตัวอย่าง Sticker 100×50mm (10 ดวง / A4)';
   } else {
@@ -1734,7 +1779,7 @@ function renderQueue() {
     if (page !== curPage) {
       curPage = page;
       const cnt = isThermalLbl ? 1 : Math.min(pp2, total - (page - 1) * pp2);
-      const sizeLabel = isThermalLbl ? '🔖 Thermal 100×50' : (lbl.lsize === 'stk' ? '📦 A4 100×50mm' : '🏷️ Mini A4');
+      const sizeLabel = isThermalLbl ? (CURRENT_PAPER_SIZE === '100x75' ? '🔖 Thermal 100×75' : '🔖 Thermal 100×50') : (lbl.lsize === 'stk' ? '📦 A4 100×50mm' : '🏷️ Mini A4');
       html += `<div class="pg-hdr"><span>📄 หน้า ${page} ${sizeLabel}</span><span>${cnt} ดวง</span></div>`;
     }
     const isEdit  = lbl._qid === EDIT_QID;
@@ -1821,7 +1866,7 @@ async function doPrint() {
 /* รอจนทุก canvas มี content และเพิ่มการหน่วงเวลาเผื่อให้โหลดครบถ้วน */
 function waitForCanvases(canvasList, maxWaitMs = 5000) {
   if (!canvasList.length) {
-    setTimeout(function() { window.print(); }, 1000); // ดีเลย์เพิ่ม 1 วิเผื่อ barcode ธรรมดา
+    setTimeout(function() { window.print(); }, 1000); 
     return Promise.resolve();
   }
   return new Promise(resolve => {
@@ -1847,13 +1892,25 @@ function injectPageStyle() {
   if (old) old.remove();
   const thermalCount = QUEUE.filter(l => l.pmode === 'thermal').length;
   const a4Count      = QUEUE.filter(l => l.pmode !== 'thermal').length;
+  
   let pageSize = 'A4 portrait';
+  let thHeight = '50mm'; // Default Height สำหรับ Thermal
+  
+  // ตรวจสอบตัวเลือกขนาดกระดาษที่ผู้ใช้ระบุ
   if (thermalCount > 0 && a4Count === 0) {
-    pageSize = '100mm 50mm';
+    pageSize = CURRENT_PAPER_SIZE === '100x75' ? '100mm 75mm' : '100mm 50mm';
+    thHeight = CURRENT_PAPER_SIZE === '100x75' ? '75mm' : '50mm';
   }
+  
   const st = document.createElement('style');
   st.id = '_dyn_page_style';
-  st.textContent = `@media print { @page { size: ${pageSize}; margin: ${pageSize === 'A4 portrait' ? '5mm' : '0mm'}; } }`;
+  // อัปเดตขนาด Page และความสูงกล่อง Thermal ให้สัมพันธ์กัน
+  st.textContent = `
+    @media print { 
+      @page { size: ${pageSize}; margin: ${pageSize === 'A4 portrait' ? '5mm' : '0mm'}; } 
+      .ppage-thermal, .ppage-thermal .scard100 { height: ${thHeight}!important; }
+    }
+  `;
   document.head.appendChild(st);
 }
 
