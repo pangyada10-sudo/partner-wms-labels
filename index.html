@@ -117,7 +117,7 @@ body{font-family:'Kanit',sans-serif;background:var(--bg);color:var(--text);min-h
 .pmode-badge.a4{background:#dbeafe;color:#1d4ed8}
 .pmode-badge.th{background:#ffedd5;color:#c2410c}
 
-/* Thermal DPI hint & Paper size opts */
+/* Thermal DPI hint */
 .dpi-hint{
   display:none;
   background:#fff7ed;border:1px solid #fed7aa;border-radius:7px;
@@ -584,6 +584,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       </div>
     </div>
 
+    <!-- เพิ่มตัวเลือกขนาดกระดาษอุตสาหกรรม -->
     <div class="indus-opts" id="industrial-opts">
       <label class="main-lbl">ขนาดกระดาษ (Industrial Printer)</label>
       <div class="stog">
@@ -923,9 +924,9 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       — Mini Label: ~64×52mm, 3×5 = <strong>15 ดวง/A4</strong><br>
       — Sticker 100×50mm: 2×5 = <strong>10 ดวง/A4</strong><br><br>
       <strong>🔖 Thermal Roll Printer (เช่น Gprinter AY-AT240, Xprinter)</strong><br>
-      — ขนาดสติ๊กเกอร์: <strong>100×50mm ต่อดวง</strong><br>
+      — ขนาดสติ๊กเกอร์: <strong>100×50mm หรือ 100x75mm ต่อดวง</strong><br>
       — Layout: QR Code ซ้าย + ข้อมูลขวา<br>
-      — 1 Label = 1 หน้าพิมพ์ (ตั้งค่า Paper Size = 100×50mm)<br>
+      — 1 Label = 1 หน้าพิมพ์ (ตั้งค่า Paper Size ให้ตรงกับที่เลือกในระบบ)<br>
       — รองรับ 203/300/600 DPI
     </p>
   </div>
@@ -933,7 +934,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
     <h2>⚙️ การตั้งค่า Thermal Printer</h2>
     <p style="margin-bottom:0">
       1. เปิด Print Dialog → เลือก Printer = Thermal Label Printer ของคุณ<br>
-      2. ตั้ง <strong>Paper Size = 100 × 50 mm</strong> (หรือ 4" × 2")<br>
+      2. ตั้ง <strong>Paper Size ให้ตรงกับสติกเกอร์</strong> (เช่น 100 × 50 mm หรือ 100 × 75 mm)<br>
       3. ตั้ง <strong>Scale = 100%</strong> (ห้าม Fit to Page)<br>
       4. ตั้ง <strong>Margins = None / Minimum</strong><br>
       5. ปิด Headers &amp; Footers<br><br>
@@ -962,10 +963,9 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
     </p>
   </div>
   <div class="dcard">
-    <h2>🔢 QR/Barcode Unique ต่อม้วน/แพ็ค (v6.5 — FIX)</h2>
+    <h2>🔢 QR/Barcode Unique ต่อม้วน/แพ็ค (v6.5)</h2>
     <p style="margin-bottom:0">
-      ตั้งแต่ v6.5 เมื่อใช้โหมด <strong>แยกตามม้วน/แพ็ค</strong> QR/Barcode แต่ละดวงจะ <strong>ไม่ซ้ำกันอีกต่อไป</strong><br>
-      แม้ Qty หารลงตัวเท่ากันทุกใบ (เช่น 100÷4=25 ทุกใบ)<br><br>
+      เมื่อใช้โหมด <strong>แยกตามม้วน/แพ็ค</strong> QR/Barcode แต่ละดวงจะ <strong>ไม่ซ้ำกันอีกต่อไป</strong><br>
       ระบบจะฝังลำดับลง <strong>ใน Lot ของ Data String เท่านั้น</strong> — หน้า Label ที่พิมพ์ออกมาแสดง Lot สะอาดตามเดิม<br><br>
       <strong>ตัวอย่าง FG 4 แพ็ค (Lot 690619, 25 Pcs/แพ็ค):</strong><br>
       — แพ็ค 1 → QR: <code>MPI-0134|690619-P1|25|Pcs|1|…</code><br>
@@ -1214,7 +1214,13 @@ async function fetchCSV(rawUrl) {
 
 function saveAndLoadGS() {
   const url = document.getElementById('gs-url').value.trim();
-  if (!url) { setGsStatus('กรุณาใส่ URL', 'err'); return; }
+  if (!url) { 
+    // อัปเดตใหม่: ถ้าลบข้อความในช่อง URL จนว่างเปล่า ให้ล้างการจำ URL ทิ้งไปเลย
+    localStorage.removeItem(KEY_URL);
+    setGsStatus('ล้าง URL เรียบร้อย (ใช้ข้อมูลจาก Local/ไฟล์ แทน)', 'ok');
+    showToast('ล้างลิงก์ URL แล้ว');
+    return; 
+  }
   localStorage.setItem(KEY_URL, url);
   loadGS(true);
 }
@@ -1294,6 +1300,10 @@ function handleCSVFileUpload(event) {
       setDot('ok', `${GS.length} รายการ (ไฟล์)`);
       setGsStatus(`✅ โหลดจากไฟล์สำเร็จ ${GS.length} รายการ`, 'ok');
       updateStats();
+      
+      // ล้างป้ายแดงแจ้งเตือน Error ออกทันทีเมื่ออัปโหลดไฟล์สำเร็จ
+      setBanner('', ''); 
+      
       showToast(`✅ โหลดข้อมูล ${GS.length} รายการจากไฟล์เรียบร้อย`);
     } catch (err) {
       statusEl.textContent = `❌ ${err.message}`;
