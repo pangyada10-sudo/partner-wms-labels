@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Universal Label System — WMS V6.5</title>
+<title>Universal Label System — WMS V6.6</title>
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
@@ -117,7 +117,7 @@ body{font-family:'Kanit',sans-serif;background:var(--bg);color:var(--text);min-h
 .pmode-badge.a4{background:#dbeafe;color:#1d4ed8}
 .pmode-badge.th{background:#ffedd5;color:#c2410c}
 
-/* Thermal DPI hint */
+/* Thermal DPI hint & Paper size opts */
 .dpi-hint{
   display:none;
   background:#fff7ed;border:1px solid #fed7aa;border-radius:7px;
@@ -503,8 +503,8 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
         <option value="FG">📦 Finished Goods (FG)</option>
       </select>
     </div>
-    <div class="mfg"><label id="m-sup-lbl">Supplier</label>
-      <input id="m-sup" placeholder="ชื่อ Supplier">
+    <div class="mfg"><label id="m-sup-lbl">ชื่อบริษัท (Supplier)</label>
+      <input id="m-sup" placeholder="ชื่อ Supplier / บริษัท">
     </div>
     <div class="mfg"><label>รหัสลูกค้า (Cust)</label>
       <input id="m-cust" placeholder="รหัสลูกค้า">
@@ -584,7 +584,6 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       </div>
     </div>
 
-    <!-- เพิ่มตัวเลือกขนาดกระดาษอุตสาหกรรม -->
     <div class="indus-opts" id="industrial-opts">
       <label class="main-lbl">ขนาดกระดาษ (Industrial Printer)</label>
       <div class="stog">
@@ -700,8 +699,8 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
         <input type="number" id="f-packs" value="1" min="1" oninput="preview()">
       </div>
       <div class="fg">
-        <label id="f-sup-lbl">Supplier <span class="afbadge" id="afbadge-sup">✓ DB</span></label>
-        <input type="text" id="f-sup" placeholder="ชื่อ Supplier" oninput="onSupInput()">
+        <label id="f-sup-lbl">ชื่อบริษัท (Supplier) <span class="afbadge" id="afbadge-sup">✓ DB</span></label>
+        <input type="text" id="f-sup" placeholder="ชื่อ Supplier / บริษัท" oninput="onSupInput()">
       </div>
     </div>
 
@@ -862,7 +861,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
 </div><div id="set-page" class="setpage">
   <div class="scard">
     <h2>🔗 แหล่งข้อมูลสินค้า (Google Sheets)</h2>
-    <p>วางลิงก์ <strong>Published CSV</strong> — ข้อมูลจะถูกโหลดและ Cache ไว้<br>Partner ค้นหาได้แต่ <strong>ไม่เห็นรายการทั้งหมด</strong></p>
+    <p>วางลิงก์ <strong>Published CSV</strong> แล้วกด Enter หรือคลิกที่อื่น ระบบจะดึงอัตโนมัติ<br>Partner ค้นหาได้แต่ <strong>ไม่เห็นรายการทั้งหมด</strong></p>
     <div class="sfg">
       <label>Google Sheets CSV URL</label>
       <input type="text" id="gs-url" placeholder="https://docs.google.com/spreadsheets/d/e/…/pub?output=csv">
@@ -871,11 +870,11 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       <button class="btn-s" style="background:var(--blue)"  onclick="saveAndLoadGS()">💾 บันทึกและโหลดข้อมูล</button>
       <button class="btn-s" style="background:var(--navy)"  onclick="loadGS(true)">🔄 โหลดใหม่</button>
     </div>
-    <div id="gs-status" style="font-size:11px;font-weight:600;margin-top:7px;color:var(--muted)">— ยังไม่ได้ตั้งค่า</div>
+    <div id="gs-status" style="font-size:11px;font-weight:600;margin-top:7px;min-height:16px">— ยังไม่ได้ตั้งค่า</div>
     <div class="fmtbox">
       <div style="font-weight:700;margin-bottom:5px">📋 รูปแบบ Google Sheets (Column A→F)</div>
       <div><span class="c">A</span>: Part No. &nbsp;<span class="c">B</span>: Product Name &nbsp;<span class="c">C</span>: RM หรือ FG &nbsp;<span class="c">D</span>: Unit &nbsp;<span class="c">E</span>: Supplier/Customer &nbsp;<span class="c">F</span>: รหัสลูกค้า (Cust)</div>
-      <div style="margin-top:5px;color:var(--muted);font-size:10px">แถว 1 = Header (ข้ามอัตโนมัติ)</div>
+      <div style="margin-top:5px;color:var(--muted);font-size:10px">แถว 1 = ชื่อบริษัท (Company: ...), แถว 2 = Header (ระบบจะข้ามอัตโนมัติ)</div>
     </div>
     <div style="margin-top:14px;padding:11px 13px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:7px;font-size:12px;color:#0369a1;line-height:2">
       <strong>วิธี Publish Google Sheets เป็น CSV</strong><br>
@@ -884,11 +883,10 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
   </div>
 
   <div class="scard" style="border:1.5px solid #fde68a;background:linear-gradient(135deg,#fffbeb,#fff)">
-    <h2>📂 อัปโหลดไฟล์ CSV โดยตรง <span style="background:var(--amber);color:#fff;font-size:9px;padding:2px 7px;border-radius:20px;margin-left:6px;vertical-align:middle">แนะนำถ้าโหลดจาก URL ไม่ได้</span></h2>
+    <h2>📂 อัปโหลดไฟล์ CSV โดยตรง <span style="background:var(--amber);color:#fff;font-size:9px;padding:2px 7px;border-radius:20px;margin-left:6px;vertical-align:middle">ทางเลือกเสริม</span></h2>
     <p>
-      หากกด <strong>"โหลดข้อมูล"</strong> ด้านบนแล้วไม่สำเร็จ (CORS Proxy เข้าไม่ถึง) —
-      ให้ <strong>ดาวน์โหลด URL ด้านบนในเบราว์เซอร์</strong> (จะได้ไฟล์ .csv ลงเครื่อง) แล้วอัปโหลดไฟล์นั้นที่นี่แทน<br>
-      วิธีนี้ <strong>ไม่ต้องพึ่ง Proxy</strong> เลย เชื่อถือได้ 100%
+      หากใช้งานผ่าน URL ไม่ได้ ให้ <strong>ดาวน์โหลด URL ด้านบนเปิดในเบราว์เซอร์</strong> (จะได้ไฟล์ .csv ลงเครื่อง) แล้วอัปโหลดไฟล์นั้นที่นี่แทน<br>
+      วิธีนี้ไม่ต้องพึ่งการเชื่อมต่อภายนอกเลย เชื่อถือได้ 100%
     </p>
     <input type="file" id="csv-file-input" accept=".csv,text/csv" style="display:none" onchange="handleCSVFileUpload(event)">
     <button class="btn-s" style="background:var(--amber)" onclick="document.getElementById('csv-file-input').click()">
@@ -923,7 +921,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       <strong>📄 กระดาษ A4 (Laser/Inkjet)</strong><br>
       — Mini Label: ~64×52mm, 3×5 = <strong>15 ดวง/A4</strong><br>
       — Sticker 100×50mm: 2×5 = <strong>10 ดวง/A4</strong><br><br>
-      <strong>🔖 Thermal Roll Printer (เช่น Gprinter AY-AT240, Xprinter)</strong><br>
+      <strong>🔖 Thermal Roll Printer (เช่น Gprinter, Zebra, Xprinter)</strong><br>
       — ขนาดสติ๊กเกอร์: <strong>100×50mm หรือ 100x75mm ต่อดวง</strong><br>
       — Layout: QR Code ซ้าย + ข้อมูลขวา<br>
       — 1 Label = 1 หน้าพิมพ์ (ตั้งค่า Paper Size ให้ตรงกับที่เลือกในระบบ)<br>
@@ -945,21 +943,21 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
     <h2>📦 Label FG (สินค้าสำเร็จรูป) — สำหรับลูกค้า</h2>
     <p style="margin-bottom:0">
       Label ประเภท <strong>FG</strong> ถูกปรับให้เหมาะกับการส่งออกไปขาย/ส่งลูกค้า:<br>
-      — ฟิลด์ <strong>Supplier</strong> เปลี่ยนเป็น <strong>Customer</strong> โดยอัตโนมัติ<br>
+      — ฟิลด์ <strong>ชื่อบริษัท (Supplier)</strong> เปลี่ยนเป็น <strong>ชื่อบริษัท (Customer)</strong> โดยอัตโนมัติ<br>
       — <strong>PO No.</strong> และ <strong>Pack X/Y</strong> จะไม่แสดงบนหน้า Label (ป้องกันความสับสน)<br>
       — ข้อมูลทั้งสองยัง <strong>ฝังอยู่ใน QR/Barcode</strong> เหมือนเดิม สำหรับสแกนเข้าระบบ WMS<br><br>
       Label ประเภท <strong>RM (วัตถุดิบ)</strong> ยังคงใช้ Supplier / PO No. / Roll แสดงผลตามปกติ ไม่มีการเปลี่ยนแปลง
     </p>
   </div>
   <div class="dcard">
-    <h2>🏢 Auto-fill Supplier / Customer (v6.4+)</h2>
+    <h2>🏢 Auto-fill ชื่อองค์กร และ ชื่อบริษัท (Supplier / Customer)</h2>
     <p style="margin-bottom:0">
-      เมื่อพิมพ์หรือเลือก <strong>Part No.</strong> ที่มีอยู่ใน Master Data ระบบจะดึง
+      <strong>ดึงชื่อองค์กรอัตโนมัติ:</strong> ระบบจะดึงชื่อองค์กรจากแถวแรกของ Master Data (คำว่า Company: ...) มาใส่อัตโนมัติ<br><br>
+      <strong>ดึง Supplier/Customer:</strong> เมื่อพิมพ์ <strong>Part No.</strong> ที่มีอยู่ใน Master Data ระบบจะดึง
       <strong>ชื่อ Supplier</strong> (สำหรับ RM) หรือ <strong>ชื่อ Customer</strong> (สำหรับ FG)
-      จาก Master Data <strong>Column E</strong> มาเติมในฟิลด์ Supplier/Customer ให้อัตโนมัติ<br><br>
-      — ฟิลด์นี้ยัง<strong>แก้ไขได้</strong> เผื่อกรณีข้อมูลผิดหรือต้องการระบุ Supplier/Customer อื่น<br>
-      — เมื่อพิมพ์ Part No. ใหม่ที่ไม่ตรงกับ Master Data ฟิลด์จะไม่ถูกเขียนทับข้อมูลที่กรอกไว้เอง<br>
-      — สามารถระบุ Supplier/Customer ตอนเพิ่มสินค้าใหม่ (Local) ผ่านปุ่ม ➕ ได้เช่นกัน
+      จาก Master Data <strong>Column E</strong> มาเติมในฟิลด์ "ชื่อบริษัท (Supplier/Customer)" ให้อัตโนมัติทันที<br><br>
+      — ฟิลด์เหล่านี้ยัง<strong>แก้ไขได้</strong> เผื่อกรณีข้อมูลผิดหรือต้องการระบุบริษัทอื่น<br>
+      — เมื่อพิมพ์ Part No. ใหม่ที่ไม่ตรงกับ Master Data ฟิลด์จะไม่ถูกเขียนทับข้อมูลที่กรอกไว้เอง
     </p>
   </div>
   <div class="dcard">
@@ -1015,7 +1013,7 @@ let THERMAL_DPI = 203;
 let SUP_TOUCHED = false;
 let CUST_TOUCHED = false;
 let FONT_SCALE  = 1.0;   
-let CURRENT_PAPER_SIZE = '100x50'; // เพิ่มตัวแปรสำหรับจำขนาดกระดาษอุตสาหกรรม
+let CURRENT_PAPER_SIZE = '100x50'; 
 
 /* ═══════════════ INIT ═══════════════ */
 window.addEventListener('DOMContentLoaded', async () => {
@@ -1037,8 +1035,15 @@ window.addEventListener('DOMContentLoaded', async () => {
   setFontScale(FONT_SCALE);
 
   updateDsChip(); updateStats(); applyTypeUI(false); preview();
+  
+  // โหลดข้อมูลอัตโนมัติหากมี URL
   const url = localStorage.getItem(KEY_URL);
   if (url) await loadGS(false);
+
+  // ตรวจจับการวางลิงก์ใหม่ (Auto Load เมื่อวางลิงก์)
+  document.getElementById('gs-url').addEventListener('change', function() {
+      if(this.value.trim().length > 10) saveAndLoadGS();
+  });
 });
 
 /* ═══════════════════════════════════════════
@@ -1063,7 +1068,6 @@ function applyPrintModeUI(doPreview) {
 
   document.getElementById('dpi-hint').classList.toggle('on', isThermal);
   
-  // เปิด-ปิด เมนูเลือกกระดาษเครื่องพิมพ์อุตสาหกรรม
   const indusOpts = document.getElementById('industrial-opts');
   if(indusOpts) indusOpts.classList.toggle('on', isThermal);
 
@@ -1094,15 +1098,13 @@ function selDpi(el) {
    ★ FONT SCALE (ปรับ Fluid ไม่ให้ตกขอบ)
 ═══════════════════════════════════════════ */
 function applyScaleToLabel(el, scale) {
-  el.style.zoom = ''; // เลิกใช้ zoom เพราะพัง layout ในบางหน้าจอ
+  el.style.zoom = ''; 
   const S = (sel, base) => el.querySelectorAll(sel).forEach(c => {
     let newSize = base * scale;
-    // ป้องกันปัญหาไซส์ทะลุกรอบ (Cap limit) เมื่อ scale เกิน 115%
     if (scale > 1.15) {
        newSize = base * 1.25; 
     }
     c.style.fontSize = newSize.toFixed(1) + 'px';
-    // ขยาย Line height ตามเพื่อไม่ให้บรรทัดทับกันตอนตัดคำ
     c.style.lineHeight = (newSize * 1.35).toFixed(1) + 'px';
   });
   
@@ -1191,33 +1193,63 @@ function switchPage(id, btn) {
 function goSettings() { switchPage('set', document.querySelector('[data-page=set]')); }
 
 /* ═══════════════ GOOGLE SHEETS ═══════════════ */
-const PROXIES = [
-  u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-  u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
-  u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
-  u => `https://thingproxy.freeboard.io/fetch/${u}`,
-];
 async function fetchCSV(rawUrl) {
   let url = rawUrl.trim();
-  if (url.includes('/pubhtml')) url = url.split('/pubhtml')[0] + '/pub?output=csv';
-  if (!url.includes('output=csv')) url += (url.includes('?') ? '&' : '?') + 'output=csv';
+  if (!url) throw new Error('กรุณาระบุ URL');
+  
+  let fetchUrls = [];
+  
+  // 1. แปลง URL เป็น Native Google API (gviz) ช่องทางนี้จะไม่ติดปัญหา CORS 99%
+  const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+  if (match && match[1]) {
+    let gidMatch = url.match(/gid=([0-9]+)/);
+    let gid = gidMatch ? `&gid=${gidMatch[1]}` : '';
+    fetchUrls.push(`https://docs.google.com/spreadsheets/d/${match[1]}/gviz/tq?tqx=out:csv${gid}`);
+  }
+  
+  // 2. Pub URL รูปแบบปกติ
+  let pubUrl = url;
+  if (pubUrl.includes('/pubhtml')) pubUrl = pubUrl.split('/pubhtml')[0] + '/pub?output=csv';
+  if (!pubUrl.includes('output=csv') && !pubUrl.includes('gviz')) pubUrl += (pubUrl.includes('?') ? '&' : '?') + 'output=csv';
+  fetchUrls.push(pubUrl);
+  
+  // 3. Fallback ผ่าน Proxy
+  const PROXIES = [
+    u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+    u => `https://corsproxy.io/?${encodeURIComponent(u)}`
+  ];
+
+  // ลองโหลดจากลิงก์ตรงก่อนแบบบังคับ (Bypass Proxy)
+  for (const u of fetchUrls) {
+    try {
+      const r = await fetch(u, { cache: 'no-cache', signal: AbortSignal.timeout(6000) });
+      if (r.ok) {
+         const t = await r.text();
+         // ป้องกันกรณีติดหน้า Login HTML
+         if (t && t.length > 10 && !t.toLowerCase().includes('<!doctype html>')) return t; 
+      }
+    } catch (e) {}
+  }
+
+  // หากลิงก์ตรงถูกบล็อก ค่อยสลับใช้ Proxy
   for (const mkP of PROXIES) {
     try {
-      const r = await fetch(mkP(url), { cache: 'no-cache', signal: AbortSignal.timeout(10000) });
-      if (!r.ok) continue;
-      const t = await r.text();
-      if (t && t.length > 10) return t;
-    } catch {}
+      const r = await fetch(mkP(pubUrl), { cache: 'no-cache', signal: AbortSignal.timeout(6000) });
+      if (r.ok) {
+         const t = await r.text();
+         if (t && t.length > 10 && !t.toLowerCase().includes('<!doctype html>')) return t;
+      }
+    } catch (e) {}
   }
-  throw new Error('ดึงข้อมูลผ่าน Proxy ไม่ได้ (ลอง 4 Proxy แล้ว) — ลองใช้ "อัปโหลดไฟล์ CSV" ด้านล่างแทน');
+
+  throw new Error('ไม่สามารถดึงข้อมูลจาก Link ได้ (กรุณาเช็กสิทธิ์แชร์และเผยแพร่ไปยังเว็บ หรือใช้วิธีอัปโหลดไฟล์ CSV แทน)');
 }
 
 function saveAndLoadGS() {
   const url = document.getElementById('gs-url').value.trim();
   if (!url) { 
-    // อัปเดตใหม่: ถ้าลบข้อความในช่อง URL จนว่างเปล่า ให้ล้างการจำ URL ทิ้งไปเลย
     localStorage.removeItem(KEY_URL);
-    setGsStatus('ล้าง URL เรียบร้อย (ใช้ข้อมูลจาก Local/ไฟล์ แทน)', 'ok');
+    setGsStatus('ล้าง URL เรียบร้อย (ใช้ข้อมูล Local/ไฟล์ แทน)', 'ok');
     showToast('ล้างลิงก์ URL แล้ว');
     return; 
   }
@@ -1251,20 +1283,45 @@ async function loadGS(fb = true) {
   }
 }
 
+// อัปเดตใหม่: ตรวจจับแถวที่มีคำว่า Company: เพื่อดึงชื่อบริษัทอัตโนมัติ[cite: 1]
 function parseCSV(csv) {
   const rows = [];
   const lines = csv.split('\n').map(l => l.trim()).filter(Boolean);
-  for (let i = 1; i < lines.length; i++) {
+  
+  for (let i = 0; i < lines.length; i++) {
     const c = splitLine(lines[i]);
-    const part = cl(c[0]), name = cl(c[1]);
+    const colA = cl(c[0]);
+    const colB = cl(c[1]);
+
+    // ตรวจจับ "ชื่อบริษัท" อัตโนมัติจากบรรทัดบนสุดที่มีคำว่า Company:
+    if (colA.toUpperCase().startsWith('COMPANY:')) {
+      // ดึงชื่อออกมา (เช่นจาก "Company: Wing Fung..." หรือดึงจากคอลัมน์ B)
+      let compName = colA.substring(8).trim(); 
+      if (!compName && colB) compName = colB;
+      
+      if (compName) {
+        document.getElementById('f-co').value = compName;
+        localStorage.setItem(KEY_CO, compName);
+        setTimeout(preview, 50);
+      }
+      continue; // ข้ามบรรทัดนี้ไป ไม่ต้องเอาไปรวมใน Dropdown สินค้า
+    }
+    
+    // ข้ามบรรทัด Header (Part No.)
+    if (colA.toUpperCase() === 'PART NO.' || colA.toUpperCase() === 'PART NO' || colA === '') {
+      continue;
+    }
+
+    const part = colA, name = colB;
     const type = cl(c[2]).toUpperCase() === 'FG' ? 'FG' : 'RM';
     const unit = cl(c[3]) || 'Kgs';
     const sup  = cl(c[4]) || '';
-    const cust = cl(c[5]) || ''; // รองรับคอลัมน์ F (Customer Code)
+    const cust = cl(c[5]) || ''; 
     if (part && name) rows.push({ part, name, type, unit, sup, cust, src: 'gs' });
   }
   return rows;
 }
+
 function cl(s) { return (s || '').trim().replace(/^"+|"+$/g, '').trim(); }
 function splitLine(line) {
   const r = []; let cur = '';
@@ -1301,7 +1358,7 @@ function handleCSVFileUpload(event) {
       setGsStatus(`✅ โหลดจากไฟล์สำเร็จ ${GS.length} รายการ`, 'ok');
       updateStats();
       
-      // ล้างป้ายแดงแจ้งเตือน Error ออกทันทีเมื่ออัปโหลดไฟล์สำเร็จ
+      // ล้างป้ายแดงแจ้งเตือน Error ทันทีที่อัปโหลดไฟล์สำเร็จ
       setBanner('', ''); 
       
       showToast(`✅ โหลดข้อมูล ${GS.length} รายการจากไฟล์เรียบร้อย`);
@@ -1509,14 +1566,15 @@ function applyTypeUI(doPreview = true) {
   document.getElementById('sw-pack').style.display   = 'none';
   document.getElementById('sw-mc').style.display     = isFG ? '' : 'none';
   
-  const supLabel = isFG ? 'Customer' : 'Supplier';
+  // เปลี่ยน Label ให้ชัดเจนขึ้นว่าช่องนี้คือ "ชื่อบริษัท"
+  const supLabel = isFG ? 'ชื่อบริษัท (Customer)' : 'ชื่อบริษัท (Supplier)';
   const supBadgeDisplay = document.getElementById('afbadge-sup') && document.getElementById('afbadge-sup').style.display === 'inline' ? 'inline' : 'none';
   const supLabelHtml = `${supLabel} <span class="afbadge" id="afbadge-sup" style="display:${supBadgeDisplay}">✓ DB</span>`;
   
   document.getElementById('f-sup-lbl').innerHTML    = supLabelHtml;
-  document.getElementById('f-sup').placeholder      = isFG ? 'ชื่อลูกค้า (Customer)' : 'ชื่อ Supplier';
-  document.getElementById('p-sup-lbl').textContent  = supLabel;
-  document.getElementById('s-sup-lbl').textContent  = supLabel;
+  document.getElementById('f-sup').placeholder      = isFG ? 'ชื่อลูกค้า / บริษัท' : 'ชื่อ Supplier / บริษัท';
+  document.getElementById('p-sup-lbl').textContent  = isFG ? 'Customer' : 'Supplier';
+  document.getElementById('s-sup-lbl').textContent  = isFG ? 'Customer' : 'Supplier';
 
   document.getElementById('wrap-po').style.display  = isFG ? 'none' : '';
   document.getElementById('pw-po').style.display    = isFG ? 'none' : '';
@@ -1884,7 +1942,6 @@ function waitForCanvases(canvasList, maxWaitMs = 5000) {
     function check() {
       const allReady = canvasList.every(c => c.width > 0 && c.height > 0);
       if (allReady || Date.now() > deadline) {
-        // หน่วงเวลาเพิ่มอีก 1 วินาทีเต็ม เพื่อให้ชัวร์ว่าเบราว์เซอร์วาดรูป QR ครบ 100% จริงๆ ค่อยเด้ง Print
         setTimeout(function() {
           window.print();
           resolve();
