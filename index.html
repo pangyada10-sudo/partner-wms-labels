@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Universal Label System — WMS V6.6</title>
+<title>Universal Label System — WMS V6.5</title>
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
@@ -63,8 +63,8 @@ body{font-family:'Kanit',sans-serif;background:var(--bg);color:var(--text);min-h
 /* form fields */
 .fg{margin-bottom:10px;position:relative}
 .fg label{display:block;font-size:9.5px;font-weight:700;color:var(--muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:.05em}
-.fg input,.fg select{width:100%;padding:7px 10px;font-size:13px;font-family:'Kanit';border:1.5px solid var(--border);border-radius:7px;background:#f8fafc;color:var(--text);transition:.15s}
-.fg input:focus,.fg select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.12);background:#fff}
+.fg input,.fg select, .fg textarea{width:100%;padding:7px 10px;font-size:13px;font-family:'Kanit';border:1.5px solid var(--border);border-radius:7px;background:#f8fafc;color:var(--text);transition:.15s}
+.fg input:focus,.fg select:focus, .fg textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.12);background:#fff}
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 
 /* ═══════════════════════════════════════════
@@ -135,7 +135,6 @@ body{font-family:'Kanit',sans-serif;background:var(--bg);color:var(--text);min-h
 .dpi-chip:hover{background:#ffedd5}
 .dpi-chip.sel{background:#ea580c;color:#fff;border-color:#ea580c}
 
-/* Industrial options */
 .indus-opts {
   display: none;
   background: #f8fafc; border: 1.5px solid var(--border); border-radius: 7px;
@@ -499,8 +498,9 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
     <div class="mfg"><label>ชื่อสินค้า *</label><input id="m-name" placeholder="ชื่อสินค้า"></div>
     <div class="mfg"><label>ประเภท</label>
       <select id="m-type" onchange="onModalTypeChange()">
-        <option value="RM">📥 Raw Material (RM)</option>
-        <option value="FG">📦 Finished Goods (FG)</option>
+        <option value="RM">📥 วัตถุดิบ (RM)</option>
+        <option value="FG-Tray">📦 FG (ถาดพลาสติก)</option>
+        <option value="FG-Trade">📦 FG (ซื้อมาขายไป)</option>
       </select>
     </div>
     <div class="mfg"><label id="m-sup-lbl">ชื่อบริษัท (Supplier)</label>
@@ -636,9 +636,11 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
 
     <div class="fg">
       <label>ประเภท Label</label>
-      <select id="f-type" onchange="onTypeChange()">
-        <option value="RM">📥 วัตถุดิบ (Raw Material)</option>
-        <option value="FG">📦 สินค้าสำเร็จรูป (Finished Goods)</option>
+      <!-- อัปเดต: แยกประเภท FG -->
+      <select id="f-type" onchange="applyTypeUI(true)">
+        <option value="RM">📥 วัตถุดิบ (RM)</option>
+        <option value="FG-Tray">📦 FG (ถาดพลาสติก)</option>
+        <option value="FG-Trade">📦 FG (ซื้อมาขายไป)</option>
       </select>
     </div>
 
@@ -674,12 +676,30 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       <input type="text" id="f-name" placeholder="จะขึ้นอัตโนมัติเมื่อเลือก Part No." readonly style="cursor:default">
     </div>
 
+    <div class="fg">
+      <label>รูปแบบที่จะเพิ่ม</label>
+      <select id="f-mode" onchange="applyTypeUI(true)">
+        <option value="single">📦 ใบรวม (1 ดวง)</option>
+        <option value="split" id="split-opt">✂️ แยกตามม้วน (หารเฉลี่ยเท่ากัน)</option>
+        <!-- อัปเดต: โหมดกรอกน้ำหนักหลายรายการ -->
+        <option value="custom" id="custom-opt">⚖️ ระบุน้ำหนักแต่ละม้วน (คีย์รวดเดียว)</option>
+      </select>
+    </div>
+
     <div class="frow">
-      <div class="fg">
+      <!-- อัปเดต: สลับกล่อง Qty ตาม Mode -->
+      <div class="fg" id="wrap-qty-standard">
         <label>Qty รวม</label>
         <input type="number" id="f-qty" value="500" step="0.001" oninput="preview()">
       </div>
-      <div class="fg">
+
+      <div class="fg" id="wrap-custom-qty" style="display:none; grid-column: 1 / -1;">
+        <label id="custom-qty-lbl" style="color:var(--orange);">น้ำหนักแต่ละม้วน (คั่นด้วย Enter หรือ ,)</label>
+        <textarea id="f-custom-qty" rows="3" placeholder="ตัวอย่าง:&#10;15.5&#10;16.2&#10;15.8" oninput="preview()" style="width:100%; padding:8px 10px; font-family:'JetBrains Mono',monospace; font-size:13px; border:1.5px solid var(--orange); border-radius:7px; resize:vertical; line-height: 1.5;"></textarea>
+        <div id="custom-qty-summary" style="font-size:10.5px; color:var(--muted); margin-top:5px; font-weight: 600;">รวม 0 รายการ — ยอดรวม: 0.00</div>
+      </div>
+
+      <div class="fg" id="wrap-unit">
         <label>Unit</label>
         <select id="f-unit" onchange="preview()">
           <option value="Kgs">Kgs</option><option value="ม้วน">ม้วน</option>
@@ -689,7 +709,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       </div>
     </div>
 
-    <div class="frow">
+    <div class="frow" id="row-rolls-supplier">
       <div class="fg" id="wrap-roll">
         <label>จำนวน Roll / Batch</label>
         <input type="number" id="f-rolls" value="1" min="1" oninput="preview()">
@@ -728,14 +748,6 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
     
     <div id="po-hidden-note" style="display:none;font-size:10px;color:var(--muted);margin:-6px 0 10px;line-height:1.6">
       ℹ️ PO No. จะไม่แสดงบน Label (FG) แต่ยังฝังอยู่ใน QR/Barcode สำหรับสแกนในระบบ
-    </div>
-
-    <div class="fg">
-      <label>รูปแบบที่จะเพิ่ม</label>
-      <select id="f-mode">
-        <option value="single">📦 ใบรวม (1 ดวง)</option>
-        <option value="split" id="split-opt">✂️ แยกตามม้วน (หลายดวง)</option>
-      </select>
     </div>
 
     <div class="dsbox">
@@ -940,9 +952,9 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
     </p>
   </div>
   <div class="dcard">
-    <h2>📦 Label FG (สินค้าสำเร็จรูป) — สำหรับลูกค้า</h2>
+    <h2>📦 Label FG (สินค้าสำเร็จรูป) — แยกประเภท</h2>
     <p style="margin-bottom:0">
-      Label ประเภท <strong>FG</strong> ถูกปรับให้เหมาะกับการส่งออกไปขาย/ส่งลูกค้า:<br>
+      Label ประเภท <strong>FG</strong> ถูกแยกออกเป็น 2 ประเภท คือ <strong>ถาดพลาสติก</strong> และ <strong>ซื้อมาขายไป</strong>:<br>
       — ฟิลด์ <strong>ชื่อบริษัท (Supplier)</strong> เปลี่ยนเป็น <strong>ชื่อบริษัท (Customer)</strong> โดยอัตโนมัติ<br>
       — <strong>PO No.</strong> และ <strong>Pack X/Y</strong> จะไม่แสดงบนหน้า Label (ป้องกันความสับสน)<br>
       — ข้อมูลทั้งสองยัง <strong>ฝังอยู่ใน QR/Barcode</strong> เหมือนเดิม สำหรับสแกนเข้าระบบ WMS<br><br>
@@ -950,36 +962,14 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
     </p>
   </div>
   <div class="dcard">
-    <h2>🏢 Auto-fill ชื่อองค์กร และ ชื่อบริษัท (Supplier / Customer)</h2>
+    <h2>⚖️ โหมดระบุน้ำหนักแต่ละม้วน (Custom Mode)</h2>
     <p style="margin-bottom:0">
-      <strong>ดึงชื่อองค์กรอัตโนมัติ:</strong> ระบบจะดึงชื่อองค์กรจากแถวแรกของ Master Data (คำว่า Company: ...) มาใส่อัตโนมัติ<br><br>
-      <strong>ดึง Supplier/Customer:</strong> เมื่อพิมพ์ <strong>Part No.</strong> ที่มีอยู่ใน Master Data ระบบจะดึง
-      <strong>ชื่อ Supplier</strong> (สำหรับ RM) หรือ <strong>ชื่อ Customer</strong> (สำหรับ FG)
-      จาก Master Data <strong>Column E</strong> มาเติมในฟิลด์ "ชื่อบริษัท (Supplier/Customer)" ให้อัตโนมัติทันที<br><br>
-      — ฟิลด์เหล่านี้ยัง<strong>แก้ไขได้</strong> เผื่อกรณีข้อมูลผิดหรือต้องการระบุบริษัทอื่น<br>
-      — เมื่อพิมพ์ Part No. ใหม่ที่ไม่ตรงกับ Master Data ฟิลด์จะไม่ถูกเขียนทับข้อมูลที่กรอกไว้เอง
+      เหมาะสำหรับ <strong>การรับเข้าวัตถุดิบ (RM) ที่แต่ละม้วนมีน้ำหนักไม่เท่ากัน</strong><br>
+      1. เลือกรูปแบบที่จะเพิ่มเป็น <strong>"⚖️ ระบุน้ำหนักแต่ละม้วน (คีย์รวดเดียว)"</strong><br>
+      2. พิมพ์น้ำหนักของแต่ละม้วนลงในช่องข้อความ โดยเคาะ <strong>Enter เพื่อขึ้นบรรทัดใหม่</strong> (หรือใช้ลูกน้ำคั่น)<br>
+      3. ระบบจะคำนวณจำนวนม้วนรวมและยอดน้ำหนักรวมให้อัตโนมัติ<br>
+      4. เมื่อกดเพิ่มลงคิว ระบบจะสร้าง Label แยกแต่ละม้วนให้ตามน้ำหนักที่คุณระบุไว้เป๊ะๆ
     </p>
-  </div>
-  <div class="dcard">
-    <h2>🔢 QR/Barcode Unique ต่อม้วน/แพ็ค (v6.5)</h2>
-    <p style="margin-bottom:0">
-      เมื่อใช้โหมด <strong>แยกตามม้วน/แพ็ค</strong> QR/Barcode แต่ละดวงจะ <strong>ไม่ซ้ำกันอีกต่อไป</strong><br>
-      ระบบจะฝังลำดับลง <strong>ใน Lot ของ Data String เท่านั้น</strong> — หน้า Label ที่พิมพ์ออกมาแสดง Lot สะอาดตามเดิม<br><br>
-      <strong>ตัวอย่าง FG 4 แพ็ค (Lot 690619, 25 Pcs/แพ็ค):</strong><br>
-      — แพ็ค 1 → QR: <code>MPI-0134|690619-P1|25|Pcs|1|…</code><br>
-      — แพ็ค 2 → QR: <code>MPI-0134|690619-P2|25|Pcs|2|…</code><br>
-      — แพ็ค 3 → QR: <code>MPI-0134|690619-P3|25|Pcs|3|…</code><br>
-      — แพ็ค 4 → QR: <code>MPI-0134|690619-P4|25|Pcs|4|…</code><br><br>
-      RM ใช้ prefix <strong>R</strong> (R1, R2…), FG ใช้ prefix <strong>P</strong> (P1, P2…)
-    </p>
-  </div>
-  <div class="dcard">
-    <h2>📊 Data String มาตรฐาน WMS</h2>
-    <div class="ptnbox" style="text-align:center;font-size:13px">
-      Part <span style="color:var(--red)">|</span> Lot <span style="color:var(--red)">|</span> Qty <span style="color:var(--red)">|</span>
-      Unit <span style="color:var(--red)">|</span> Roll <span style="color:var(--red)">|</span> Ref <span style="color:var(--red)">|</span> PO
-    </div>
-    <p style="margin-top:10px;margin-bottom:0">ใช้ได้ทั้ง Barcode (CODE128) และ QR Code · Scanner 1D/2D สแกนได้ทั้งสองรูปแบบ</p>
   </div>
 </div>
 
@@ -1199,7 +1189,6 @@ async function fetchCSV(rawUrl) {
   
   let fetchUrls = [];
   
-  // 1. แปลง URL เป็น Native Google API (gviz) ช่องทางนี้จะไม่ติดปัญหา CORS 99%
   const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
   if (match && match[1]) {
     let gidMatch = url.match(/gid=([0-9]+)/);
@@ -1207,31 +1196,26 @@ async function fetchCSV(rawUrl) {
     fetchUrls.push(`https://docs.google.com/spreadsheets/d/${match[1]}/gviz/tq?tqx=out:csv${gid}`);
   }
   
-  // 2. Pub URL รูปแบบปกติ
   let pubUrl = url;
   if (pubUrl.includes('/pubhtml')) pubUrl = pubUrl.split('/pubhtml')[0] + '/pub?output=csv';
   if (!pubUrl.includes('output=csv') && !pubUrl.includes('gviz')) pubUrl += (pubUrl.includes('?') ? '&' : '?') + 'output=csv';
   fetchUrls.push(pubUrl);
   
-  // 3. Fallback ผ่าน Proxy
   const PROXIES = [
     u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
     u => `https://corsproxy.io/?${encodeURIComponent(u)}`
   ];
 
-  // ลองโหลดจากลิงก์ตรงก่อนแบบบังคับ (Bypass Proxy)
   for (const u of fetchUrls) {
     try {
       const r = await fetch(u, { cache: 'no-cache', signal: AbortSignal.timeout(6000) });
       if (r.ok) {
          const t = await r.text();
-         // ป้องกันกรณีติดหน้า Login HTML
          if (t && t.length > 10 && !t.toLowerCase().includes('<!doctype html>')) return t; 
       }
     } catch (e) {}
   }
 
-  // หากลิงก์ตรงถูกบล็อก ค่อยสลับใช้ Proxy
   for (const mkP of PROXIES) {
     try {
       const r = await fetch(mkP(pubUrl), { cache: 'no-cache', signal: AbortSignal.timeout(6000) });
@@ -1283,7 +1267,6 @@ async function loadGS(fb = true) {
   }
 }
 
-// อัปเดตใหม่: ตรวจจับแถวที่มีคำว่า Company: เพื่อดึงชื่อบริษัทอัตโนมัติ[cite: 1]
 function parseCSV(csv) {
   const rows = [];
   const lines = csv.split('\n').map(l => l.trim()).filter(Boolean);
@@ -1293,9 +1276,7 @@ function parseCSV(csv) {
     const colA = cl(c[0]);
     const colB = cl(c[1]);
 
-    // ตรวจจับ "ชื่อบริษัท" อัตโนมัติจากบรรทัดบนสุดที่มีคำว่า Company:
     if (colA.toUpperCase().startsWith('COMPANY:')) {
-      // ดึงชื่อออกมา (เช่นจาก "Company: Wing Fung..." หรือดึงจากคอลัมน์ B)
       let compName = colA.substring(8).trim(); 
       if (!compName && colB) compName = colB;
       
@@ -1304,16 +1285,30 @@ function parseCSV(csv) {
         localStorage.setItem(KEY_CO, compName);
         setTimeout(preview, 50);
       }
-      continue; // ข้ามบรรทัดนี้ไป ไม่ต้องเอาไปรวมใน Dropdown สินค้า
+      continue; 
     }
     
-    // ข้ามบรรทัด Header (Part No.)
     if (colA.toUpperCase() === 'PART NO.' || colA.toUpperCase() === 'PART NO' || colA === '') {
       continue;
     }
 
     const part = colA, name = colB;
-    const type = cl(c[2]).toUpperCase() === 'FG' ? 'FG' : 'RM';
+    
+    // ตรวจสอบและแปลง Type เป็น RM, FG-Tray หรือ FG-Trade
+    let type = 'RM';
+    const rawType = cl(c[2]).toUpperCase();
+    if (rawType.includes('FG')) {
+      if (rawType.includes('TRADE') || rawType.includes('ซื้อมาขายไป')) {
+        type = 'FG-Trade';
+      } else {
+        type = 'FG-Tray';
+      }
+    } else if (rawType === 'FG-TRAY') {
+      type = 'FG-Tray';
+    } else if (rawType === 'FG-TRADE') {
+      type = 'FG-Trade';
+    }
+
     const unit = cl(c[3]) || 'Kgs';
     const sup  = cl(c[4]) || '';
     const cust = cl(c[5]) || ''; 
@@ -1357,10 +1352,7 @@ function handleCSVFileUpload(event) {
       setDot('ok', `${GS.length} รายการ (ไฟล์)`);
       setGsStatus(`✅ โหลดจากไฟล์สำเร็จ ${GS.length} รายการ`, 'ok');
       updateStats();
-      
-      // ล้างป้ายแดงแจ้งเตือน Error ทันทีที่อัปโหลดไฟล์สำเร็จ
       setBanner('', ''); 
-      
       showToast(`✅ โหลดข้อมูล ${GS.length} รายการจากไฟล์เรียบร้อย`);
     } catch (err) {
       statusEl.textContent = `❌ ${err.message}`;
@@ -1409,7 +1401,7 @@ function renderDrop(q) {
       <div class="aci-n">${hl(p.name, q)}</div>
       ${p.sup ? `<div class="aci-sup">🏢 ${esc(p.sup)}</div>` : ''}
       <div class="aci-tags">
-        <span class="atag ${p.type.toLowerCase()}">${p.type}</span>
+        <span class="atag ${p.type.startsWith('FG') ? 'fg' : 'rm'}">${p.type}</span>
         ${p.src === 'local' ? '<span class="atag loc">Local</span>' : ''}
       </div>
     </div>`).join('');
@@ -1444,7 +1436,9 @@ function autoFill(p) {
   const n = document.getElementById('f-name');
   n.value = p.name; n.classList.add('name-ok');
   document.getElementById('afbadge').style.display = 'inline';
-  document.getElementById('f-type').value = p.type; applyTypeUI(false);
+  document.getElementById('f-type').value = p.type; 
+  applyTypeUI(false);
+  
   const us = document.getElementById('f-unit');
   if ([...us.options].map(o => o.value).includes(p.unit)) us.value = p.unit;
   
@@ -1523,8 +1517,8 @@ function openModal() {
 function closeModal() { document.getElementById('modal').classList.remove('on'); }
 
 function onModalTypeChange() {
-  const isFG = document.getElementById('m-type').value === 'FG';
-  document.getElementById('m-sup-lbl').textContent = isFG ? 'Customer' : 'Supplier';
+  const isFG = document.getElementById('m-type').value.startsWith('FG');
+  document.getElementById('m-sup-lbl').textContent = isFG ? 'ชื่อลูกค้า (Customer)' : 'ชื่อบริษัท (Supplier)';
   document.getElementById('m-sup').placeholder = isFG ? 'ชื่อลูกค้า (Customer)' : 'ชื่อ Supplier';
 }
 
@@ -1552,12 +1546,26 @@ function saveLocalProduct() {
   showToast(`✅ เพิ่ม "${name}" เรียบร้อย`);
 }
 
-/* ═══════════════ TYPE UI ═══════════════ */
-function onTypeChange() { applyTypeUI(true); }
+/* ═══════════════ TYPE UI & CUSTOM MODE ═══════════════ */
+// Helper สำหรับอ่านค่าน้ำหนักแต่ละบรรทัด
+function getCustomWeights() {
+  const raw = document.getElementById('f-custom-qty').value;
+  return raw.split(/[\n,]+/).map(s => parseFloat(s.trim())).filter(n => !isNaN(n) && n > 0);
+}
+
 function applyTypeUI(doPreview = true) {
-  const isFG = document.getElementById('f-type').value === 'FG';
-  document.getElementById('wrap-roll').style.display = isFG ? 'none' : '';
-  document.getElementById('wrap-pack').style.display = isFG ? '' : 'none';
+  const typeVal = document.getElementById('f-type').value;
+  const isFG = typeVal.startsWith('FG');
+  const mode = document.getElementById('f-mode').value;
+  const isCustom = mode === 'custom';
+  
+  // ซ่อน/แสดง กล่อง Qty และ Rolls ให้สอดคล้องกับโหมด Custom
+  document.getElementById('wrap-qty-standard').style.display = isCustom ? 'none' : '';
+  document.getElementById('wrap-custom-qty').style.display = isCustom ? '' : 'none';
+  document.getElementById('wrap-roll').style.display   = (isFG || isCustom) ? 'none' : '';
+  document.getElementById('wrap-pack').style.display   = (!isFG || isCustom) ? 'none' : '';
+  
+  // ปรับการแสดงผลบนเทมเพลต
   document.getElementById('pw-roll').style.display   = isFG ? 'none' : '';
   document.getElementById('pw-pack').style.display   = 'none';
   document.getElementById('fg-mc').style.display     = isFG ? 'block' : 'none';
@@ -1566,12 +1574,10 @@ function applyTypeUI(doPreview = true) {
   document.getElementById('sw-pack').style.display   = 'none';
   document.getElementById('sw-mc').style.display     = isFG ? '' : 'none';
   
-  // เปลี่ยน Label ให้ชัดเจนขึ้นว่าช่องนี้คือ "ชื่อบริษัท"
+  // ปรับ Label Supplier / Customer
   const supLabel = isFG ? 'ชื่อบริษัท (Customer)' : 'ชื่อบริษัท (Supplier)';
   const supBadgeDisplay = document.getElementById('afbadge-sup') && document.getElementById('afbadge-sup').style.display === 'inline' ? 'inline' : 'none';
-  const supLabelHtml = `${supLabel} <span class="afbadge" id="afbadge-sup" style="display:${supBadgeDisplay}">✓ DB</span>`;
-  
-  document.getElementById('f-sup-lbl').innerHTML    = supLabelHtml;
+  document.getElementById('f-sup-lbl').innerHTML    = `${supLabel} <span class="afbadge" id="afbadge-sup" style="display:${supBadgeDisplay}">✓ DB</span>`;
   document.getElementById('f-sup').placeholder      = isFG ? 'ชื่อลูกค้า / บริษัท' : 'ชื่อ Supplier / บริษัท';
   document.getElementById('p-sup-lbl').textContent  = isFG ? 'Customer' : 'Supplier';
   document.getElementById('s-sup-lbl').textContent  = isFG ? 'Customer' : 'Supplier';
@@ -1581,13 +1587,22 @@ function applyTypeUI(doPreview = true) {
   document.getElementById('sw-po').style.display    = isFG ? 'none' : '';
   document.getElementById('po-hidden-note').style.display = isFG ? 'block' : 'none';
 
-  const badgeText = `QC · ${isFG ? 'FG' : 'RM'}`;
+  // ปรับชื่อย่อบนป้าย Badge
+  let shortType = typeVal;
+  if (typeVal === 'FG-Tray') shortType = 'FG (Tray)';
+  if (typeVal === 'FG-Trade') shortType = 'FG (Trade)';
+
+  const badgeText = `QC · ${shortType}`;
   document.getElementById('p-badge').textContent = badgeText;
   document.getElementById('p-badge').className   = 'lbadge' + (isFG ? ' fg' : '');
   document.getElementById('s-badge').textContent = badgeText;
   document.getElementById('s-badge').className   = 'sc-badge' + (isFG ? ' fg' : '');
-  document.getElementById('split-opt').textContent = isFG ? '✂️ แยกตามแพ็ค (หลายดวง)' : '✂️ แยกตามม้วน (หลายดวง)';
   
+  // ปรับข้อความของ Select Options ให้สอดคล้องกับประเภท
+  document.getElementById('split-opt').textContent = isFG ? '✂️ แยกตามแพ็ค (หารเฉลี่ยเท่ากัน)' : '✂️ แยกตามม้วน (หารเฉลี่ยเท่ากัน)';
+  document.getElementById('custom-opt').textContent = isFG ? '⚖️ ระบุจำนวนแต่ละแพ็ค (คีย์รวดเดียว)' : '⚖️ ระบุน้ำหนักแต่ละม้วน (คีย์รวดเดียว)';
+  document.getElementById('custom-qty-lbl').textContent = isFG ? 'จำนวนย่อยแต่ละแพ็ค (คั่นด้วย , หรือ Enter)' : 'น้ำหนักแต่ละม้วน (คั่นด้วย , หรือ Enter)';
+
   if (doPreview) preview();
 }
 
@@ -1631,21 +1646,56 @@ function mkStr(part, lot, qty, unit, rolls, ref, po) {
 
 /* ═══════════════ LIVE PREVIEW ═══════════════ */
 function preview() {
-  const isFG  = document.getElementById('f-type').value === 'FG';
+  const isFG  = document.getElementById('f-type').value.startsWith('FG');
   const isStk = labelSize() === 'stk';
+  const mode  = document.getElementById('f-mode').value;
+  
   const co    = fv('f-co'), part = fv('f-part'), lot = fv('f-lot');
-  const qty   = fv('f-qty'), unit = fv('f-unit');
-  const rolls = fv('f-rolls') || '1', packs = fv('f-packs') || '1';
+  const unit  = fv('f-unit');
   const name  = document.getElementById('f-name').value;
   const sup   = fv('f-sup'), cust = fv('f-cust'), mc = fv('f-mc'), ref = fv('f-ref'), po = fv('f-po');
   
   if (co) localStorage.setItem(KEY_CO, co);
-  const str = mkStr(part, lot, qty, unit, isFG ? packs : rolls, ref, po);
+  
+  // จัดการลอจิก Preview แยกตาม Mode
+  let qtyToPrint = fv('f-qty');
+  let bcRollsNum = isFG ? fv('f-packs') : fv('f-rolls');
+  let packStr = bcRollsNum;
+  let rollStr = bcRollsNum;
+  let previewLot = lot;
+
+  if (mode === 'custom') {
+    const weights = getCustomWeights();
+    const sum = weights.reduce((a, b) => a + b, 0);
+    document.getElementById('custom-qty-summary').innerHTML = `รวม <strong>${weights.length}</strong> รายการ — ยอดรวม: <strong>${sum.toFixed(2)}</strong>`;
+    
+    if (weights.length > 0) {
+      qtyToPrint = String(weights[0]);
+      bcRollsNum = 1;
+      rollStr = `ม้วน 1/${weights.length}`;
+      packStr = `แพ็ค 1/${weights.length}`;
+      previewLot = lot ? `${lot}-${isFG ? 'P1' : 'R1'}` : (isFG ? 'P1' : 'R1');
+    } else {
+      qtyToPrint = '0';
+      bcRollsNum = 1;
+      rollStr = '—';
+      packStr = '—';
+    }
+  } else if (mode === 'split' && parseInt(bcRollsNum) > 1) {
+    const splitN = parseInt(bcRollsNum);
+    qtyToPrint = (parseFloat(fv('f-qty')) / splitN).toFixed(3);
+    bcRollsNum = 1;
+    rollStr = `ม้วน 1/${splitN}`;
+    packStr = `แพ็ค 1/${splitN}`;
+    previewLot = lot ? `${lot}-${isFG ? 'P1' : 'R1'}` : (isFG ? 'P1' : 'R1');
+  }
+
+  const str = mkStr(part, previewLot, qtyToPrint, unit, bcRollsNum, ref, po);
   
   /* Mini template */
   tx('p-co',   co || 'Company'); tx('p-name', name || '—'); tx('p-part', part || '—');
-  tx('p-lot',  lot || '—'); tx('p-qty', qty || '0'); tx('p-unit', unit);
-  tx('p-roll', rolls); tx('p-pack', packs);
+  tx('p-lot',  previewLot || '—'); tx('p-qty', qtyToPrint || '0'); tx('p-unit', unit);
+  tx('p-roll', rollStr); tx('p-pack', packStr);
   tx('p-sup',  sup || '—');
   tx('p-cust', cust || '—');
   tx('p-mc', mc || '—');
@@ -1657,9 +1707,9 @@ function preview() {
   
   /* Sticker template */
   tx('s-co',   co || 'Company'); tx('s-name', name || '—'); tx('s-part', part || '—');
-  tx('s-lot',  lot || '—');
-  document.getElementById('s-qty').innerHTML = `${qty || '0'} <span class="sc-unit">${unit}</span>`;
-  tx('s-roll', rolls); tx('s-pack', packs);
+  tx('s-lot',  previewLot || '—');
+  document.getElementById('s-qty').innerHTML = `${qtyToPrint || '0'} <span class="sc-unit">${unit}</span>`;
+  tx('s-roll', rollStr); tx('s-pack', packStr);
   tx('s-sup',  sup || '—'); 
   tx('s-cust', cust || '—');
   tx('s-mc', mc || '—'); tx('s-po', po || '—');
@@ -1679,7 +1729,7 @@ function preview() {
 function uid() { return '_' + Math.random().toString(36).slice(2, 10) + Date.now(); }
 
 function collectLabels() {
-  const isFG   = document.getElementById('f-type').value === 'FG';
+  const isFG   = document.getElementById('f-type').value.startsWith('FG');
   const lsize  = labelSize();
   const pmode  = PRINT_MODE;
   const mode   = fv('f-mode');
@@ -1687,32 +1737,43 @@ function collectLabels() {
   const type   = fv('f-type');
   const code   = codeType();
   const part   = fv('f-part'), baseLot = fv('f-lot');
-  const totQty = parseFloat(fv('f-qty')) || 0;
   const unit   = fv('f-unit');
-  const rollsN = parseInt(fv('f-rolls')) || 1;
-  const packsN = parseInt(fv('f-packs')) || 1;
-  const splitN = isFG ? packsN : rollsN;
   const sup    = fv('f-sup'), cust = fv('f-cust'), ref = fv('f-ref'), po = fv('f-po'), mc = fv('f-mc');
   const name   = document.getElementById('f-name').value;
   const qid    = uid();
   const labels = [];
   
-  if (mode === 'split' && splitN > 1) {
-    const baseQty  = Math.floor(totQty / splitN);
-    const remainder = Math.round(totQty - (baseQty * splitN));
-    for (let i = 1; i <= splitN; i++) {
-      const qtyPer = String(baseQty + (i <= remainder ? 1 : 0));
-      const lot   = baseLot;
-      const disp  = isFG ? `แพ็ค ${i}/${splitN}` : `ม้วน ${i}/${splitN}`;
-      const suffix = isFG ? `P${i}` : `R${i}`;
+  if (mode === 'custom') {
+    const weights = getCustomWeights();
+    if (weights.length === 0) return []; // ดักไม่ให้ผ่านถ้าไม่กรอกน้ำหนัก
+    weights.forEach((w, i) => {
+      const qtyPer = String(w);
+      const disp   = isFG ? `แพ็ค ${i+1}/${weights.length}` : `ม้วน ${i+1}/${weights.length}`;
+      const suffix = isFG ? `P${i+1}` : `R${i+1}`;
       const bcLot  = baseLot ? `${baseLot}-${suffix}` : suffix;
-      const bcStr  = mkStr(part, bcLot, qtyPer, unit, i, ref, po);
-      labels.push({ _id: uid(), _qid: qid, lsize, pmode, co, type, code, part, lot, qty: qtyPer, unit, rolls: disp, pack: disp, sup, cust, ref, po, mc, name, bcStr, date: TODAY });
-    }
+      const bcStr  = mkStr(part, bcLot, qtyPer, unit, i+1, ref, po);
+      labels.push({ _id: uid(), _qid: qid, lsize, pmode, co, type, code, part, lot: bcLot, qty: qtyPer, unit, rolls: disp, pack: disp, sup, cust, ref, po, mc, name, bcStr, date: TODAY });
+    });
   } else {
-    const bcStr = mkStr(part, baseLot, totQty, unit, isFG ? packsN : rollsN, ref, po);
-    const disp  = isFG ? String(packsN) : String(rollsN);
-    labels.push({ _id: uid(), _qid: qid, lsize, pmode, co, type, code, part, lot: baseLot, qty: String(totQty), unit, rolls: disp, pack: disp, sup, cust, ref, po, mc, name, bcStr, date: TODAY });
+    const totQty = parseFloat(fv('f-qty')) || 0;
+    const splitN = isFG ? (parseInt(fv('f-packs')) || 1) : (parseInt(fv('f-rolls')) || 1);
+    
+    if (mode === 'split' && splitN > 1) {
+      const baseQty  = Math.floor(totQty / splitN);
+      const remainder = Math.round(totQty - (baseQty * splitN));
+      for (let i = 1; i <= splitN; i++) {
+        const qtyPer = String(baseQty + (i <= remainder ? 1 : 0));
+        const disp   = isFG ? `แพ็ค ${i}/${splitN}` : `ม้วน ${i}/${splitN}`;
+        const suffix = isFG ? `P${i}` : `R${i}`;
+        const bcLot  = baseLot ? `${baseLot}-${suffix}` : suffix;
+        const bcStr  = mkStr(part, bcLot, qtyPer, unit, i, ref, po);
+        labels.push({ _id: uid(), _qid: qid, lsize, pmode, co, type, code, part, lot: bcLot, qty: qtyPer, unit, rolls: disp, pack: disp, sup, cust, ref, po, mc, name, bcStr, date: TODAY });
+      }
+    } else {
+      const bcStr = mkStr(part, baseLot, totQty, unit, splitN, ref, po);
+      const disp  = String(splitN);
+      labels.push({ _id: uid(), _qid: qid, lsize, pmode, co, type, code, part, lot: baseLot, qty: String(totQty), unit, rolls: disp, pack: disp, sup, cust, ref, po, mc, name, bcStr, date: TODAY });
+    }
   }
   return labels;
 }
@@ -1720,7 +1781,10 @@ function collectLabels() {
 /* ═══════════════ QUEUE OPERATIONS ═══════════════ */
 function addToQueue() {
   const labels = collectLabels();
-  if (!labels[0].part) { showToast('⚠️ กรุณาใส่ Part No.'); return; }
+  if (labels.length === 0 && fv('f-mode') === 'custom') {
+     showToast('⚠️ กรุณาระบุน้ำหนักให้ถูกต้อง'); return; 
+  }
+  if (!labels[0] || !labels[0].part) { showToast('⚠️ กรุณาใส่ Part No.'); return; }
 
   if (EDIT_QID !== null) {
     const insertAt = QUEUE.findIndex(l => l._qid === EDIT_QID);
@@ -1745,11 +1809,14 @@ function editItem(qid) {
   document.getElementById('f-co').value   = lbl.co;
   document.getElementById('f-type').value = lbl.type;
   document.getElementById('f-part').value = lbl.part;
-  document.getElementById('f-lot').value  = lbl.lot;
+  
+  // ตรวจจับ Base Lot ที่ถูกฝัง P1, R1 เข้าไป เพื่อดึงกลับมาแสดงแบบคลีนๆ
+  let cleanLot = lbl.lot || '';
+  if (cleanLot.match(/-(P|R)\d+$/)) cleanLot = cleanLot.replace(/-(P|R)\d+$/, '');
+  document.getElementById('f-lot').value  = cleanLot;
+  
   document.getElementById('f-name').value = lbl.name || '';
   if (lbl.name) { document.getElementById('f-name').classList.add('name-ok'); document.getElementById('afbadge').style.display = 'inline'; }
-  const cnt = items.length;
-  document.getElementById('f-qty').value   = String(Math.round(parseFloat(lbl.qty) * cnt));
   document.getElementById('f-unit').value  = lbl.unit;
   
   document.getElementById('f-sup').value   = lbl.sup || '';
@@ -1761,11 +1828,28 @@ function editItem(qid) {
   document.getElementById('f-po').value    = lbl.po  || '';
   document.getElementById('f-mc').value    = lbl.mc  || '';
   
+  const cnt = items.length;
   const isMulti = cnt > 1;
-  if (lbl.type === 'FG') { document.getElementById('f-packs').value = isMulti ? cnt : (parseInt(lbl.pack) || 1); }
-  else { document.getElementById('f-rolls').value = isMulti ? cnt : (parseInt(lbl.rolls) || 1); }
+  const qtys = items.map(i => parseFloat(i.qty));
+  const allEqual = qtys.every(q => q === qtys[0]);
+
+  // คืนค่า Mode ให้ตรงกับประวัติการสร้าง
+  if (isMulti && !allEqual) {
+    document.getElementById('f-mode').value = 'custom';
+    document.getElementById('f-custom-qty').value = qtys.join('\n');
+    document.getElementById('f-qty').value = '0'; 
+  } else if (isMulti) {
+    document.getElementById('f-mode').value = 'split';
+    document.getElementById('f-qty').value = String(Math.round(parseFloat(lbl.qty) * cnt * 1000) / 1000); 
+    if (lbl.type.startsWith('FG')) document.getElementById('f-packs').value = cnt;
+    else document.getElementById('f-rolls').value = cnt;
+  } else {
+    document.getElementById('f-mode').value = 'single';
+    document.getElementById('f-qty').value = lbl.qty;
+    if (lbl.type.startsWith('FG')) document.getElementById('f-packs').value = 1;
+    else document.getElementById('f-rolls').value = 1;
+  }
   
-  document.getElementById('f-mode').value = isMulti ? 'split' : 'single';
   document.getElementById(lbl.code === 'qr' ? 'c-qr' : 'c-bc').checked = true;
   document.getElementById(lbl.lsize === 'stk' ? 'ls-stk' : 'ls-mini').checked = true;
   
@@ -1853,6 +1937,11 @@ function renderQueue() {
     const isEdit  = lbl._qid === EDIT_QID;
     const isFirst = !seenQid.has(lbl._qid);
     if (isFirst) seenQid.add(lbl._qid);
+    
+    let shortType = lbl.type;
+    if (shortType === 'FG-Tray') shortType = 'FG (Tray)';
+    if (shortType === 'FG-Trade') shortType = 'FG (Trade)';
+
     html += `<div class="qrow${isEdit ? ' editing' : ''}">
       <div class="qrow-num">${i + 1}</div>
       <div class="qrow-info">
@@ -1861,7 +1950,7 @@ function renderQueue() {
           <span>${esc(lbl.part || '—')}</span>·
           <span>Lot: ${esc(lbl.lot || '—')}</span>·
           <span>${esc(lbl.qty)} ${esc(lbl.unit)}</span>
-          <span class="qtag ${lbl.type.toLowerCase()}">${lbl.type}</span>
+          <span class="qtag ${lbl.type.startsWith('FG') ? 'fg' : 'rm'}">${shortType}</span>
           ${lbl.pmode === 'thermal' ? '<span class="qtag thermal">🔖 Thermal</span>' : (lbl.lsize === 'stk' ? '<span class="qtag stk">A4·100×50</span>' : '')}
           <span style="font-size:9px;color:${lbl.code === 'qr' ? 'var(--purple)' : 'var(--blue)'}">${lbl.code === 'qr' ? '⊞QR' : '▌BC'}</span>
         </div>
@@ -1891,6 +1980,8 @@ function resetFormPartial() {
   document.getElementById('f-qty').value   = '500';
   document.getElementById('f-rolls').value = '1';
   document.getElementById('f-packs').value = '1';
+  document.getElementById('f-custom-qty').value = '';
+  document.getElementById('custom-qty-summary').innerHTML = 'รวม <strong>0</strong> รายการ — ยอดรวม: <strong>0.00</strong>';
   
   document.getElementById('f-sup').value   = '';
   document.getElementById('f-sup').classList.remove('sup-ok');
@@ -1990,7 +2081,7 @@ function buildMiniPages(pa, items, qrTodo) {
     slice.forEach((lbl, j) => {
       const clone = document.getElementById('lcard-tpl').cloneNode(true);
       clone.id = `pm-${p}-${j}`;
-      const isFG = lbl.type === 'FG';
+      const isFG = lbl.type.startsWith('FG');
       clone.querySelector('#p-co').textContent    = lbl.co;
       clone.querySelector('#p-name').textContent  = lbl.name  || '—';
       clone.querySelector('#p-part').textContent  = lbl.part  || '—';
@@ -2008,7 +2099,11 @@ function buildMiniPages(pa, items, qrTodo) {
       clone.querySelector('#p-date').textContent  = lbl.date  || TODAY;
       clone.querySelector('#p-bclbl').textContent = lbl.bcStr || '—';
       clone.querySelector('#p-codetype').textContent = lbl.code === 'qr' ? 'QR CODE' : 'BARCODE';
-      clone.querySelector('#p-badge').textContent = `QC · ${lbl.type}`;
+      
+      let shortType = lbl.type;
+      if (shortType === 'FG-Tray') shortType = 'FG (Tray)';
+      if (shortType === 'FG-Trade') shortType = 'FG (Trade)';
+      clone.querySelector('#p-badge').textContent = `QC · ${shortType}`;
       clone.querySelector('#p-badge').className   = 'lbadge' + (isFG ? ' fg' : '');
       clone.querySelector('#pw-roll').style.display = isFG ? 'none' : '';
       clone.querySelector('#pw-pack').style.display = 'none';
@@ -2059,9 +2154,13 @@ function buildThermalPages(pa, items, qrTodo) {
 function fillStickerClone(lbl, idPrefix, qrTodo, qrSize) {
   const clone = document.getElementById('scard-tpl').cloneNode(true);
   clone.id    = `sc-${idPrefix}`;
-  const isFG  = lbl.type === 'FG';
+  const isFG  = lbl.type.startsWith('FG');
   clone.querySelector('#s-co').textContent    = lbl.co;
-  clone.querySelector('#s-badge').textContent = `QC · ${lbl.type}`;
+  
+  let shortType = lbl.type;
+  if (shortType === 'FG-Tray') shortType = 'FG (Tray)';
+  if (shortType === 'FG-Trade') shortType = 'FG (Trade)';
+  clone.querySelector('#s-badge').textContent = `QC · ${shortType}`;
   clone.querySelector('#s-badge').className   = 'sc-badge' + (isFG ? ' fg' : '');
   clone.querySelector('#s-name').textContent  = lbl.name  || '—';
   clone.querySelector('#s-part').textContent  = lbl.part  || '—';
