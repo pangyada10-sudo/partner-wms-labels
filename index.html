@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Universal Label System — WMS V6.5</title>
+<title>Universal Label System — WMS V6.6</title>
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
@@ -499,8 +499,8 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
     <div class="mfg"><label>ประเภท</label>
       <select id="m-type" onchange="onModalTypeChange()">
         <option value="RM">📥 วัตถุดิบ (RM)</option>
-        <option value="FG-Tray">📦 FG (ถาดพลาสติก)</option>
-        <option value="FG-Trade">📦 FG (ซื้อมาขายไป)</option>
+        <option value="FG-Tray">📦 FG (สินค้าสำเร็จรูป)</option>
+        <option value="FG-Trade">📦 Resell (ซื้อมาขายไป)</option>
       </select>
     </div>
     <div class="mfg"><label id="m-sup-lbl">ชื่อบริษัท (Supplier)</label>
@@ -525,7 +525,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
 
 <div class="hdr">
   <div class="hdr-logo">Universal <span>Label System</span></div>
-  <div class="hdr-ver">v6.5</div>
+  <div class="hdr-ver">v6.6</div>
   <div class="hdr-ds" onclick="goSettings()" title="ตั้งค่าแหล่งข้อมูล">
     <div class="dot" id="hdr-dot"></div>
     <span id="hdr-ds-lbl">ไม่ได้เชื่อมต่อ</span>
@@ -639,8 +639,8 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       <!-- อัปเดต: แยกประเภท FG -->
       <select id="f-type" onchange="applyTypeUI(true)">
         <option value="RM">📥 วัตถุดิบ (RM)</option>
-        <option value="FG-Tray">📦 FG (ถาดพลาสติก)</option>
-        <option value="FG-Trade">📦 FG (ซื้อมาขายไป)</option>
+        <option value="FG-Tray">📦 FG (สินค้าสำเร็จรูป)</option>
+        <option value="FG-Trade">📦 Resell (ซื้อมาขายไป)</option>
       </select>
     </div>
 
@@ -990,6 +990,22 @@ const KEY_FS       = 'wms_fs_v65';
 const PER_PAGE_MINI = 15;
 const PER_PAGE_STK  = 10;
 
+/* ═══════ LABEL POLICY (แก้จุดเดียว มีผลทั้งระบบ) ═══════ */
+/* ชื่อที่จะโชว์บนป้าย / badge / คิว  — ค่า value ภายในยังเป็น FG-Tray / FG-Trade เหมือนเดิม */
+const TYPE_LABEL = { 'RM': 'RM', 'FG-Tray': 'FG', 'FG-Trade': 'Resell' };
+function typeLabel(t) { return TYPE_LABEL[t] || t || '—'; }
+
+/* นโยบายต่อท้าย Lot:  FG/Resell = ไม่ต่อท้าย (ไม่ขึ้น -P1 -P2 -P3)
+                        RM        = ต่อท้าย -R1 -R2 ... ตามเดิม
+   ถ้าต้องการให้ FG กลับมามี -P ให้เปลี่ยน fg: false เป็น true */
+const ADD_LOT_SUFFIX = { fg: false, rm: true };
+function lotSuffix(baseLot, isFG, idx) {
+  const use = isFG ? ADD_LOT_SUFFIX.fg : ADD_LOT_SUFFIX.rm;
+  if (!use) return baseLot;
+  const sfx = `${isFG ? 'P' : 'R'}${idx}`;
+  return baseLot ? `${baseLot}-${sfx}` : sfx;
+}
+
 const TODAY = new Date().toLocaleDateString('en-GB');
 /* ── State ── */
 let GS    = [];
@@ -1298,11 +1314,13 @@ function parseCSV(csv) {
     let type = 'RM';
     const rawType = cl(c[2]).toUpperCase();
     if (rawType.includes('FG')) {
-      if (rawType.includes('TRADE') || rawType.includes('ซื้อมาขายไป')) {
+      if (rawType.includes('TRADE') || rawType.includes('RESELL') || rawType.includes('ซื้อมาขายไป')) {
         type = 'FG-Trade';
       } else {
         type = 'FG-Tray';
       }
+    } else if (rawType.includes('RESELL')) {
+      type = 'FG-Trade';
     } else if (rawType === 'FG-TRAY') {
       type = 'FG-Tray';
     } else if (rawType === 'FG-TRADE') {
@@ -1588,9 +1606,7 @@ function applyTypeUI(doPreview = true) {
   document.getElementById('po-hidden-note').style.display = isFG ? 'block' : 'none';
 
   // ปรับชื่อย่อบนป้าย Badge
-  let shortType = typeVal;
-  if (typeVal === 'FG-Tray') shortType = 'FG (Tray)';
-  if (typeVal === 'FG-Trade') shortType = 'FG (Trade)';
+  const shortType = typeLabel(typeVal);
 
   const badgeText = `QC · ${shortType}`;
   document.getElementById('p-badge').textContent = badgeText;
@@ -1674,7 +1690,7 @@ function preview() {
       bcRollsNum = 1;
       rollStr = `ม้วน 1/${weights.length}`;
       packStr = `แพ็ค 1/${weights.length}`;
-      previewLot = lot ? `${lot}-${isFG ? 'P1' : 'R1'}` : (isFG ? 'P1' : 'R1');
+      previewLot = lotSuffix(lot, isFG, 1);
     } else {
       qtyToPrint = '0';
       bcRollsNum = 1;
@@ -1687,7 +1703,7 @@ function preview() {
     bcRollsNum = 1;
     rollStr = `ม้วน 1/${splitN}`;
     packStr = `แพ็ค 1/${splitN}`;
-    previewLot = lot ? `${lot}-${isFG ? 'P1' : 'R1'}` : (isFG ? 'P1' : 'R1');
+    previewLot = lotSuffix(lot, isFG, 1);
   }
 
   const str = mkStr(part, previewLot, qtyToPrint, unit, bcRollsNum, ref, po);
@@ -1749,8 +1765,7 @@ function collectLabels() {
     weights.forEach((w, i) => {
       const qtyPer = String(w);
       const disp   = isFG ? `แพ็ค ${i+1}/${weights.length}` : `ม้วน ${i+1}/${weights.length}`;
-      const suffix = isFG ? `P${i+1}` : `R${i+1}`;
-      const bcLot  = baseLot ? `${baseLot}-${suffix}` : suffix;
+      const bcLot  = lotSuffix(baseLot, isFG, i + 1);
       const bcStr  = mkStr(part, bcLot, qtyPer, unit, i+1, ref, po);
       labels.push({ _id: uid(), _qid: qid, lsize, pmode, co, type, code, part, lot: bcLot, qty: qtyPer, unit, rolls: disp, pack: disp, sup, cust, ref, po, mc, name, bcStr, date: TODAY });
     });
@@ -1764,8 +1779,7 @@ function collectLabels() {
       for (let i = 1; i <= splitN; i++) {
         const qtyPer = String(baseQty + (i <= remainder ? 1 : 0));
         const disp   = isFG ? `แพ็ค ${i}/${splitN}` : `ม้วน ${i}/${splitN}`;
-        const suffix = isFG ? `P${i}` : `R${i}`;
-        const bcLot  = baseLot ? `${baseLot}-${suffix}` : suffix;
+        const bcLot  = lotSuffix(baseLot, isFG, i);
         const bcStr  = mkStr(part, bcLot, qtyPer, unit, i, ref, po);
         labels.push({ _id: uid(), _qid: qid, lsize, pmode, co, type, code, part, lot: bcLot, qty: qtyPer, unit, rolls: disp, pack: disp, sup, cust, ref, po, mc, name, bcStr, date: TODAY });
       }
@@ -1938,9 +1952,7 @@ function renderQueue() {
     const isFirst = !seenQid.has(lbl._qid);
     if (isFirst) seenQid.add(lbl._qid);
     
-    let shortType = lbl.type;
-    if (shortType === 'FG-Tray') shortType = 'FG (Tray)';
-    if (shortType === 'FG-Trade') shortType = 'FG (Trade)';
+    const shortType = typeLabel(lbl.type);
 
     html += `<div class="qrow${isEdit ? ' editing' : ''}">
       <div class="qrow-num">${i + 1}</div>
@@ -2100,9 +2112,7 @@ function buildMiniPages(pa, items, qrTodo) {
       clone.querySelector('#p-bclbl').textContent = lbl.bcStr || '—';
       clone.querySelector('#p-codetype').textContent = lbl.code === 'qr' ? 'QR CODE' : 'BARCODE';
       
-      let shortType = lbl.type;
-      if (shortType === 'FG-Tray') shortType = 'FG (Tray)';
-      if (shortType === 'FG-Trade') shortType = 'FG (Trade)';
+      const shortType = typeLabel(lbl.type);
       clone.querySelector('#p-badge').textContent = `QC · ${shortType}`;
       clone.querySelector('#p-badge').className   = 'lbadge' + (isFG ? ' fg' : '');
       clone.querySelector('#pw-roll').style.display = isFG ? 'none' : '';
@@ -2157,9 +2167,7 @@ function fillStickerClone(lbl, idPrefix, qrTodo, qrSize) {
   const isFG  = lbl.type.startsWith('FG');
   clone.querySelector('#s-co').textContent    = lbl.co;
   
-  let shortType = lbl.type;
-  if (shortType === 'FG-Tray') shortType = 'FG (Tray)';
-  if (shortType === 'FG-Trade') shortType = 'FG (Trade)';
+  const shortType = typeLabel(lbl.type);
   clone.querySelector('#s-badge').textContent = `QC · ${shortType}`;
   clone.querySelector('#s-badge').className   = 'sc-badge' + (isFG ? ' fg' : '');
   clone.querySelector('#s-name').textContent  = lbl.name  || '—';
