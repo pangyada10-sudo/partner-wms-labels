@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Universal Label System — WMS V6.6</title>
+<title>Universal Label System — WMS V6.7</title>
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
@@ -525,7 +525,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
 
 <div class="hdr">
   <div class="hdr-logo">Universal <span>Label System</span></div>
-  <div class="hdr-ver">v6.6</div>
+  <div class="hdr-ver">v6.7</div>
   <div class="hdr-ds" onclick="goSettings()" title="ตั้งค่าแหล่งข้อมูล">
     <div class="dot" id="hdr-dot"></div>
     <span id="hdr-ds-lbl">ไม่ได้เชื่อมต่อ</span>
@@ -995,12 +995,15 @@ const PER_PAGE_STK  = 10;
 const TYPE_LABEL = { 'RM': 'RM', 'FG-Tray': 'FG', 'FG-Trade': 'Resell' };
 function typeLabel(t) { return TYPE_LABEL[t] || t || '—'; }
 
-/* นโยบายต่อท้าย Lot:  FG/Resell = ไม่ต่อท้าย (ไม่ขึ้น -P1 -P2 -P3)
-                        RM        = ต่อท้าย -R1 -R2 ... ตามเดิม
-   ถ้าต้องการให้ FG กลับมามี -P ให้เปลี่ยน fg: false เป็น true */
-const ADD_LOT_SUFFIX = { fg: false, rm: true };
-function lotSuffix(baseLot, isFG, idx) {
-  const use = isFG ? ADD_LOT_SUFFIX.fg : ADD_LOT_SUFFIX.rm;
+/* ═══ นโยบาย Lot (v6.7) — แยก 2 ชั้น ═══
+   • Lot ที่ "พิมพ์บนป้าย"   = Lot ล้วน ไม่มี -P1/-P2/-R1  ← ตามที่ขอ
+   • Lot ที่ "ฝังในบาร์โค้ด" = Lot-P1 / Lot-R1 ...          ← WFP System ใช้เป็นรหัสแพ็ค/ม้วน
+   WFP (parseBarcodeString) จะตัด suffix ออกเองตอนแสดงผล + เขียนลง Sheet
+   จึงเห็น Lot สะอาดทั้งสองระบบ แต่ยังแยกแพ็คได้ ไม่เตือน "รายการซ้ำ"
+   ⚠ ถ้าปิด (false) WFP จะแยกแพ็คไม่ออก และเตือนซ้ำผิดพลาด */
+const BC_LOT_SUFFIX = { fg: true, rm: true };
+function bcLot(baseLot, isFG, idx) {
+  const use = isFG ? BC_LOT_SUFFIX.fg : BC_LOT_SUFFIX.rm;
   if (!use) return baseLot;
   const sfx = `${isFG ? 'P' : 'R'}${idx}`;
   return baseLot ? `${baseLot}-${sfx}` : sfx;
@@ -1678,7 +1681,8 @@ function preview() {
   let bcRollsNum = isFG ? fv('f-packs') : fv('f-rolls');
   let packStr = bcRollsNum;
   let rollStr = bcRollsNum;
-  let previewLot = lot;
+  let previewLot = lot;      // Lot ที่โชว์บนป้าย (สะอาดเสมอ)
+  let bcLotPrev  = lot;      // Lot ที่ฝังในบาร์โค้ด (มี -P1/-R1)
 
   if (mode === 'custom') {
     const weights = getCustomWeights();
@@ -1690,7 +1694,7 @@ function preview() {
       bcRollsNum = 1;
       rollStr = `ม้วน 1/${weights.length}`;
       packStr = `แพ็ค 1/${weights.length}`;
-      previewLot = lotSuffix(lot, isFG, 1);
+      bcLotPrev = bcLot(lot, isFG, 1);
     } else {
       qtyToPrint = '0';
       bcRollsNum = 1;
@@ -1703,10 +1707,10 @@ function preview() {
     bcRollsNum = 1;
     rollStr = `ม้วน 1/${splitN}`;
     packStr = `แพ็ค 1/${splitN}`;
-    previewLot = lotSuffix(lot, isFG, 1);
+    bcLotPrev = bcLot(lot, isFG, 1);
   }
 
-  const str = mkStr(part, previewLot, qtyToPrint, unit, bcRollsNum, ref, po);
+  const str = mkStr(part, bcLotPrev, qtyToPrint, unit, bcRollsNum, ref, po);
   
   /* Mini template */
   tx('p-co',   co || 'Company'); tx('p-name', name || '—'); tx('p-part', part || '—');
@@ -1765,9 +1769,8 @@ function collectLabels() {
     weights.forEach((w, i) => {
       const qtyPer = String(w);
       const disp   = isFG ? `แพ็ค ${i+1}/${weights.length}` : `ม้วน ${i+1}/${weights.length}`;
-      const bcLot  = lotSuffix(baseLot, isFG, i + 1);
-      const bcStr  = mkStr(part, bcLot, qtyPer, unit, i+1, ref, po);
-      labels.push({ _id: uid(), _qid: qid, lsize, pmode, co, type, code, part, lot: bcLot, qty: qtyPer, unit, rolls: disp, pack: disp, sup, cust, ref, po, mc, name, bcStr, date: TODAY });
+      const bcStr  = mkStr(part, bcLot(baseLot, isFG, i + 1), qtyPer, unit, i+1, ref, po);
+      labels.push({ _id: uid(), _qid: qid, lsize, pmode, co, type, code, part, lot: baseLot, qty: qtyPer, unit, rolls: disp, pack: disp, sup, cust, ref, po, mc, name, bcStr, date: TODAY });
     });
   } else {
     const totQty = parseFloat(fv('f-qty')) || 0;
@@ -1779,9 +1782,8 @@ function collectLabels() {
       for (let i = 1; i <= splitN; i++) {
         const qtyPer = String(baseQty + (i <= remainder ? 1 : 0));
         const disp   = isFG ? `แพ็ค ${i}/${splitN}` : `ม้วน ${i}/${splitN}`;
-        const bcLot  = lotSuffix(baseLot, isFG, i);
-        const bcStr  = mkStr(part, bcLot, qtyPer, unit, i, ref, po);
-        labels.push({ _id: uid(), _qid: qid, lsize, pmode, co, type, code, part, lot: bcLot, qty: qtyPer, unit, rolls: disp, pack: disp, sup, cust, ref, po, mc, name, bcStr, date: TODAY });
+        const bcStr  = mkStr(part, bcLot(baseLot, isFG, i), qtyPer, unit, i, ref, po);
+        labels.push({ _id: uid(), _qid: qid, lsize, pmode, co, type, code, part, lot: baseLot, qty: qtyPer, unit, rolls: disp, pack: disp, sup, cust, ref, po, mc, name, bcStr, date: TODAY });
       }
     } else {
       const bcStr = mkStr(part, baseLot, totQty, unit, splitN, ref, po);
