@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Universal Label System — WMS V6.7</title>
+<title>Universal Label System — WMS V6.9</title>
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
@@ -514,6 +514,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
         <option value="Kgs">Kgs</option><option value="Pcs">Pcs</option>
         <option value="Rolls">Rolls</option><option value="ม้วน">ม้วน</option>
         <option value="ชิ้น">ชิ้น</option><option value="กล่อง">กล่อง</option>
+        <option value="Set">Set</option>
       </select>
     </div>
     <div class="macts">
@@ -525,7 +526,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
 
 <div class="hdr">
   <div class="hdr-logo">Universal <span>Label System</span></div>
-  <div class="hdr-ver">v6.7</div>
+  <div class="hdr-ver">v6.9</div>
   <div class="hdr-ds" onclick="goSettings()" title="ตั้งค่าแหล่งข้อมูล">
     <div class="dot" id="hdr-dot"></div>
     <span id="hdr-ds-lbl">ไม่ได้เชื่อมต่อ</span>
@@ -617,7 +618,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
       </div>
       <div class="fs-row">
         <button class="fs-btn" onclick="changeFontScale(-0.05)" title="เล็กลง">−</button>
-        <input type="range" class="fs-slider" id="fs-slider" min="0.7" max="1.4" step="0.05" value="1" oninput="setFontScale(this.value)">
+        <input type="range" class="fs-slider" id="fs-slider" min="0.7" max="2" step="0.05" value="1" oninput="setFontScale(this.value)">
         <button class="fs-btn" onclick="changeFontScale(0.05)" title="ใหญ่ขึ้น">+</button>
       </div>
       <div class="fs-presets">
@@ -626,6 +627,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
         <button class="fs-pre active" data-fs="1.0" onclick="setFontScale(1.0)">M<br><span style="font-size:8px;font-weight:400;opacity:.7">100%</span></button>
         <button class="fs-pre" data-fs="1.15" onclick="setFontScale(1.15)">L<br><span style="font-size:8px;font-weight:400;opacity:.7">115%</span></button>
         <button class="fs-pre" data-fs="1.3" onclick="setFontScale(1.3)">XL<br><span style="font-size:8px;font-weight:400;opacity:.7">130%</span></button>
+        <button class="fs-pre" data-fs="1.6" onclick="setFontScale(1.6)">XXL<br><span style="font-size:8px;font-weight:400;opacity:.7">160%</span></button>
       </div>
     </div>
 
@@ -705,6 +707,7 @@ mark.hl{background:#fef9c3;border-radius:2px;padding:0}
           <option value="Kgs">Kgs</option><option value="ม้วน">ม้วน</option>
           <option value="ชิ้น">ชิ้น</option><option value="Pcs">Pcs</option>
           <option value="Rolls">Rolls</option><option value="กล่อง">กล่อง</option>
+          <option value="Set">Set</option>
         </select>
       </div>
     </div>
@@ -993,6 +996,16 @@ const PER_PAGE_STK  = 10;
 /* ═══════ LABEL POLICY (แก้จุดเดียว มีผลทั้งระบบ) ═══════ */
 /* ชื่อที่จะโชว์บนป้าย / badge / คิว  — ค่า value ภายในยังเป็น FG-Tray / FG-Trade เหมือนเดิม */
 const TYPE_LABEL = { 'RM': 'RM', 'FG-Tray': 'FG', 'FG-Trade': 'Resell' };
+
+/* เลือกหน่วยใน dropdown — ถ้ายังไม่มีตัวเลือกนั้น (เช่นหน่วยใหม่ที่เพิ่งเพิ่มในมาสเตอร์)
+   ให้เพิ่มเข้าไปเองอัตโนมัติ จะได้ไม่ต้องแก้โค้ดทุกครั้งที่เพิ่มหน่วยใหม่ */
+function setUnit(sel, unit) {
+  const val = String(unit || '').trim(); if (!sel || !val) return;
+  if (![...sel.options].some(o => o.value === val)) {
+    const op = document.createElement('option'); op.value = val; op.textContent = val; sel.appendChild(op);
+  }
+  sel.value = val;
+}
 function typeLabel(t) { return TYPE_LABEL[t] || t || '—'; }
 
 /* ═══ นโยบาย Lot (v6.7) — แยก 2 ชั้น ═══
@@ -1109,10 +1122,9 @@ function selDpi(el) {
 function applyScaleToLabel(el, scale) {
   el.style.zoom = ''; 
   const S = (sel, base) => el.querySelectorAll(sel).forEach(c => {
-    let newSize = base * scale;
-    if (scale > 1.15) {
-       newSize = base * 1.25; 
-    }
+    /* v6.9 — เดิมมีเพดานล็อกไว้ที่ 1.25 เท่า ทำให้กด XL หรือลากสุดสเกล
+       แล้วตัวหนังสือไม่ใหญ่ขึ้นจริง ตอนนี้ขยายตามสเกลที่เลือกตรง ๆ */
+    const newSize = base * scale;
     c.style.fontSize = newSize.toFixed(1) + 'px';
     c.style.lineHeight = (newSize * 1.35).toFixed(1) + 'px';
   });
@@ -1137,13 +1149,13 @@ function applyScaleToLabel(el, scale) {
 }
 
 function setFontScale(val) {
-  FONT_SCALE = Math.max(0.7, Math.min(1.4, parseFloat(val)));
+  FONT_SCALE = Math.max(0.7, Math.min(2.0, parseFloat(val)));
   localStorage.setItem(KEY_FS, FONT_SCALE);
   const slider = document.getElementById('fs-slider');
   const pctEl  = document.getElementById('fs-pct');
   if (slider) {
     slider.value = FONT_SCALE;
-    const pct = ((FONT_SCALE - 0.7) / (1.4 - 0.7) * 100).toFixed(1);
+    const pct = ((FONT_SCALE - 0.7) / (2.0 - 0.7) * 100).toFixed(1);
     slider.style.setProperty('--pct', pct + '%');
   }
   if (pctEl) pctEl.textContent = Math.round(FONT_SCALE * 100) + '%';
@@ -1151,7 +1163,7 @@ function setFontScale(val) {
   const stk  = document.getElementById('scard-tpl');
   if (mini) applyScaleToLabel(mini, FONT_SCALE);
   if (stk)  applyScaleToLabel(stk,  FONT_SCALE);
-  const presets = [0.75, 0.85, 1.0, 1.15, 1.3];
+  const presets = [0.75, 0.85, 1.0, 1.15, 1.3, 1.6];
   const nearest = presets.reduce((a, b) => Math.abs(b - FONT_SCALE) < Math.abs(a - FONT_SCALE) ? b : a);
   document.querySelectorAll('.fs-pre').forEach(b => {
     b.classList.toggle('active', Math.abs(parseFloat(b.dataset.fs) - nearest) < 0.001);
@@ -1461,7 +1473,7 @@ function autoFill(p) {
   applyTypeUI(false);
   
   const us = document.getElementById('f-unit');
-  if ([...us.options].map(o => o.value).includes(p.unit)) us.value = p.unit;
+  if (p.unit) setUnit(us, p.unit);
   
   const supEl    = document.getElementById('f-sup');
   const supBadge = document.getElementById('afbadge-sup');
@@ -1833,7 +1845,7 @@ function editItem(qid) {
   
   document.getElementById('f-name').value = lbl.name || '';
   if (lbl.name) { document.getElementById('f-name').classList.add('name-ok'); document.getElementById('afbadge').style.display = 'inline'; }
-  document.getElementById('f-unit').value  = lbl.unit;
+  setUnit(document.getElementById('f-unit'), lbl.unit);
   
   document.getElementById('f-sup').value   = lbl.sup || '';
   SUP_TOUCHED = true;
